@@ -18,6 +18,9 @@ O sistema utiliza uma abordagem de **Microsserviços**, permitindo a independên
 | **Suporte** | *Em breve* |
 | **Genérico** | *Em breve* |
 
+<img src="./DDD_v0.0.1.png">
+<img src="./GraficoCategoriaSubdominio.png">
+
 ---
 
 ## Stack Tecnológica
