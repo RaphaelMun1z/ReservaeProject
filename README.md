@@ -20,6 +20,7 @@ O sistema utiliza uma abordagem de **Microsserviços**, permitindo a independên
 
 <img src="./DDD_v0.0.1.png">
 <img src="./GraficoCategoriaSubdominio.png">
+<img src="./Arquitetura.png">
 
 ---
 
