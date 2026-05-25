@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MatchPass — Jogos</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    body { overflow: auto; }
+    .app-shell { grid-template-columns: var(--sidebar-w) 1fr; }
+    .main-content { grid-column: 2; overflow: auto; }
+  </style>
+</head>
+<body>
+
+<div class="app-shell" style="grid-template-columns:var(--sidebar-w) 1fr; grid-template-rows:var(--nav-h) 1fr;">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-brand">
+      <div class="topbar-brand-mark">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82zM7 7H7.01" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+    <div class="topbar-center">
+      <span class="topbar-wordmark">Match<span>Pass</span></span>
+    </div>
+    <div class="topbar-right">
+      <!-- Notification button -->
+      <div style="position:relative">
+        <button class="topbar-notif" id="notif-btn" aria-label="Notificações" onclick="toggleNotif(event)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/>
+          </svg>
+          <span class="notif-dot" id="notif-dot"></span>
+        </button>
+        <div class="notif-popup" id="notif-popup">
+          <div class="notif-popup-header">
+            <h4>Notificações</h4>
+            <button class="notif-mark-read" onclick="markAllRead()">Marcar tudo como lido</button>
+          </div>
+          <div class="notif-item unread" onclick="markItemRead(this)">
+            <div class="notif-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82zM7 7H7.01"/></svg></div>
+            <div class="notif-body">
+              <div class="notif-title">Seus ingressos foram confirmados para Santos × Real Madrid</div>
+              <div class="notif-time">Há 2 horas</div>
+            </div>
+            <span class="notif-unread-dot"></span>
+          </div>
+          <div class="notif-item unread" onclick="markItemRead(this)">
+            <div class="notif-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+            <div class="notif-body">
+              <div class="notif-title">Novos jogos disponíveis — confira a programação de junho</div>
+              <div class="notif-time">Há 1 dia</div>
+            </div>
+            <span class="notif-unread-dot"></span>
+          </div>
+          <div class="notif-item" onclick="markItemRead(this)">
+            <div class="notif-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+            <div class="notif-body">
+              <div class="notif-title">Lembrete: Santos × Flamengo começa em 3 dias</div>
+              <div class="notif-time">Há 3 dias</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <a class="topbar-avatar" href="perfil.html">
+        <div class="avatar-ring">RM</div>
+        <span class="avatar-name">Rodrigo M.</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- SIDENAV -->
+  <nav class="sidenav">
+    <a class="sidenav-link active" href="jogos.html" data-tip="Jogos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+      </svg>
+    </a>
+    <a class="sidenav-link" href="meus-ingressos.html" data-tip="Meus Ingressos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82zM7 7H7.01"/>
+      </svg>
+    </a>
+    <a class="sidenav-link" href="#" data-tip="Times">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M12 15a7 7 0 100-14 7 7 0 000 14zM8.21 13.89L7 23l5-3 5 3-1.21-9.12"/>
+      </svg>
+    </a>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main-content">
+    <div class="games-page">
+      <h1 class="page-title">Jogos</h1>
+      <p class="games-subtitle">Escolha uma partida para selecionar seus assentos</p>
+
+      <div class="games-filters">
+        <button class="filter-btn active" onclick="filterGames('todos', this)">Todos</button>
+        <button class="filter-btn" onclick="filterGames('esta-semana', this)">Esta semana</button>
+        <button class="filter-btn" onclick="filterGames('maio', this)">Maio</button>
+        <button class="filter-btn" onclick="filterGames('junho', this)">Junho</button>
+        <button class="filter-btn" onclick="filterGames('libertadores', this)">Libertadores</button>
+        <button class="filter-btn" onclick="filterGames('brasileiro', this)">Brasileiro</button>
+      </div>
+
+      <div class="games-grid" id="games-grid"></div>
+    </div>
+  </main>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const GAMES = [
+  {
+    id: 'g1',
+    home: 'Santos FC', away: 'Real Madrid',
+    homeImg: 'Santos_Logo.png', awayImg: 'RealMadrid_Logo.png',
+    competition: 'Amistoso Internacional',
+    date: '20 Mai 2026', time: '19h00',
+    stadium: 'Urbano Caldeira, Santos/SP',
+    minPrice: 80,
+    tags: ['todos', 'maio'],
+    featured: true
+  },
+  {
+    id: 'g2',
+    home: 'Santos FC', away: 'Flamengo',
+    homeImg: 'Santos_Logo.png', awayImg: '',
+    competition: 'Brasileirão Série A',
+    date: '25 Mai 2026', time: '16h00',
+    stadium: 'Urbano Caldeira, Santos/SP',
+    minPrice: 60,
+    tags: ['todos', 'esta-semana', 'maio', 'brasileiro'],
+    featured: false
+  },
+  {
+    id: 'g3',
+    home: 'Santos FC', away: 'Boca Juniors',
+    homeImg: 'Santos_Logo.png', awayImg: '',
+    competition: 'CONMEBOL Libertadores',
+    date: '03 Jun 2026', time: '21h30',
+    stadium: 'Urbano Caldeira, Santos/SP',
+    minPrice: 120,
+    tags: ['todos', 'junho', 'libertadores'],
+    featured: false
+  },
+  {
+    id: 'g4',
+    home: 'Santos FC', away: 'Corinthians',
+    homeImg: 'Santos_Logo.png', awayImg: '',
+    competition: 'Brasileirão Série A',
+    date: '08 Jun 2026', time: '18h30',
+    stadium: 'Urbano Caldeira, Santos/SP',
+    minPrice: 50,
+    tags: ['todos', 'junho', 'brasileiro'],
+    featured: false
+  },
+  {
+    id: 'g5',
+    home: 'Santos FC', away: 'São Paulo FC',
+    homeImg: 'Santos_Logo.png', awayImg: '',
+    competition: 'Brasileirão Série A',
+    date: '14 Jun 2026', time: '20h00',
+    stadium: 'Urbano Caldeira, Santos/SP',
+    minPrice: 55,
+    tags: ['todos', 'junho', 'brasileiro'],
+    featured: false
+  },
+  {
+    id: 'g6',
+    home: 'Santos FC', away: 'Palmeiras',
+    homeImg: 'Santos_Logo.png', awayImg: '',
+    competition: 'Brasileirão Série A',
+    date: '21 Jun 2026', time: '17h00',
+    stadium: 'Urbano Caldeira, Santos/SP',
+    minPrice: 70,
+    tags: ['todos', 'junho', 'brasileiro'],
+    featured: false
+  },
+];
+
+function initials(name) {
+  return name.split(' ').map(w => w[0]).join('').substring(0,2).toUpperCase();
+}
+
+function teamPlaceholder(name, size=44) {
+  const colors = ['#c9a84c','#546e7a','#e64a19','#43a047','#7b1fa2','#1565c0'];
+  let hash = 0; for (let c of name) hash = (hash + c.charCodeAt(0)) % colors.length;
+  return `<div style="width:${size}px;height:${size}px;border-radius:50%;background:${colors[hash]};display:flex;align-items:center;justify-content:center;font-size:${size/3.5}px;font-weight:800;color:#fff;flex-shrink:0">${initials(name)}</div>`;
+}
+
+function teamImg(src, name, size=44) {
+  if (!src) return teamPlaceholder(name, size);
+  return `<img src="${src}" alt="${name}" style="height:${size}px;object-fit:contain" onerror="this.outerHTML=\`${teamPlaceholder(name, size).replace(/`/g,"'")}\`">`;
+}
+
+function renderGames(tag='todos') {
+  const grid = document.getElementById('games-grid');
+  const filtered = GAMES.filter(g => g.tags.includes(tag));
+
+  if (!filtered.length) {
+    grid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:60px 20px;color:var(--muted);font-size:14px">Nenhum jogo encontrado para este filtro.</div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map(g => `
+    <article class="game-card" onclick="goToMap('${g.id}')">
+      <div class="game-card-banner">
+        ${teamImg(g.homeImg, g.home, 48)}
+        <span class="game-card-vs">×</span>
+        ${teamImg(g.awayImg, g.away, 48)}
+      </div>
+      <div class="game-card-body">
+        <div class="game-card-comp">${g.competition}</div>
+        <div class="game-card-teams">${g.home} × ${g.away}</div>
+        <div class="game-card-info">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:3px"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          ${g.date} · ${g.time}<br>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="vertical-align:middle;margin-right:3px"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/></svg>
+          ${g.stadium}
+        </div>
+        <div class="game-card-footer">
+          <div class="game-card-price">A partir de <strong>R$ ${g.minPrice},00</strong></div>
+          <button class="game-card-cta">Comprar</button>
+        </div>
+      </div>
+    </article>
+  `).join('');
+}
+
+function filterGames(tag, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderGames(tag);
+}
+
+function goToMap(gameId) {
+  sessionStorage.setItem('mp_game_id', gameId);
+  window.location.href = 'index.html';
+}
+
+function toggleNotif(e) {
+  e.stopPropagation();
+  document.getElementById('notif-popup').classList.toggle('open');
+}
+
+function markAllRead() {
+  document.querySelectorAll('.notif-item.unread').forEach(el => {
+    el.classList.remove('unread');
+    const dot = el.querySelector('.notif-unread-dot');
+    if (dot) dot.remove();
+  });
+  document.getElementById('notif-dot').style.display = 'none';
+}
+
+function markItemRead(el) {
+  el.classList.remove('unread');
+  const dot = el.querySelector('.notif-unread-dot');
+  if (dot) dot.remove();
+  const remaining = document.querySelectorAll('.notif-item.unread').length;
+  if (!remaining) document.getElementById('notif-dot').style.display = 'none';
+}
+
+document.addEventListener('click', e => {
+  const popup = document.getElementById('notif-popup');
+  if (!popup.contains(e.target) && e.target.id !== 'notif-btn') {
+    popup.classList.remove('open');
+  }
+});
+
+renderGames('todos');
+</script>
+</body>
+</html>

@@ -1,0 +1,157 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MatchPass — Meus Ingressos</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    body { overflow: auto; }
+    .app-shell { grid-template-columns: var(--sidebar-w) 1fr; }
+    .main-content { grid-column: 2; overflow: auto; }
+  </style>
+</head>
+<body>
+
+<div class="app-shell" style="grid-template-columns:var(--sidebar-w) 1fr;grid-template-rows:var(--nav-h) 1fr;">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-brand">
+      <div class="topbar-brand-mark">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82zM7 7H7.01" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+    <div class="topbar-center">
+      <span class="topbar-wordmark">Match<span>Pass</span></span>
+    </div>
+    <div class="topbar-right">
+      <button class="topbar-notif">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/>
+        </svg>
+      </button>
+      <a class="topbar-avatar" href="perfil.html">
+        <div class="avatar-ring">RM</div>
+        <span class="avatar-name">Rodrigo M.</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- SIDENAV -->
+  <nav class="sidenav">
+    <a class="sidenav-link" href="index.html" data-tip="Jogos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+      </svg>
+    </a>
+    <a class="sidenav-link active" href="meus-ingressos.html" data-tip="Meus Ingressos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82zM7 7H7.01"/>
+      </svg>
+    </a>
+    <a class="sidenav-link" href="#" data-tip="Times">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M12 15a7 7 0 100-14 7 7 0 000 14zM8.21 13.89L7 23l5-3 5 3-1.21-9.12"/>
+      </svg>
+    </a>
+    <div class="sidenav-spacer"></div>
+    <a class="sidenav-link" href="perfil.html" data-tip="Perfil">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"/>
+      </svg>
+    </a>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main-content">
+    <div class="tickets-page">
+      <h1 class="page-title">Meus Ingressos</h1>
+
+      <!-- Sample confirmed tickets -->
+      <article class="ticket-list-item">
+        <div class="tl-main">
+          <div class="tl-kicker">Santos FC × Real Madrid · 20/05/2026</div>
+          <div class="tl-seat">Setor 8 · Fileira A · Assento 12</div>
+          <div class="tl-meta">
+            <div class="tl-meta-item">
+              <span>Portão</span>
+              <strong>8</strong>
+            </div>
+            <div class="tl-meta-item">
+              <span>CPF vinculado</span>
+              <strong>123.456.789-09</strong>
+            </div>
+            <div class="tl-meta-item">
+              <span>Valor pago</span>
+              <strong>R$ 120,00</strong>
+            </div>
+          </div>
+          <div class="tl-status">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Confirmado
+          </div>
+        </div>
+        <div class="tl-stub">
+          <div>
+            <div class="tl-kicker">Ingresso</div>
+            <div style="font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--black)">S8·A12</div>
+          </div>
+          <div>
+            <div class="tl-kicker">Data</div>
+            <strong style="font-size:13px">20/05/2026</strong>
+          </div>
+          <div style="padding:8px;background:var(--white);border:1px solid rgba(201,168,76,.3);border-radius:8px;text-align:center;font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase">Portão 8</div>
+        </div>
+      </article>
+
+      <article class="ticket-list-item">
+        <div class="tl-main">
+          <div class="tl-kicker">Santos FC × Real Madrid · 20/05/2026</div>
+          <div class="tl-seat">Setor 8 · Fileira A · Assento 13</div>
+          <div class="tl-meta">
+            <div class="tl-meta-item">
+              <span>Portão</span>
+              <strong>8</strong>
+            </div>
+            <div class="tl-meta-item">
+              <span>CPF vinculado</span>
+              <strong>987.654.321-00</strong>
+            </div>
+            <div class="tl-meta-item">
+              <span>Valor pago</span>
+              <strong>R$ 120,00</strong>
+            </div>
+          </div>
+          <div class="tl-status">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            Confirmado
+          </div>
+        </div>
+        <div class="tl-stub">
+          <div>
+            <div class="tl-kicker">Ingresso</div>
+            <div style="font-family:var(--font-display);font-size:22px;font-weight:700;color:var(--black)">S8·A13</div>
+          </div>
+          <div>
+            <div class="tl-kicker">Data</div>
+            <strong style="font-size:13px">20/05/2026</strong>
+          </div>
+          <div style="padding:8px;background:var(--white);border:1px solid rgba(201,168,76,.3);border-radius:8px;text-align:center;font-size:11px;font-weight:800;letter-spacing:.5px;text-transform:uppercase">Portão 8</div>
+        </div>
+      </article>
+
+      <div style="margin-top:32px;padding:24px;background:var(--white);border:1px dashed var(--line);border-radius:var(--radius-lg);text-align:center">
+        <p style="color:var(--muted);font-size:14px;margin-bottom:14px">Quer comprar mais ingressos?</p>
+        <a href="index.html" class="btn-checkout" style="display:inline-flex;max-width:220px;text-decoration:none">Ver jogos disponíveis</a>
+      </div>
+    </div>
+  </main>
+
+</div>
+
+<script src="cart.js"></script>
+</body>
+</html>

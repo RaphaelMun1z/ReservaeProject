@@ -1,0 +1,413 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MatchPass — Checkout</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    /* Checkout uses full height without right cart aside */
+    body { overflow: auto; }
+    .app-shell {
+      grid-template-columns: var(--sidebar-w) 1fr;
+    }
+    .main-content { grid-column: 2; overflow: auto; }
+  </style>
+</head>
+<body>
+
+<div class="app-shell" style="grid-template-columns:var(--sidebar-w) 1fr; grid-template-rows:var(--nav-h) 1fr;">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-brand">
+      <div class="topbar-brand-mark">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82zM7 7H7.01" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/>
+        </svg>
+      </div>
+    </div>
+    <div class="topbar-center">
+      <span class="topbar-wordmark">Match<span>Pass</span></span>
+    </div>
+    <div class="topbar-right">
+      <div style="position:relative">
+        <button class="topbar-notif" id="notif-btn" onclick="toggleNotif(event)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/>
+          </svg>
+          <span class="notif-dot" id="notif-dot"></span>
+        </button>
+        <div class="notif-popup" id="notif-popup">
+          <div class="notif-popup-header">
+            <h4>Notificações</h4>
+            <button class="notif-mark-read" onclick="markAllRead()">Marcar tudo como lido</button>
+          </div>
+          <div class="notif-item unread" onclick="markItemRead(this)">
+            <div class="notif-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82zM7 7H7.01"/></svg></div>
+            <div class="notif-body"><div class="notif-title">Seus ingressos foram confirmados para Santos × Real Madrid</div><div class="notif-time">Há 2 horas</div></div>
+            <span class="notif-unread-dot"></span>
+          </div>
+        </div>
+      </div>
+      <a class="topbar-avatar" href="perfil.html">
+        <div class="avatar-ring">RM</div>
+        <span class="avatar-name">Rodrigo M.</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- SIDENAV -->
+  <nav class="sidenav">
+    <a class="sidenav-link" href="index.html" data-tip="Jogos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/>
+      </svg>
+    </a>
+    <a class="sidenav-link" href="meus-ingressos.html" data-tip="Meus Ingressos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82zM7 7H7.01"/>
+      </svg>
+    </a>
+    <a class="sidenav-link" href="#" data-tip="Times">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+        <path d="M12 15a7 7 0 100-14 7 7 0 000 14zM8.21 13.89L7 23l5-3 5 3-1.21-9.12"/>
+      </svg>
+    </a>
+    <div class="sidenav-spacer"></div>
+  </nav>
+
+  <!-- MAIN -->
+  <main class="main-content" style="overflow:auto">
+    <div class="checkout-page" style="min-height:100%">
+
+      <!-- LEFT: forms -->
+      <div class="checkout-main">
+        <h1 class="page-title">Finalizar Compra</h1>
+
+        <!-- Tickets overview -->
+        <div class="section-card" id="tickets-section">
+          <div class="section-label">
+            <div class="section-label-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82zM7 7H7.01"/>
+              </svg>
+            </div>
+            <h2>Seus ingressos</h2>
+          </div>
+          <div id="checkout-tickets">
+            <!-- populated by JS -->
+          </div>
+        </div>
+
+        <!-- Buyer info -->
+        <div class="section-card">
+          <div class="section-label">
+            <div class="section-label-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2M12 11a4 4 0 100-8 4 4 0 000 8z"/>
+              </svg>
+            </div>
+            <h2>Dados do comprador</h2>
+          </div>
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Nome completo</label>
+              <input type="text" value="Rodrigo Martins" placeholder="Nome completo">
+            </div>
+            <div class="form-group">
+              <label>E-mail</label>
+              <input type="email" value="rodrigo@email.com" placeholder="seu@email.com">
+            </div>
+            <div class="form-group">
+              <label>CPF do comprador</label>
+              <input type="text" id="buyer-cpf" inputmode="numeric" placeholder="000.000.000-00" maxlength="14" oninput="this.value=formatCpfLocal(this.value)">
+            </div>
+            <div class="form-group">
+              <label>Telefone</label>
+              <input type="tel" value="(13) 99999-2026" placeholder="(00) 00000-0000">
+            </div>
+          </div>
+        </div>
+
+        <!-- Payment -->
+        <div class="section-card">
+          <div class="section-label">
+            <div class="section-label-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/>
+                <line x1="1" y1="10" x2="23" y2="10"/>
+              </svg>
+            </div>
+            <h2>Pagamento</h2>
+          </div>
+
+          <div class="payment-methods">
+            <button class="pay-method-btn active" data-method="card" onclick="selectPayment(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>
+              </svg>
+              <div><h3>Cartão</h3><p>Crédito e débito</p></div>
+            </button>
+            <button class="pay-method-btn" data-method="pix" onclick="selectPayment(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+              </svg>
+              <div><h3>PIX</h3><p>Aprovação imediata</p></div>
+            </button>
+          </div>
+
+          <!-- Card panel -->
+          <div id="panel-card">
+            <div class="form-grid">
+              <div class="form-group full">
+                <label>Número do cartão</label>
+                <input type="text" placeholder="0000 0000 0000 0000" maxlength="19" oninput="fmtCard(this)">
+              </div>
+              <div class="form-group full">
+                <label>Nome impresso</label>
+                <input type="text" placeholder="Nome como está no cartão">
+              </div>
+              <div class="form-group">
+                <label>Validade</label>
+                <input type="text" placeholder="MM/AA" maxlength="5">
+              </div>
+              <div class="form-group">
+                <label>CVV</label>
+                <input type="text" placeholder="000" maxlength="4">
+              </div>
+              <div class="form-group full">
+                <label>Parcelamento</label>
+                <select>
+                  <option>1× sem juros</option>
+                  <option>2× sem juros</option>
+                  <option>3× sem juros</option>
+                  <option>4× sem juros</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- PIX panel -->
+          <div id="panel-pix" style="display:none">
+            <div class="pix-panel">
+              <div class="pix-qr" aria-label="QR Code PIX"></div>
+              <div class="pix-info">
+                <h3>PIX copia e cola</h3>
+                <p>Escaneie o QR Code ou copie a chave. O pedido será confirmado assim que o pagamento for identificado.</p>
+                <div class="pix-key-row">
+                  <code id="pix-key">00020126580014br.gov.bcb.pix0136matchpass-demo@pix.com520400005303986540600005802BR5920MATCHPASS INGRESSOS6006SANTOS6304ABCD</code>
+                  <button class="btn-copy" onclick="copyPix()">Copiar</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: order summary -->
+      <aside class="checkout-sidebar">
+        <div class="summary-title">Resumo do pedido</div>
+
+        <div class="match-card">
+          <div class="match-logos">
+            <img src="Santos_Logo.png" alt="Santos" onerror="this.style.display='none'" style="height:32px">
+            <span class="match-vs">×</span>
+            <img src="RealMadrid_Logo.png" alt="Real Madrid" onerror="this.style.display='none'" style="height:32px">
+          </div>
+          <div class="match-details">
+            <strong>Santos × Real Madrid</strong>
+            <span>20/05/2026 · 19h · Urbano Caldeira</span>
+          </div>
+        </div>
+
+        <div class="summary-items" id="summary-items">
+          <!-- populated -->
+        </div>
+
+        <hr class="divider">
+
+        <div class="total-row">
+          <span class="total-label">Total</span>
+          <span class="total-value" id="checkout-total">R$ 0,00</span>
+        </div>
+
+        <button class="btn-pay" id="btn-pay" onclick="finishPurchase()">
+          Finalizar pagamento
+        </button>
+
+        <div class="security-note">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+          </svg>
+          Pagamento processado com criptografia SSL
+        </div>
+
+        <!-- Timer reminder -->
+        <div class="cart-timer" id="cart-timer" style="margin-top:auto">
+          <div class="cart-timer-label">Tempo restante para finalizar</div>
+          <div class="cart-timer-display">
+            <span id="timer-value">10:00</span>min
+          </div>
+        </div>
+      </aside>
+
+    </div>
+  </main>
+</div>
+
+<!-- Success modal -->
+<div class="modal-overlay" id="success-modal">
+  <div class="modal" style="text-align:center">
+    <div style="width:56px;height:56px;border-radius:50%;background:#edfaf4;border:1.5px solid #b9ead2;display:flex;align-items:center;justify-content:center;margin:0 auto 18px">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#1d7d4c" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+    </div>
+    <h3>Compra realizada!</h3>
+    <p>Seus ingressos foram confirmados e enviados ao seu e-mail. Boa partida!</p>
+    <div class="modal-actions" style="justify-content:center">
+      <a href="meus-ingressos.html" class="btn-sm primary">Ver meus ingressos</a>
+    </div>
+  </div>
+</div>
+
+<!-- Timer expired modal -->
+<div class="modal-overlay" id="timer-modal">
+  <div class="modal">
+    <h3>Reserva expirada</h3>
+    <p>O tempo para finalizar sua compra expirou. Por favor, selecione os assentos novamente.</p>
+    <div class="modal-actions">
+      <a href="index.html" class="btn-sm primary">Voltar ao mapa</a>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="cart.js"></script>
+<script>
+function formatCpfLocal(v) {
+  return v.replace(/\D/g,'').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d)/,'$1.$2').replace(/(\d{3})(\d{1,2})$/,'$1-$2').substring(0,14);
+}
+
+function fmtCard(el) {
+  el.value = el.value.replace(/\D/g,'').replace(/(.{4})/g,'$1 ').trim().substring(0,19);
+}
+
+function selectPayment(btn) {
+  document.querySelectorAll('.pay-method-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  const isPix = btn.dataset.method === 'pix';
+  document.getElementById('panel-card').style.display = isPix ? 'none' : '';
+  document.getElementById('panel-pix').style.display  = isPix ? '' : 'none';
+  const payBtn = document.getElementById('btn-pay');
+  if (isPix) {
+    payBtn.textContent = 'Aguardando PIX...';
+    payBtn.classList.add('waiting');
+    payBtn.disabled = true;
+    setTimeout(() => {
+      document.getElementById('success-modal').classList.add('open');
+      clearCart();
+    }, 4000);
+  } else {
+    payBtn.textContent = 'Finalizar pagamento';
+    payBtn.classList.remove('waiting');
+    payBtn.disabled = false;
+  }
+}
+
+function copyPix() {
+  const key = document.getElementById('pix-key').textContent;
+  const btn = document.querySelector('.btn-copy');
+  navigator.clipboard.writeText(key).then(() => {
+    btn.textContent = 'Copiado!';
+    setTimeout(() => btn.textContent = 'Copiar', 1800);
+  }).catch(() => {
+    const ta = document.createElement('textarea');
+    ta.value = key; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove();
+    btn.textContent = 'Copiado!';
+    setTimeout(() => btn.textContent = 'Copiar', 1800);
+  });
+}
+
+function clearCart() {
+  sessionStorage.removeItem('mp_cart');
+  sessionStorage.removeItem('mp_timer_end');
+}
+
+function finishPurchase() {
+  document.getElementById('success-modal').classList.add('open');
+  clearCart();
+}
+
+// Populate checkout from cart
+document.addEventListener('DOMContentLoaded', () => {
+  const cart = getCart();
+  const ticketsEl  = document.getElementById('checkout-tickets');
+  const summaryEl  = document.getElementById('summary-items');
+  const totalEl    = document.getElementById('checkout-total');
+
+  if (!cart.length) {
+    ticketsEl.innerHTML = '<p style="color:var(--muted);font-size:14px">Nenhum ingresso no carrinho. <a href="index.html">Voltar ao mapa</a>.</p>';
+    document.getElementById('btn-pay').disabled = true;
+    return;
+  }
+
+  let total = 0;
+  let ticketsHTML = '';
+  let summaryHTML = '';
+
+  cart.forEach((item, idx) => {
+    total += item.price;
+    const parts = item.code.split(' - ');
+    const sector = parts[0] || item.code;
+    const row    = parts[1] || '';
+    const seat   = parts[2] || '';
+
+    ticketsHTML += `
+      <article class="buyer-ticket">
+        <div class="ticket-main">
+          <span class="ticket-label">Ingresso ${idx + 1}</span>
+          <div class="ticket-seat">${sector}</div>
+          <div class="ticket-meta">
+            <div class="ticket-meta-item"><span>Fileira</span><strong>${row.replace('Fileira ','')}</strong></div>
+            <div class="ticket-meta-item"><span>Assento</span><strong>${seat}</strong></div>
+            <div class="ticket-meta-item"><span>Evento</span><strong>Santos × Real Madrid</strong></div>
+            <div class="ticket-meta-item"><span>Portador (CPF)</span><strong class="ticket-cpf-val">${item.cpf || '—'}</strong></div>
+          </div>
+        </div>
+        <div class="ticket-stub">
+          <div>
+            <span class="ticket-label">Assento</span>
+            <strong style="font-family:var(--font-display);font-size:18px">${sector} · ${seat}</strong>
+          </div>
+          <div>
+            <span class="ticket-label">Data</span>
+            <strong>20/05/2026 · 19h</strong>
+          </div>
+          <div class="ticket-status-badge">Venda pendente</div>
+        </div>
+      </article>`;
+
+    summaryHTML += `
+      <div class="summary-row">
+        <span>${sector} — ${row} · ${seat}</span>
+        <strong>R$ ${item.price.toLocaleString('pt-BR',{minimumFractionDigits:2})}</strong>
+      </div>`;
+  });
+
+  const fee = Math.round(total * 0.05);
+  summaryHTML += `<div class="summary-row"><span>Taxa de serviço (5%)</span><strong>R$ ${fee.toLocaleString('pt-BR',{minimumFractionDigits:2})}</strong></div>`;
+  total += fee;
+
+  ticketsEl.innerHTML = ticketsHTML;
+  summaryEl.innerHTML = summaryHTML;
+  totalEl.textContent = 'R$ ' + total.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+});
+
+function toggleNotif(e){e.stopPropagation();document.getElementById('notif-popup').classList.toggle('open');}
+function markAllRead(){document.querySelectorAll('.notif-item.unread').forEach(el=>{el.classList.remove('unread');const d=el.querySelector('.notif-unread-dot');if(d)d.remove();});document.getElementById('notif-dot').style.display='none';}
+function markItemRead(el){el.classList.remove('unread');const d=el.querySelector('.notif-unread-dot');if(d)d.remove();}
+document.addEventListener('click',e=>{const p=document.getElementById('notif-popup');if(p&&!p.contains(e.target)&&!document.getElementById('notif-btn').contains(e.target))p.classList.remove('open');});
+</script>
+</body>
+</html>

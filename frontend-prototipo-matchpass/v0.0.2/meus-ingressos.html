@@ -1,0 +1,327 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>MatchPass — Meus Ingressos</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    body { overflow: auto; }
+    .app-shell { grid-template-columns: var(--sidebar-w) 1fr; }
+    .main-content { grid-column: 2; overflow: auto; }
+  </style>
+</head>
+<body>
+<div class="app-shell" style="grid-template-columns:var(--sidebar-w) 1fr;grid-template-rows:var(--nav-h) 1fr;">
+
+  <header class="topbar">
+    <div class="topbar-brand"><div class="topbar-brand-mark">
+      <svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82zM7 7H7.01" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+    </div></div>
+    <div class="topbar-center"><span class="topbar-wordmark">Match<span>Pass</span></span></div>
+    <div class="topbar-right">
+      <div style="position:relative">
+        <button class="topbar-notif" id="notif-btn" onclick="toggleNotif(event)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+          <span class="notif-dot" id="notif-dot"></span>
+        </button>
+        <div class="notif-popup" id="notif-popup">
+          <div class="notif-popup-header"><h4>Notificações</h4><button class="notif-mark-read" onclick="markAllRead()">Marcar tudo como lido</button></div>
+          <div class="notif-item unread" onclick="markItemRead(this)">
+            <div class="notif-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82zM7 7H7.01"/></svg></div>
+            <div class="notif-body"><div class="notif-title">Seus ingressos foram confirmados para Santos × Real Madrid</div><div class="notif-time">Há 2 horas</div></div>
+            <span class="notif-unread-dot"></span>
+          </div>
+          <div class="notif-item" onclick="markItemRead(this)">
+            <div class="notif-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+            <div class="notif-body"><div class="notif-title">Lembrete: Santos × Flamengo começa em 3 dias</div><div class="notif-time">Há 3 dias</div></div>
+          </div>
+        </div>
+      </div>
+      <a class="topbar-avatar" href="perfil.html">
+        <div class="avatar-ring">RM</div><span class="avatar-name">Rodrigo M.</span>
+      </a>
+    </div>
+  </header>
+
+  <nav class="sidenav">
+    <a class="sidenav-link" href="jogos.html" data-tip="Jogos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+    </a>
+    <a class="sidenav-link active" href="meus-ingressos.html" data-tip="Meus Ingressos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82zM7 7H7.01"/></svg>
+    </a>
+    <a class="sidenav-link" href="#" data-tip="Times">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 15a7 7 0 100-14 7 7 0 000 14zM8.21 13.89L7 23l5-3 5 3-1.21-9.12"/></svg>
+    </a>
+  </nav>
+
+  <main class="main-content">
+    <div class="tickets-page">
+      <h1 class="page-title">Meus Ingressos</h1>
+      <p class="tickets-subtitle">Clique em um ingresso para ver todos os detalhes</p>
+
+      <div class="games-filters" style="margin-bottom:22px">
+        <button class="filter-btn active">Todos</button>
+        <button class="filter-btn">Próximos</button>
+        <button class="filter-btn">Utilizados</button>
+      </div>
+
+      <div class="my-tickets-grid" id="tickets-grid">
+
+        <!-- Ticket card 1 — simplified -->
+        <article class="ticket-stub-card" onclick="openTicket('t1')">
+          <div class="tsc-banner">
+            <div class="tsc-banner-logos">
+              <img src="Santos_Logo.png" alt="Santos" onerror="this.style.display='none'" style="height:26px">
+              <span class="tsc-banner-vs">×</span>
+              <img src="RealMadrid_Logo.png" alt="Real Madrid" onerror="this.outerHTML='<span style=\'font-size:11px;color:var(--gold);font-weight:700\'>Real Madrid</span>'" style="height:26px">
+            </div>
+            <div class="tsc-status confirmed">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              Confirmado
+            </div>
+          </div>
+          <div class="tsc-body">
+            <div class="tsc-sector">Cadeira Coberta Dom Pedro</div>
+            <div class="tsc-seat">Fileira A · Assento 12</div>
+            <div class="tsc-meta">
+              <div class="tsc-meta-item"><span>Data</span><strong>20/05/2026</strong></div>
+              <div class="tsc-meta-item"><span>Horário</span><strong>19h00</strong></div>
+              <div class="tsc-meta-item"><span>Portão</span><strong>8</strong></div>
+            </div>
+          </div>
+          <div class="tsc-footer">
+            <span class="tsc-code">#MP-2026-00412</span>
+            <span class="tsc-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></span>
+          </div>
+        </article>
+
+        <!-- Ticket card 2 -->
+        <article class="ticket-stub-card" onclick="openTicket('t2')">
+          <div class="tsc-banner">
+            <div class="tsc-banner-logos">
+              <img src="Santos_Logo.png" alt="Santos" onerror="this.style.display='none'" style="height:26px">
+              <span class="tsc-banner-vs">×</span>
+              <img src="RealMadrid_Logo.png" alt="Real Madrid" onerror="this.outerHTML='<span style=\'font-size:11px;color:var(--gold);font-weight:700\'>Real Madrid</span>'" style="height:26px">
+            </div>
+            <div class="tsc-status confirmed">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+              Confirmado
+            </div>
+          </div>
+          <div class="tsc-body">
+            <div class="tsc-sector">Cadeira Coberta Dom Pedro</div>
+            <div class="tsc-seat">Fileira A · Assento 13</div>
+            <div class="tsc-meta">
+              <div class="tsc-meta-item"><span>Data</span><strong>20/05/2026</strong></div>
+              <div class="tsc-meta-item"><span>Horário</span><strong>19h00</strong></div>
+              <div class="tsc-meta-item"><span>Portão</span><strong>8</strong></div>
+            </div>
+          </div>
+          <div class="tsc-footer">
+            <span class="tsc-code">#MP-2026-00413</span>
+            <span class="tsc-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></span>
+          </div>
+        </article>
+
+        <!-- Ticket card 3 — used -->
+        <article class="ticket-stub-card" onclick="openTicket('t3')" style="opacity:.7">
+          <div class="tsc-banner" style="background:#444">
+            <div class="tsc-banner-logos">
+              <span style="font-size:11px;color:rgba(255,255,255,.7);font-weight:600">Santos FC × Flamengo</span>
+            </div>
+            <div class="tsc-status used">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              Utilizado
+            </div>
+          </div>
+          <div class="tsc-body">
+            <div class="tsc-sector">Arq. Cosmo Damião</div>
+            <div class="tsc-seat">Fileira C · Assento 7</div>
+            <div class="tsc-meta">
+              <div class="tsc-meta-item"><span>Data</span><strong>12/04/2026</strong></div>
+              <div class="tsc-meta-item"><span>Horário</span><strong>16h00</strong></div>
+              <div class="tsc-meta-item"><span>Portão</span><strong>21</strong></div>
+            </div>
+          </div>
+          <div class="tsc-footer">
+            <span class="tsc-code">#MP-2026-00298</span>
+            <span class="tsc-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18l6-6-6-6"/></svg></span>
+          </div>
+        </article>
+
+      </div>
+
+      <div style="margin-top:28px;padding:20px;background:var(--white);border:1px dashed var(--line);text-align:center">
+        <p style="color:var(--muted);font-size:13px;margin-bottom:12px">Quer comprar mais ingressos?</p>
+        <a href="jogos.html" class="btn-checkout" style="display:inline-flex;max-width:200px;text-decoration:none;pointer-events:auto;opacity:1">Ver jogos disponíveis</a>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- INGRESSO DETALHE MODAL -->
+<div class="modal-overlay" id="ingresso-modal">
+  <div style="background:var(--white);border:1px solid var(--line);max-width:640px;width:95%;max-height:90vh;overflow-y:auto;position:relative;">
+
+    <div style="padding:16px 20px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between;">
+      <span style="font-family:var(--font-display);font-size:16px;font-weight:700;color:var(--black);">Detalhe do Ingresso</span>
+      <button onclick="closeTicket()" style="background:none;border:none;cursor:pointer;color:var(--muted);padding:4px;">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+
+    <div style="padding:24px" id="ingresso-detail-body">
+      <!-- populated by JS -->
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script>
+const TICKETS = {
+  t1: {
+    code: '#MP-2026-00412',
+    event: 'Santos FC × Real Madrid',
+    homeImg: 'Santos_Logo.png', awayImg: 'RealMadrid_Logo.png',
+    date: '20/05/2026', time: '19h00', stadium: 'Urbano Caldeira', gate: '8',
+    sector: 'Cadeira Coberta Dom Pedro', sectorColor: '#4a5568',
+    row: 'A', seat: '12',
+    cpf: '123.456.789-09',
+    tier: 'Gold', price: 'R$ 59,00',
+    status: 'confirmed',
+  },
+  t2: {
+    code: '#MP-2026-00413',
+    event: 'Santos FC × Real Madrid',
+    homeImg: 'Santos_Logo.png', awayImg: 'RealMadrid_Logo.png',
+    date: '20/05/2026', time: '19h00', stadium: 'Urbano Caldeira', gate: '8',
+    sector: 'Cadeira Coberta Dom Pedro', sectorColor: '#4a5568',
+    row: 'A', seat: '13',
+    cpf: '987.654.321-00',
+    tier: 'Gold', price: 'R$ 59,00',
+    status: 'confirmed',
+  },
+  t3: {
+    code: '#MP-2026-00298',
+    event: 'Santos FC × Flamengo',
+    homeImg: 'Santos_Logo.png', awayImg: '',
+    date: '12/04/2026', time: '16h00', stadium: 'Urbano Caldeira', gate: '21',
+    sector: 'Arq. Cosmo Damião', sectorColor: '#7b3fa0',
+    row: 'C', seat: '7',
+    cpf: '123.456.789-09',
+    tier: 'Silver', price: 'R$ 40,00',
+    status: 'used',
+  },
+};
+
+function openTicket(id) {
+  const t = TICKETS[id];
+  const isUsed = t.status === 'used';
+
+  const awayEl = t.awayImg
+    ? `<img src="${t.awayImg}" alt="" onerror="this.style.display='none'" style="height:30px;object-fit:contain">`
+    : `<span style="font-size:12px;color:var(--gold);font-weight:700">${t.event.split('×')[1].trim()}</span>`;
+
+  document.getElementById('ingresso-detail-body').innerHTML = `
+    <!-- Physical ticket -->
+    <div class="physical-ticket" style="${isUsed?'filter:grayscale(.4);opacity:.85':''}">
+
+      <div class="pt-header">
+        <div class="pt-header-left">
+          <img src="${t.homeImg}" alt="" onerror="this.style.display='none'" style="height:30px;object-fit:contain">
+          <span class="pt-header-vs">×</span>
+          ${awayEl}
+        </div>
+        <div class="pt-header-right">
+          <div class="pt-header-event">${t.event}</div>
+          <div class="pt-header-date">${t.date} · ${t.time}</div>
+        </div>
+      </div>
+
+      <div class="pt-body">
+        <div>
+          <div class="pt-seat-big">Fil. ${t.row} · ${t.seat}</div>
+          <div class="pt-seat-sector" style="color:${t.sectorColor}">${t.sector}</div>
+          <div class="pt-details">
+            <div class="pt-detail-item"><span>Estádio</span><strong>${t.stadium}</strong></div>
+            <div class="pt-detail-item"><span>Portão</span><strong>${t.gate}</strong></div>
+            <div class="pt-detail-item"><span>Tier</span><strong>${t.tier}</strong></div>
+            <div class="pt-detail-item"><span>CPF do portador</span><strong>${t.cpf}</strong></div>
+            <div class="pt-detail-item"><span>Valor pago</span><strong>${t.price}</strong></div>
+            <div class="pt-detail-item"><span>Status</span><strong style="color:${isUsed?'#777':'#1d7d4c'}">${isUsed?'Utilizado':'Confirmado'}</strong></div>
+          </div>
+        </div>
+        <div class="pt-qr" aria-label="QR Code"></div>
+      </div>
+
+      <div class="pt-tear"></div>
+
+      <div class="pt-stub">
+        <div class="pt-stub-left">
+          <span>Código do ingresso</span>
+          <strong>${t.code}</strong>
+          <div class="pt-stub-code">${t.event} · ${t.stadium}</div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.6px;color:#8a6a14;margin-bottom:3px">Data</div>
+          <div style="font-size:14px;font-weight:700;color:var(--black)">${t.date}</div>
+          <div style="font-size:11px;color:var(--muted)">${t.time}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Actions -->
+    <div class="ingresso-actions">
+      <button class="btn-action" onclick="showToast('PDF gerado!')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+        Baixar PDF
+      </button>
+      <button class="btn-action" onclick="showToast('Ingresso enviado por e-mail!')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+        Enviar por e-mail
+      </button>
+      ${!isUsed ? `<button class="btn-action primary" onclick="showToast('Ingresso transferido!')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M17 1l4 4-4 4M3 11V9a4 4 0 014-4h14M7 23l-4-4 4-4M21 13v2a4 4 0 01-4 4H3"/></svg>
+        Transferir ingresso
+      </button>` : ''}
+    </div>
+  `;
+
+  document.getElementById('ingresso-modal').classList.add('open');
+}
+
+function closeTicket() {
+  document.getElementById('ingresso-modal').classList.remove('open');
+}
+
+// Close modal clicking outside
+document.getElementById('ingresso-modal').addEventListener('click', function(e) {
+  if (e.target === this) closeTicket();
+});
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2200);
+}
+
+function toggleNotif(e) { e.stopPropagation(); document.getElementById('notif-popup').classList.toggle('open'); }
+function markAllRead() {
+  document.querySelectorAll('.notif-item.unread').forEach(el => {
+    el.classList.remove('unread'); const d=el.querySelector('.notif-unread-dot'); if(d) d.remove();
+  });
+  document.getElementById('notif-dot').style.display='none';
+}
+function markItemRead(el) {
+  el.classList.remove('unread'); const d=el.querySelector('.notif-unread-dot'); if(d) d.remove();
+  if (!document.querySelectorAll('.notif-item.unread').length) document.getElementById('notif-dot').style.display='none';
+}
+document.addEventListener('click', e => {
+  const p=document.getElementById('notif-popup');
+  if(!p.contains(e.target)&&!document.getElementById('notif-btn').contains(e.target)) p.classList.remove('open');
+});
+</script>
+</body>
+</html>

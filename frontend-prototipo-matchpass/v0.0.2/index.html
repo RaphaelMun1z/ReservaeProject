@@ -1,0 +1,503 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+  <title>MatchPass — Mapa de Setores</title>
+  <link rel="stylesheet" href="style.css"/>
+  <style>
+    body { overflow: hidden; }
+    .app-shell { grid-template-columns: var(--sidebar-w) 1fr var(--cart-w); }
+  </style>
+</head>
+<body>
+<div class="app-shell">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-brand"><div class="topbar-brand-mark">
+      <svg viewBox="0 0 24 24"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82zM7 7H7.01" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/></svg>
+    </div></div>
+    <div class="topbar-center"><span class="topbar-wordmark">Match<span>Pass</span></span></div>
+    <div class="topbar-right">
+      <div style="position:relative">
+        <button class="topbar-notif" id="notif-btn" onclick="toggleNotif(event)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 01-3.46 0"/></svg>
+          <span class="notif-dot" id="notif-dot"></span>
+        </button>
+        <div class="notif-popup" id="notif-popup">
+          <div class="notif-popup-header"><h4>Notificações</h4><button class="notif-mark-read" onclick="markAllRead()">Marcar tudo como lido</button></div>
+          <div class="notif-item unread" onclick="markItemRead(this)">
+            <div class="notif-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82zM7 7H7.01"/></svg></div>
+            <div class="notif-body"><div class="notif-title">Seus ingressos foram confirmados para Santos × Real Madrid</div><div class="notif-time">Há 2 horas</div></div>
+            <span class="notif-unread-dot"></span>
+          </div>
+          <div class="notif-item unread" onclick="markItemRead(this)">
+            <div class="notif-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+            <div class="notif-body"><div class="notif-title">Novos jogos disponíveis — confira a programação de junho</div><div class="notif-time">Há 1 dia</div></div>
+            <span class="notif-unread-dot"></span>
+          </div>
+        </div>
+      </div>
+      <a class="topbar-avatar" href="perfil.html">
+        <div class="avatar-ring">RM</div><span class="avatar-name">Rodrigo M.</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- SIDENAV -->
+  <nav class="sidenav">
+    <a class="sidenav-link active" href="jogos.html" data-tip="Jogos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>
+    </a>
+    <a class="sidenav-link" href="meus-ingressos.html" data-tip="Meus Ingressos">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82zM7 7H7.01"/></svg>
+    </a>
+    <a class="sidenav-link" href="#" data-tip="Times">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 15a7 7 0 100-14 7 7 0 000 14zM8.21 13.89L7 23l5-3 5 3-1.21-9.12"/></svg>
+    </a>
+  </nav>
+
+  <!-- MAIN: map page -->
+  <main class="main-content" style="overflow:hidden">
+    <div class="map-page">
+
+      <div class="map-event-bar">
+        <a href="jogos.html" class="map-back-btn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>Jogos
+        </a>
+        <div class="map-event-logos">
+          <img src="Santos_Logo.png" alt="Santos FC" onerror="this.style.display='none'">
+          <span class="map-event-vs">×</span>
+          <img src="RealMadrid_Logo.png" alt="Real Madrid" onerror="this.style.display='none'">
+        </div>
+        <div class="map-event-info">
+          <div class="map-event-title">Santos × Real Madrid</div>
+          <div class="map-event-meta">Urbano Caldeira · 20/05/2026 · 19h00 · Santos/SP</div>
+        </div>
+      </div>
+
+      <div class="map-body">
+
+        <!-- SVG MAP -->
+        <div class="map-area" id="map-area">
+
+          <div class="map-zoom-layer" id="zoom-layer">
+            <div class="map-container" id="map-container">
+              <svg viewBox="0 0 843 789" xmlns="http://www.w3.org/2000/svg" id="stadium-svg">
+
+                <!-- clicking SVG background resets zoom -->
+                <rect x="0" y="0" width="843" height="789" fill="transparent" onclick="resetZoom()"/>
+
+                <polygon data-sector="Setor 1"   points="298,129 298,515 266,515 266,129"                                                                                              onclick="zoomSector(event,this)"><title>Setor 1</title></polygon>
+                <polygon data-sector="Setor 2"   points="298,515 298,604 266,604 266,515"                                                                                              onclick="zoomSector(event,this)"><title>Setor 2</title></polygon>
+                <polygon data-sector="Setor 3"   points="298,567 298,604 566,604 566,567"                                                                                              onclick="zoomSector(event,this)"><title>Setor 3</title></polygon>
+                <polygon data-sector="Setor 4"   points="298,604 298,635 467,635 467,604"                                                                                              onclick="zoomSector(event,this)"><title>Setor 4</title></polygon>
+                <polygon data-sector="Setor 5"   points="467,604 467,635 614,635 628,622 639,602 640,577 611,577 608,591 599,600 589,604 566,604"                                      onclick="zoomSector(event,this)"><title>Setor 5</title></polygon>
+                <polygon data-sector="Camarote"  points="578,129 578,229 611,229 611,129"                                                                                              onclick="zoomSector(event,this)"><title>Camarote</title></polygon>
+                <polygon data-sector="Setor 7"   points="566,567 566,604 589,604 599,600 608,591 611,577 611,229 578,229 578,567"                                                      onclick="zoomSector(event,this)"><title>Setor 7</title></polygon>
+                <polygon data-sector="Setor 8"   points="611,129 640,129 640,345 611,345"                                                                                              onclick="zoomSector(event,this)"><title>Setor 8</title></polygon>
+                <polygon data-sector="Setor 9"   points="611,345 640,345 640,542 611,542"                                                                                              onclick="zoomSector(event,this)"><title>Setor 9</title></polygon>
+                <polygon data-sector="Setor 10"  points="611,542 640,542 640,577 611,577"                                                                                              onclick="zoomSector(event,this)"><title>Setor 10</title></polygon>
+                <polygon data-sector="Setor 11"  points="298,635 298,670 574,743 574,635"                                                                                              onclick="zoomSector(event,this)"><title>Setor 11</title></polygon>
+                <polygon data-sector="Setor 12"  points="614,635 637,678 657,662 672,643 681,625 686,607 688,586 688,129 640,129 640,577 639,602 628,622"                              onclick="zoomSector(event,this)"><title>Setor 12</title></polygon>
+                <polygon data-sector="Setor 13"  points="637,678 646,698 661,687 673,672 689,651 700,624 709,599 710,576 709,129 688,129 688,586 686,607 681,625 672,643 657,662"     onclick="zoomSector(event,this)"><title>Setor 13</title></polygon>
+                <polygon data-sector="Setor 14"  points="646,698 660,721 685,699 702,674 720,642 728,613 733,589 734,576 710,576 709,599 700,624 689,651 673,672 661,687"             onclick="zoomSector(event,this)"><title>Setor 14</title></polygon>
+                <polygon data-sector="Setor 15"  points="574,635 574,743 660,721 646,698 637,678 614,635"                                                                              onclick="zoomSector(event,this)"><title>Setor 15</title></polygon>
+                <polygon data-sector="Setor 16"  points="298,604 266,604 266,635 298,635"                                                                                              onclick="zoomSector(event,this)"><title>Setor 16</title></polygon>
+                <polygon data-sector="Setor 17"  points="266,604 124,604 124,514 97,514 97,635 266,635"                                                                                onclick="zoomSector(event,this)"><title>Setor 17</title></polygon>
+                <polygon data-sector="Setor 18"  points="266,474 266,552 124,552 124,474"                                                                                              onclick="zoomSector(event,this)"><title>Setor 18</title></polygon>
+                <polygon data-sector="Setor 19"  points="266,129 159,129 159,180 167,180 124,242 124,474 266,474"                                                                      onclick="zoomSector(event,this)"><title>Setor 19</title></polygon>
+                <polygon data-sector="Setor 20"  points="298,129 298,101 578,101 578,129 595,129 595,79 288,79 288,129"                                                                onclick="zoomSector(event,this)"><title>Setor 20</title></polygon>
+                <polygon data-sector="Setor 21"  points="595,129 657,129 655,50 645,29 630,15 614,7 597,2 287,2 262,10 246,21 235,35 227,49 228,129 288,129 288,79 595,79"            onclick="zoomSector(event,this)"><title>Setor 21</title></polygon>
+                <polygon data-sector="Setor 22"  points="167,180 97,180 97,242 124,242"                                                                                                onclick="zoomSector(event,this)"><title>Setor 22</title></polygon>
+                <polygon data-sector="Setor 23"  points="124,321 124,454 97,454 97,321"                                                                                                onclick="zoomSector(event,this)"><title>Setor 23</title></polygon>
+                <polygon data-sector="Setor 24"  points="124,242 124,321 97,321 97,242"                                                                                                onclick="zoomSector(event,this)"><title>Setor 24</title></polygon>
+                <polygon data-sector="Setor 25"  points="124,454 124,514 97,514 97,454"                                                                                                onclick="zoomSector(event,this)"><title>Setor 25</title></polygon>
+                <polygon data-sector="Setor 26"  points="124,552 124,604 266,604 266,552"                                                                                              onclick="zoomSector(event,this)"><title>Setor 26</title></polygon>
+
+                <!-- seats rendered here, ABOVE polygons so they receive clicks -->
+                <g id="seats-layer" style="pointer-events:all"></g>
+              </svg>
+            </div>
+          </div>
+
+          <!-- Ticket info panel -->
+          <div class="ticket-panel" id="ticket-panel">
+            <div class="tp-inner">
+              <div>
+                <div class="tp-sector">Setor selecionado</div>
+                <div class="tp-name" id="tp-name">—</div>
+              </div>
+              <div class="tp-price" id="tp-price">A partir de R$ 0,00</div>
+            </div>
+          </div>
+
+          <!-- Reset zoom overlay (clicking outside active sector) -->
+          <div id="reset-overlay" onclick="resetZoom()" style="display:none;position:absolute;inset:0;z-index:10;cursor:default;"></div>
+        </div>
+
+        <!-- LEGEND ASIDE -->
+        <div class="legend-aside" id="legend-aside">
+          <div class="legend-header">
+            <h3>Setores & Preços</h3>
+            <p>Clique num setor para ver os assentos</p>
+          </div>
+
+          <div class="seat-legend">
+            <div class="seat-legend-row"><span class="seat-legend-dot" style="background:#1a1a1a"></span>Disponível</div>
+            <div class="seat-legend-row"><span class="seat-legend-dot" style="background:var(--gold)"></span>Selecionado</div>
+            <div class="seat-legend-row"><span class="seat-legend-dot" style="background:rgba(0,0,0,.15)"></span>Ocupado</div>
+          </div>
+
+          <!-- Price table header -->
+          <div style="padding:8px 16px 0; border-bottom:1px solid var(--line);">
+            <div style="display:grid;grid-template-columns:1fr repeat(4,42px);gap:2px;padding:6px 0;font-size:8px;font-weight:800;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);">
+              <span>Setor</span>
+              <span style="text-align:center;color:#2d7d46">Pop.</span>
+              <span style="text-align:center;color:#b5651d">Silv.</span>
+              <span style="text-align:center;color:#b8860b">Gold</span>
+              <span style="text-align:center;color:#111">Black</span>
+            </div>
+          </div>
+
+          <div id="legend-tiers"></div>
+        </div>
+
+      </div><!-- /.map-body -->
+    </div>
+  </main>
+
+  <!-- CART ASIDE -->
+  <aside class="cart-aside">
+    <div class="cart-header">
+      <span class="cart-title">Carrinho</span>
+      <span class="cart-badge" id="cart-badge">0</span>
+    </div>
+    <div class="cart-timer" id="cart-timer">
+      <div class="cart-timer-label">Finalize antes do prazo para manter seus ingressos reservados.</div>
+      <div class="cart-timer-display"><span id="timer-value">10:00</span>min</div>
+    </div>
+    <div class="cart-items" id="cart-items"></div>
+    <div class="cart-footer">
+      <div class="cart-subtotal">
+        <span class="cart-subtotal-label">Total</span>
+        <span class="cart-subtotal-value" id="cart-total">R$ 0,00</span>
+      </div>
+      <a id="btn-checkout" class="btn-checkout disabled" href="checkout.html">Finalizar compra</a>
+    </div>
+  </aside>
+
+</div>
+
+<div class="modal-overlay" id="timer-modal">
+  <div class="modal">
+    <h3>Reserva expirada</h3>
+    <p>O tempo para finalizar sua compra expirou e os assentos foram liberados. Selecione novamente.</p>
+    <div class="modal-actions"><button class="btn-sm primary" onclick="document.getElementById('timer-modal').classList.remove('open')">Entendido</button></div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<script src="cart.js"></script>
+<script>
+// ============================================================
+// SECTOR DATA — cores reais dos setores do Santos FC
+// Preços: { popular=Não Sócio, silver, gold, black }
+// ============================================================
+const SECTOR_DATA = [
+  // --- Arquibancada Cosmo Damião (roxo) ---
+  { name:'Setor 20', label:'Arq. Cosmo Damião',    color:'#7b3fa0', textColor:'#fff', prices:{ popular:160, silver:40, gold:20, black:0   } },
+  { name:'Setor 21', label:'Arq. Cosmo Damião',    color:'#7b3fa0', textColor:'#fff', prices:{ popular:160, silver:40, gold:20, black:0   } },
+  // --- Arquibancada José de Alencar (laranja) ---
+  { name:'Setor 3',  label:'Arq. José de Alencar', color:'#e07b20', textColor:'#fff', prices:{ popular:160, silver:40, gold:20, black:0   } },
+  { name:'Setor 4',  label:'Arq. José de Alencar', color:'#e07b20', textColor:'#fff', prices:{ popular:160, silver:40, gold:20, black:0   } },
+  { name:'Setor 11', label:'Arq. José de Alencar', color:'#e07b20', textColor:'#fff', prices:{ popular:160, silver:40, gold:20, black:0   } },
+  { name:'Setor 15', label:'Arq. José de Alencar', color:'#e07b20', textColor:'#fff', prices:{ popular:160, silver:40, gold:20, black:0   } },
+  // --- Cadeira Térrea (cinza claro) ---
+  { name:'Setor 1',  label:'Cadeira Térrea',        color:'#b0b8c1', textColor:'#333', prices:{ popular:235, silver:88, gold:59, black:29  } },
+  { name:'Setor 2',  label:'Cadeira Térrea',        color:'#b0b8c1', textColor:'#333', prices:{ popular:235, silver:88, gold:59, black:29  } },
+  // --- Cadeira Social Dom Pedro (azul) ---
+  { name:'Setor 7',  label:'Cad. Social Dom Pedro', color:'#3a7fc1', textColor:'#fff', prices:{ popular:235, silver:88, gold:59, black:29  } },
+  { name:'Setor 19', label:'Cad. Social Dom Pedro', color:'#3a7fc1', textColor:'#fff', prices:{ popular:235, silver:88, gold:59, black:29  } },
+  // --- Cadeira Social Princesa Isabel (verde-azulado) ---
+  { name:'Setor 18', label:'Cad. Social P. Isabel', color:'#2a9d8f', textColor:'#fff', prices:{ popular:235, silver:88, gold:59, black:29  } },
+  { name:'Setor 17', label:'Cad. Social P. Isabel', color:'#2a9d8f', textColor:'#fff', prices:{ popular:235, silver:88, gold:59, black:29  } },
+  // --- Cadeira Coberta Dom Pedro (cinza escuro) ---
+  { name:'Setor 8',  label:'Cad. Coberta Dom Pedro',color:'#4a5568', textColor:'#fff', prices:{ popular:235, silver:88, gold:59, black:29  } },
+  { name:'Setor 9',  label:'Cad. Coberta Dom Pedro',color:'#4a5568', textColor:'#fff', prices:{ popular:235, silver:88, gold:59, black:29  } },
+  // --- Cadeira Cativa (vermelho) ---
+  { name:'Setor 12', label:'Cadeira Cativa',        color:'#c0392b', textColor:'#fff', prices:{ popular:235, silver:88, gold:59, black:29  } },
+  { name:'Setor 13', label:'Cadeira Cativa',        color:'#c0392b', textColor:'#fff', prices:{ popular:235, silver:88, gold:59, black:29  } },
+  // --- PMR / PCR (azul claro) ---
+  { name:'Setor 5',  label:'PMR / PCR',             color:'#5b9bd5', textColor:'#fff', prices:{ popular:235, silver:88, gold:59, black:29  } },
+  { name:'Setor 10', label:'PMR / PCR',             color:'#5b9bd5', textColor:'#fff', prices:{ popular:235, silver:88, gold:59, black:29  } },
+  { name:'Setor 16', label:'PMR / PCR',             color:'#5b9bd5', textColor:'#fff', prices:{ popular:235, silver:88, gold:59, black:29  } },
+  { name:'Setor 22', label:'PMR / PCR',             color:'#5b9bd5', textColor:'#fff', prices:{ popular:235, silver:88, gold:59, black:29  } },
+  { name:'Setor 23', label:'PMR / PCR',             color:'#5b9bd5', textColor:'#fff', prices:{ popular:235, silver:88, gold:59, black:29  } },
+  { name:'Setor 24', label:'PMR / PCR',             color:'#5b9bd5', textColor:'#fff', prices:{ popular:235, silver:88, gold:59, black:29  } },
+  { name:'Setor 25', label:'PMR / PCR',             color:'#5b9bd5', textColor:'#fff', prices:{ popular:235, silver:88, gold:59, black:29  } },
+  { name:'Setor 26', label:'PMR / PCR',             color:'#5b9bd5', textColor:'#fff', prices:{ popular:235, silver:88, gold:59, black:29  } },
+  // --- Camarote (dourado) ---
+  { name:'Camarote', label:'Camarote VIP',          color:'#c9a84c', textColor:'#111', prices:{ popular:400, silver:200, gold:120, black:80 } },
+  { name:'Setor 14', label:'Camarote VIP',          color:'#c9a84c', textColor:'#111', prices:{ popular:400, silver:200, gold:120, black:80 } },
+];
+
+// Group sectors by label for legend display
+const TIER_ORDER = [
+  'Arq. Cosmo Damião',
+  'Arq. José de Alencar',
+  'Cadeira Térrea',
+  'Cad. Social Dom Pedro',
+  'Cad. Social P. Isabel',
+  'Cad. Coberta Dom Pedro',
+  'Cadeira Cativa',
+  'PMR / PCR',
+  'Camarote VIP',
+];
+
+const sectorMap = {};
+SECTOR_DATA.forEach(s => { sectorMap[s.name] = s; });
+
+// ---- Apply fills to SVG polygons ----
+function applyColors() {
+  document.querySelectorAll('#stadium-svg polygon').forEach(poly => {
+    const d = sectorMap[poly.dataset.sector];
+    if (!d) return;
+    poly.style.fill        = d.color + '55'; // ~33% alpha
+    poly.style.stroke      = d.color;
+    poly.style.strokeWidth = '1.5px';
+    poly._data = d;
+  });
+}
+
+function hexToRgba(hex, a) {
+  const r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+// ---- Build legend ----
+function buildLegend() {
+  const container = document.getElementById('legend-tiers');
+  container.innerHTML = '';
+
+  // Group by tier label
+  const groups = {};
+  TIER_ORDER.forEach(t => { groups[t] = []; });
+  SECTOR_DATA.forEach(s => {
+    if (groups[s.label] !== undefined && !groups[s.label].find(x => x.name === s.name))
+      groups[s.label].push(s);
+  });
+
+  TIER_ORDER.forEach(tier => {
+    const sectors = groups[tier];
+    if (!sectors || !sectors.length) return;
+    const color   = sectors[0].color;
+    const prices  = sectors[0].prices;
+
+    // Tier header
+    const hdr = document.createElement('div');
+    hdr.className = 'legend-tier-header';
+    hdr.innerHTML = `
+      <span class="legend-tier-dot" style="background:${color}"></span>
+      <span class="legend-tier-name">${tier}</span>`;
+    container.appendChild(hdr);
+
+    // Each sector in the tier
+    sectors.forEach(s => {
+      const row = document.createElement('div');
+      row.className = 'legend-sector-item';
+      row.dataset.sector = s.name;
+      row.innerHTML = `
+        <span class="legend-color-swatch" style="background:${s.color}"></span>
+        <div class="legend-sector-info" style="flex:1;min-width:0">
+          <div class="legend-sector-name-text">${s.name}</div>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(4,42px);gap:2px;flex-shrink:0">
+          <div style="text-align:center;font-size:10px;font-weight:700;color:#2d7d46">R$${s.prices.popular}</div>
+          <div style="text-align:center;font-size:10px;font-weight:700;color:#b5651d">R$${s.prices.silver}</div>
+          <div style="text-align:center;font-size:10px;font-weight:700;color:#b8860b">R$${s.prices.gold}</div>
+          <div style="text-align:center;font-size:10px;font-weight:700;color:#111">${s.prices.black === 0 ? '<span style="font-size:13px">R$0</span>' : 'R$'+s.prices.black}</div>
+        </div>`;
+      row.onclick = () => {
+        const poly = document.querySelector(`#stadium-svg polygon[data-sector="${s.name}"]`);
+        if (poly) zoomSector({ stopPropagation:()=>{} }, poly);
+      };
+      container.appendChild(row);
+    });
+  });
+}
+
+function highlightLegend(name) {
+  document.querySelectorAll('.legend-sector-item').forEach(r => r.classList.remove('highlighted'));
+  const row = document.querySelector(`.legend-sector-item[data-sector="${name}"]`);
+  if (row) { row.classList.add('highlighted'); row.scrollIntoView({ behavior:'smooth', block:'nearest' }); }
+}
+
+// ============================================================
+// SEAT GENERATION
+// ============================================================
+function getRowLetter(idx) {
+  let l = '';
+  while (idx >= 0) { l = String.fromCharCode(65 + idx % 26) + l; idx = Math.floor(idx / 26) - 1; }
+  return l;
+}
+function isPointInPoly(pt, pts) {
+  let inside = false;
+  for (let i=0, j=pts.length-1; i<pts.length; j=i++) {
+    const xi=pts[i].x, yi=pts[i].y, xj=pts[j].x, yj=pts[j].y;
+    if (((yi>pt.y)!==(yj>pt.y)) && pt.x<(xj-xi)*(pt.y-yi)/(yj-yi)+xi) inside=!inside;
+  }
+  return inside;
+}
+
+function generateSeats(polygon, sectorName, price) {
+  const layer = document.getElementById('seats-layer');
+  layer.innerHTML = '';
+  const pts = [];
+  for (let i=0; i<polygon.points.numberOfItems; i++)
+    pts.push({ x:polygon.points.getItem(i).x, y:polygon.points.getItem(i).y });
+  const bbox=polygon.getBBox(), R=3.5, SP=15;
+  let rowIdx=0;
+  for (let y=bbox.y+SP; y<bbox.y+bbox.height; y+=SP) {
+    let colIdx=1, rowHas=false;
+    for (let x=bbox.x+SP; x<bbox.x+bbox.width; x+=SP) {
+      if (!isPointInPoly({x,y},pts)) continue;
+      rowHas=true;
+      const code=`${sectorName} - Fileira ${getRowLetter(rowIdx)} - ${colIdx}`;
+      const reserved=Math.random()<0.35;
+      const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      c.setAttribute('cx',x); c.setAttribute('cy',y); c.setAttribute('r',R);
+      c.dataset.code=code; c.dataset.price=price;
+      if (reserved) {
+        c.setAttribute('class','seat-reserved');
+      } else {
+        c.setAttribute('class', isInCart(code)?'seat-available seat-selected':'seat-available');
+        c.addEventListener('click', function(e) {
+          e.stopPropagation();
+          if (this.classList.contains('seat-selected')) {
+            this.classList.remove('seat-selected');
+            removeFromCart(code);
+          } else {
+            this.classList.add('seat-selected');
+            addToCart({ code, price:parseInt(this.dataset.price) });
+            showToast('Assento adicionado');
+          }
+        });
+      }
+      layer.appendChild(c);
+      colIdx++;
+    }
+    if (rowHas) rowIdx++;
+  }
+}
+
+// ============================================================
+// ZOOM — THE KEY FIX:
+// We never set opacity on the zoom-layer or map-area.
+// Non-active polygons get opacity via CSS class .zoom-active polygon:not(.active)
+// The seats-layer <g> is always fully visible and on top.
+// A transparent reset-overlay sits behind the seats but in front of non-active polys.
+// ============================================================
+function zoomSector(event, poly) {
+  event.stopPropagation();
+  if (poly.classList.contains('active')) { resetZoom(); return; }
+
+  // Mark active
+  document.querySelectorAll('#stadium-svg polygon').forEach(p => {
+    p.classList.remove('active');
+    // restore normal fill (slight transparency)
+    const d = p._data;
+    if (d) { p.style.fill = d.color + '55'; p.style.stroke = d.color; }
+  });
+  poly.classList.add('active');
+  // Active sector: full color fill
+  const d = poly._data;
+  if (d) { poly.style.fill = d.color + 'bb'; poly.style.stroke = d.color; }
+
+  document.body.classList.add('zoom-active');
+
+  // Calculate scale+translate
+  const vw=843, vh=789;
+  const bbox=poly.getBBox();
+  const cx=(bbox.x+bbox.width/2)/vw*100;
+  const cy=(bbox.y+bbox.height/2)/vh*100;
+  const tx=50-cx, ty=50-cy;
+  const cont=document.getElementById('map-container');
+  const pw=(bbox.width/vw)*cont.offsetWidth;
+  const ph=(bbox.height/vh)*cont.offsetHeight;
+  let scale=Math.min((cont.offsetWidth*.80)/pw, (cont.offsetHeight*.70)/ph);
+  scale=Math.min(Math.max(scale,2.5),10);
+
+  const zl=document.getElementById('zoom-layer');
+  zl.style.transformOrigin=`${cx}% ${cy}%`;
+  zl.style.transform=`translate(${tx}%, ${ty}%) scale(${scale})`;
+
+  // Show reset overlay (behind seats-layer, clicking it resets)
+  document.getElementById('reset-overlay').style.display='block';
+
+  // Panel info
+  const name=poly.dataset.sector;
+  const data=sectorMap[name]||{};
+  const price=data.prices ? data.prices.popular : 80;
+  document.getElementById('tp-name').textContent=`${name} — ${data.label||''}`;
+  document.getElementById('tp-price').textContent=`A partir de R$ ${price},00`;
+  document.getElementById('ticket-panel').classList.add('show');
+
+  highlightLegend(name);
+  generateSeats(poly, name, price);
+}
+
+function resetZoom() {
+  document.body.classList.remove('zoom-active');
+  document.querySelectorAll('#stadium-svg polygon').forEach(p => {
+    p.classList.remove('active');
+    const d=p._data;
+    if (d) { p.style.fill=d.color+'55'; p.style.stroke=d.color; }
+  });
+  document.getElementById('zoom-layer').style.transform='';
+  document.getElementById('seats-layer').innerHTML='';
+  document.getElementById('ticket-panel').classList.remove('show');
+  document.getElementById('reset-overlay').style.display='none';
+  document.querySelectorAll('.legend-sector-item').forEach(r => r.classList.remove('highlighted'));
+}
+
+// ---- Notifications ----
+function toggleNotif(e) { e.stopPropagation(); document.getElementById('notif-popup').classList.toggle('open'); }
+function markAllRead() {
+  document.querySelectorAll('.notif-item.unread').forEach(el => {
+    el.classList.remove('unread'); const d=el.querySelector('.notif-unread-dot'); if(d) d.remove();
+  });
+  document.getElementById('notif-dot').style.display='none';
+}
+function markItemRead(el) {
+  el.classList.remove('unread'); const d=el.querySelector('.notif-unread-dot'); if(d) d.remove();
+  if (!document.querySelectorAll('.notif-item.unread').length) document.getElementById('notif-dot').style.display='none';
+}
+document.addEventListener('click', e => {
+  const p=document.getElementById('notif-popup');
+  if (!p.contains(e.target) && !document.getElementById('notif-btn').contains(e.target)) p.classList.remove('open');
+});
+
+// ---- Checkout button ----
+function syncCheckoutBtn() {
+  const cart=getCart();
+  const btn=document.getElementById('btn-checkout');
+  const ok=cart.length>0 && cart.every(i=>validateCpf(i.cpf||''));
+  btn.classList.toggle('disabled',!ok);
+  if (ok) btn.removeAttribute('disabled'); else btn.setAttribute('disabled','');
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  applyColors();
+  buildLegend();
+  syncCheckoutBtn();
+  const obs=new MutationObserver(syncCheckoutBtn);
+  obs.observe(document.getElementById('cart-items'),{childList:true,subtree:true});
+  document.getElementById('btn-checkout').addEventListener('click', e => {
+    if (document.getElementById('btn-checkout').classList.contains('disabled')) e.preventDefault();
+  });
+});
+</script>
+</body>
+</html>
