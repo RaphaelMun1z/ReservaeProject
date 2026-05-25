@@ -3,16 +3,14 @@ server:
 spring:
   application:
     name: event-catalog-service
-  datasource:
-    url: jdbc:h2:mem:testdb
-    username: sa
-    password:
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
-  jpa:
-    show-sql: true
-    hibernate:
-      ddl-auto: update
-event-catalog-service:
+  profiles:
+    active: test
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - '*'
+  endpoint:
+    health:
+      show-details: ALWAYS

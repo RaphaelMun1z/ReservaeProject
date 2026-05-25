@@ -1,0 +1,314 @@
+﻿<!doctype html>
+<html lang="pt-BR">
+	<head>
+		<meta charset="UTF-8" />
+		<meta
+			name="viewport"
+			content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+		/>
+		<title>Mapa de Setores - Santos F.C.</title>
+		<link rel="stylesheet" href="style2.css" />
+		<link
+			rel="stylesheet"
+			href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/dist/tabler-icons.min.css"
+		/>
+	</head>
+	<body>
+		<!-- =============================================
+		     NAVBAR
+		     ============================================= -->
+		<nav class="app-navbar" id="app-navbar">
+			<a class="nav-brand" href="index.html">
+				<div class="nav-brand-logo">
+					<i class="ti ti-ticket" aria-hidden="true"></i>
+				</div>
+				<span class="nav-brand-name">Match<span>Pass</span></span>
+			</a>
+
+			<div class="nav-links">
+				<a class="nav-link active" href="index.html">
+					<i class="ti ti-layout-grid" aria-hidden="true"></i>Jogos
+				</a>
+				<a class="nav-link" href="#">
+					<i class="ti ti-ticket" aria-hidden="true"></i>Meus
+					ingressos
+				</a>
+				<a class="nav-link" href="#">
+					<i class="ti ti-trophy" aria-hidden="true"></i>Times
+				</a>
+			</div>
+
+			<div class="nav-right">
+				<button class="nav-icon-btn" aria-label="Notificações">
+					<i class="ti ti-bell" aria-hidden="true"></i>
+					<span class="nav-badge"></span>
+				</button>
+				<a class="nav-avatar" href="perfil.html">
+					<div class="avatar-circle">RM</div>
+					<span class="nav-avatar-name">Rodrigo M.</span>
+					<i class="ti ti-chevron-down" aria-hidden="true"></i>
+				</a>
+			</div>
+		</nav>
+
+		<!-- Layout: aside sempre aberto + área do mapa -->
+		<div class="app-layout">
+			<!-- =============================================
+			     ASIDE LATERAL (sempre visível)
+			     ============================================= -->
+			<aside class="cart-aside" id="cart-aside">
+				<!-- Cabeçalho -->
+				<div class="cart-aside-header">
+					<div>
+						<span class="cart-kicker">MatchPass</span>
+						<h3>Carrinho</h3>
+					</div>
+					<span
+						class="cart-count-badge"
+						id="cart-count"
+						aria-label="Ingressos no carrinho"
+						>0</span
+					>
+				</div>
+
+				<!-- Contador de reserva -->
+				<div
+					class="purchase-timer"
+					aria-label="Tempo para finalizar a compra"
+				>
+					<div>
+						<h3>
+							Finalize a compra antes do prazo para manter seus
+							ingressos reservados.
+						</h3>
+					</div>
+					<h3 class="countdown"><span>10</span>min</h3>
+				</div>
+
+				<!-- Painel: Carrinho -->
+				<div class="cart-panel" id="panel-carrinho">
+					<div class="cart-items-list" id="cart-items-list">
+						<div class="empty-cart">Seu carrinho está vazio.</div>
+					</div>
+					<div class="cart-footer">
+						<div class="cart-total">
+							<span>Total:</span>
+							<span id="cart-total-price">R$ 0,00</span>
+						</div>
+						<a class="checkout-btn" href="checkout.html">
+							Finalizar compra
+						</a>
+					</div>
+				</div>
+			</aside>
+
+			<!-- =============================================
+			     ÁREA DO MAPA
+			     ============================================= -->
+
+			<!-- Fundo escuro no zoom -->
+			<div class="backdrop" id="backdrop" onclick="resetZoom()"></div>
+
+			<!-- Header do mapa -->
+			<div class="header">
+				<h2 id="main-title">
+					<img
+						src="Santos_Logo.png"
+						alt="Escudo do Santos F.C."
+						class="header-icon"
+					/>
+					x
+					<img
+						src="RealMadrid_Logo.png"
+						alt="Escudo do Real Madrid"
+						class="header-icon"
+					/>
+				</h2>
+				<p>Estádio Urbano Caldeira - Santos/SP</p>
+				<p>20/05/2026 às 19h</p>
+			</div>
+
+			<!-- Mapa SVG -->
+			<div class="map-container" id="map-container">
+				<div class="map-zoom-layer" id="zoom-layer">
+					<svg
+						viewBox="0 0 843 789"
+						xmlns="http://www.w3.org/2000/svg"
+						onclick="resetZoom()"
+					>
+						<!-- Polígonos dos Setores -->
+						<polygon
+							points="298,129 298,515 266,515 266,129"
+							onclick="zoomSector(event, this)"
+						>
+							<title>Setor 1</title>
+						</polygon>
+						<polygon
+							points="298,515 298,604 266,604 266,515"
+							onclick="zoomSector(event, this)"
+						>
+							<title>Setor 2</title>
+						</polygon>
+						<polygon
+							points="298,567 298,604 566,604 566,567"
+							onclick="zoomSector(event, this)"
+						>
+							<title>Setor 3</title>
+						</polygon>
+						<polygon
+							points="298,604 298,635 467,635 467,604"
+							onclick="zoomSector(event, this)"
+						>
+							<title>Setor 4</title>
+						</polygon>
+						<polygon
+							points="467,604 467,635 614,635 628,622 639,602 640,577 611,577 608,591 599,600 589,604 566,604"
+							onclick="zoomSector(event, this)"
+						>
+							<title>Setor 5</title>
+						</polygon>
+						<polygon
+							points="578,129 578,229 611,229 611,129"
+							onclick="zoomSector(event, this)"
+						>
+							<title>Camarote Inferiores</title>
+						</polygon>
+						<polygon
+							points="566,567 566,604 589,604 599,600 608,591 611,577 611,229 578,229 578,567"
+							onclick="zoomSector(event, this)"
+						>
+							<title>Setor 7</title>
+						</polygon>
+						<polygon
+							points="611,129 640,129 640,345 611,345"
+							onclick="zoomSector(event, this)"
+						>
+							<title>Setor 8</title>
+						</polygon>
+						<polygon
+							points="611,345 640,345 640,542 611,542"
+							onclick="zoomSector(event, this)"
+						>
+							<title>Setor 9</title>
+						</polygon>
+						<polygon
+							points="611,542 640,542 640,577 611,577"
+							onclick="zoomSector(event, this)"
+						>
+							<title>Setor 10</title>
+						</polygon>
+						<polygon
+							points="298,635 298,670 574,743 574,635"
+							onclick="zoomSector(event, this)"
+						>
+							<title>Setor 11</title>
+						</polygon>
+						<polygon
+							points="614,635 637,678 657,662 672,643 681,625 686,607 688,586 688,129 640,129 640,577 639,602 628,622"
+							onclick="zoomSector(event, this)"
+						>
+							<title>Setor 12</title>
+						</polygon>
+						<polygon
+							points="637,678 646,698 661,687 673,672 689,651 700,624 709,599 710,576 709,129 688,129 688,586 686,607 681,625 672,643 657,662"
+							onclick="zoomSector(event, this)"
+						>
+							<title>Setor 13</title>
+						</polygon>
+						<polygon
+							points="646,698 660,721 685,699 702,674 720,642 728,613 733,589 734,576 710,576 709,599 700,624 689,651 673,672 661,687"
+							onclick="zoomSector(event, this)"
+						>
+							<title>Setor 14</title>
+						</polygon>
+						<polygon
+							points="574,635 574,743 660,721 646,698 637,678 614,635"
+							onclick="zoomSector(event, this)"
+						>
+							<title>Setor 15</title>
+						</polygon>
+						<polygon
+							points="298,604 266,604 266,635 298,635"
+							onclick="zoomSector(event, this)"
+						>
+							<title>Setor 16</title>
+						</polygon>
+						<polygon
+							points="266,604 124,604 124,514 97,514 97,635 266,635"
+							onclick="zoomSector(event, this)"
+						>
+							<title>Setor 17</title>
+						</polygon>
+						<polygon
+							points="266,474 266,552 124,552 124,474"
+							onclick="zoomSector(event, this)"
+						>
+							<title>Setor 18</title>
+						</polygon>
+						<polygon
+							points="266,129 159,129 159,180 167,180 124,242 124,474 266,474"
+							onclick="zoomSector(event, this)"
+						>
+							<title>Setor 19</title>
+						</polygon>
+						<polygon
+							points="298,129 298,101 578,101 578,129 595,129 595,79 288,79 288,129"
+							onclick="zoomSector(event, this)"
+						>
+							<title>Setor 20</title>
+						</polygon>
+						<polygon
+							points="595,129 657,129 655,50 645,29 630,15 614,7 597,2 287,2 262,10 246,21 235,35 227,49 228,129 288,129 288,79 595,79"
+							onclick="zoomSector(event, this)"
+						>
+							<title>Setor 21</title>
+						</polygon>
+						<polygon
+							points="167,180 97,180 97,242 124,242"
+							onclick="zoomSector(event, this)"
+						>
+							<title>Setor 22</title>
+						</polygon>
+						<polygon
+							points="124,321 124,454 97,454 97,321"
+							onclick="zoomSector(event, this)"
+						>
+							<title>Setor 23</title>
+						</polygon>
+						<polygon
+							points="124,242 124,321 97,321 97,242"
+							onclick="zoomSector(event, this)"
+						>
+							<title>Setor 24</title>
+						</polygon>
+						<polygon
+							points="124,454 124,514 97,514 97,454"
+							onclick="zoomSector(event, this)"
+						>
+							<title>Setor 25</title>
+						</polygon>
+						<polygon
+							points="124,552 124,604 266,604 266,552"
+							onclick="zoomSector(event, this)"
+						>
+							<title>Setor 26</title>
+						</polygon>
+
+						<g id="seats-layer"></g>
+					</svg>
+				</div>
+			</div>
+
+			<!-- Painel de ingresso (bottom sheet ao selecionar setor) -->
+			<div class="ticket-panel" id="ticket-panel">
+				<div class="tp-header">
+					<h3 class="tp-title" id="tp-name">Nome do Setor</h3>
+					<div class="tp-price" id="tp-price">R$ 0,00</div>
+				</div>
+			</div>
+		</div>
+		<!-- /.app-layout -->
+
+		<script src="script.js"></script>
+	</body>
+</html>
