@@ -1,6 +1,7 @@
 package event_catalog_service.dtos.req;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 public record CreateEventRequestDTO(
@@ -9,6 +10,6 @@ public record CreateEventRequestDTO(
     UUID venueId,
     UUID homeTeamId,
     UUID awayTeamId,
-    List<SectorPricingRequest> sectorsPricing
+    List<SectorPricingRequestDTO> sectorsPricing
 ) {
 }
