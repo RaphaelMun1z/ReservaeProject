@@ -1,5 +1,6 @@
 package event_catalog_service.services;
 
+import event_catalog_service.dtos.query.EventDetailsProjection;
 import event_catalog_service.dtos.req.CreateEventRequestDTO;
 import event_catalog_service.dtos.req.TeamRequestDTO;
 import event_catalog_service.dtos.res.EventDetailsResponseDTO;
@@ -32,8 +33,27 @@ public class EventCatalogService {
         this.eventSectorPricingRepository = eventSectorPricingRepository;
     }
 
-    public EventDetailsResponseDTO findEventById(String id) {
-        return eventRepository.getEventDetails(id).orElseThrow(() -> new IllegalArgumentException("Evento não encontrado com o ID: " + id));
+    public EventDetailsResponseDTO findEventById(String eventId) {
+        EventDetailsProjection event = eventRepository.findEventDetailsByEventId(eventId)
+            .orElseThrow(() -> new IllegalArgumentException("Evento não encontrado"));
+
+        List<EventSectorDetailsDTO> eventSectorsDetailsDTO = eventSectorPricingRepository.findEventSectorsDetailsByEventId(eventId);
+
+        return new EventDetailsResponseDTO(
+            event.getEventId(),
+            event.getTitle(),
+            event.getEventDate(),
+            event.getStatus(),
+
+            event.getVenueName(),
+            event.getVenueCity(),
+            event.getVenueState(),
+
+            event.getHomeTeamName(),
+            event.getAwayTeamName(),
+
+            eventSectorsDetailsDTO
+        );
     }
 
     @Transactional
@@ -77,8 +97,12 @@ public class EventCatalogService {
             saveEvent.getId(),
             saveEvent.getTitle(),
             saveEvent.getEventDate(),
+            saveEvent.getStatus(),
             eventVenue.getName(),
             eventVenue.getCity(),
+            eventVenue.getState(),
+            homeTeam.getName(),
+            awayTeam.getName(),
             eventSectorsDetails
         );
     }

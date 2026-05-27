@@ -31,6 +31,11 @@ public class EventCatalogController {
         return ResponseEntity.ok("pong");
     }
 
+    @GetMapping("/v1/event/{id}")
+    public ResponseEntity<EventDetailsResponseDTO> findEventById(@PathVariable String id) {
+        return ResponseEntity.ok().body(eventCatalogService.findEventById(id));
+    }
+
     @PostMapping("/v1/event")
     public ResponseEntity<EventDetailsResponseDTO> createEvent(@RequestBody CreateEventRequestDTO dto) {
         return ResponseEntity.ok().body(eventCatalogService.createEvent(dto));
