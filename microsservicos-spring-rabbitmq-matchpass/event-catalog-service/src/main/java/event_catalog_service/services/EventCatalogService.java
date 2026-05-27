@@ -2,18 +2,14 @@ package event_catalog_service.services;
 
 import event_catalog_service.dtos.query.EventDetailsProjection;
 import event_catalog_service.dtos.req.CreateEventRequestDTO;
+import event_catalog_service.dtos.req.SectorPricingRequestDTO;
 import event_catalog_service.dtos.req.TeamRequestDTO;
 import event_catalog_service.dtos.res.EventDetailsResponseDTO;
 import event_catalog_service.dtos.res.EventSectorDetailsDTO;
+import event_catalog_service.dtos.res.SectorPricingResponseDTO;
 import event_catalog_service.dtos.res.TeamResponseDTO;
-import event_catalog_service.entities.Event;
-import event_catalog_service.entities.EventSectorPricing;
-import event_catalog_service.entities.Team;
-import event_catalog_service.entities.Venue;
-import event_catalog_service.repositories.EventRepository;
-import event_catalog_service.repositories.EventSectorPricingRepository;
-import event_catalog_service.repositories.TeamRepository;
-import event_catalog_service.repositories.VenueRepository;
+import event_catalog_service.entities.*;
+import event_catalog_service.repositories.*;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -23,14 +19,41 @@ import java.util.List;
 public class EventCatalogService {
     private final EventRepository eventRepository;
     private final VenueRepository venueRepository;
+    private final SectorRepository sectorRepository;
     private final EventSectorPricingRepository eventSectorPricingRepository;
     private final TeamRepository teamRepository;
 
-    public EventCatalogService(EventRepository eventRepository, VenueRepository venueRepository, TeamRepository teamRepository, EventSectorPricingRepository eventSectorPricingRepository) {
+    public EventCatalogService(EventRepository eventRepository, VenueRepository venueRepository, SectorRepository sectorRepository, TeamRepository teamRepository, EventSectorPricingRepository eventSectorPricingRepository) {
         this.eventRepository = eventRepository;
         this.venueRepository = venueRepository;
+        this.sectorRepository = sectorRepository;
         this.teamRepository = teamRepository;
         this.eventSectorPricingRepository = eventSectorPricingRepository;
+    }
+
+    @Transactional
+    public SectorPricingResponseDTO addSectorToAnEvent(String eventId, SectorPricingRequestDTO dto) {
+        Event eventFound = eventRepository.findById(eventId)
+            .orElseThrow(() -> new IllegalArgumentException("Evento não encontrado"));
+
+        EventSectorPricing newESP = new EventSectorPricing(
+            eventFound,
+            dto.sectorId(),
+            dto.basePrice(),
+            dto.halfPrice()
+        );
+        EventSectorPricing savedESP = eventSectorPricingRepository.save(newESP);
+
+        Sector sector = sectorRepository.findById(savedESP.getSectorId())
+            .orElseThrow(() -> new IllegalArgumentException("Setor não encontrado"));
+
+        return new SectorPricingResponseDTO(
+            sector.getId(),
+            sector.getName(),
+            savedESP.getBasePrice(),
+            savedESP.getHalfPrice(),
+            sector.getHasNumberedSeats()
+        );
     }
 
     public EventDetailsResponseDTO findEventById(String eventId) {

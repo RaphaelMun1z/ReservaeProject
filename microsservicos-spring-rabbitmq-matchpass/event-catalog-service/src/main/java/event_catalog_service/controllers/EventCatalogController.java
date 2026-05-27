@@ -1,13 +1,7 @@
 package event_catalog_service.controllers;
 
-import event_catalog_service.dtos.req.CreateEventRequestDTO;
-import event_catalog_service.dtos.req.CreateVenueRequestDTO;
-import event_catalog_service.dtos.req.SectorRequestDTO;
-import event_catalog_service.dtos.req.TeamRequestDTO;
-import event_catalog_service.dtos.res.EventDetailsResponseDTO;
-import event_catalog_service.dtos.res.SectorResponseDTO;
-import event_catalog_service.dtos.res.TeamResponseDTO;
-import event_catalog_service.dtos.res.VenueResponseDTO;
+import event_catalog_service.dtos.req.*;
+import event_catalog_service.dtos.res.*;
 import event_catalog_service.services.EventCatalogService;
 import event_catalog_service.services.VenueService;
 import org.springframework.http.ResponseEntity;
@@ -29,6 +23,11 @@ public class EventCatalogController {
     @GetMapping("/v1/ping")
     public ResponseEntity<String> ping() {
         return ResponseEntity.ok("pong");
+    }
+
+    @PostMapping("/v1/event/{id}/add-sector")
+    public ResponseEntity<SectorPricingResponseDTO> addSectorToAnEvent(@PathVariable String id, @RequestBody SectorPricingRequestDTO dto) {
+        return ResponseEntity.ok().body(eventCatalogService.addSectorToAnEvent(id, dto));
     }
 
     @GetMapping("/v1/event/{id}")
