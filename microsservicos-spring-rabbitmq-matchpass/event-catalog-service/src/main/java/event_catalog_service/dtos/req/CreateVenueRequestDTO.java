@@ -1,6 +1,5 @@
 package event_catalog_service.dtos.req;
 
-import event_catalog_service.entities.Sector;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 

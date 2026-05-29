@@ -6,32 +6,21 @@ import event_catalog_service.dtos.req.SectorPricingRequestDTO;
 import event_catalog_service.dtos.res.EventDetailsResponseDTO;
 import event_catalog_service.dtos.res.EventSectorDetailsDTO;
 import event_catalog_service.dtos.res.SectorPricingResponseDTO;
-import event_catalog_service.entities.*;
+import event_catalog_service.entities.Event;
+import event_catalog_service.entities.EventSectorPricing;
+import event_catalog_service.entities.Team;
+import event_catalog_service.entities.Venue;
 import event_catalog_service.repositories.*;
+import event_catalog_service.services.dataHandler.EventCatalogDataHandler;
 import jakarta.transaction.Transactional;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class EventCatalogService {
-    private final EventRepository eventRepository;
-    private final VenueRepository venueRepository;
-    private final SectorRepository sectorRepository;
-    private final EventSectorPricingRepository eventSectorPricingRepository;
-    private final TeamRepository teamRepository;
-
-    public EventCatalogService(
-        EventRepository eventRepository,
-        VenueRepository venueRepository,
-        SectorRepository sectorRepository,
-        EventSectorPricingRepository eventSectorPricingRepository,
-        TeamRepository teamRepository) {
-        this.eventRepository = eventRepository;
-        this.venueRepository = venueRepository;
-        this.sectorRepository = sectorRepository;
-        this.eventSectorPricingRepository = eventSectorPricingRepository;
-        this.teamRepository = teamRepository;
+public class EventCatalogService extends EventCatalogDataHandler {
+    public EventCatalogService(EventRepository eventRepository, VenueRepository venueRepository, SectorRepository sectorRepository, EventSectorPricingRepository eventSectorPricingRepository, TeamRepository teamRepository) {
+        super(eventRepository, venueRepository, sectorRepository, eventSectorPricingRepository, teamRepository);
     }
 
     public EventDetailsResponseDTO findEventById(String eventId) {
@@ -69,14 +58,7 @@ public class EventCatalogService {
         }
 
         // Cria e Salva Evento
-        Event newEvent = new Event(
-            dto.title(),
-            dto.eventDate(),
-            eventVenue.getId(),
-            homeTeam.getId(),
-            awayTeam.getId()
-        );
-        Event saveEvent = eventRepository.save(newEvent);
+        Event newEvent = createEventInstance(dto, eventVenue, homeTeam, awayTeam);
 
         // Salva Preço dos setores desse evento
         List<EventSectorPricing> eventSectorPricingList =
@@ -94,55 +76,24 @@ public class EventCatalogService {
         List<EventSectorDetailsDTO> eventSectorsDetails = eventSectorPricingRepository.findEventSectorsDetailsByEventId(saveEvent.getId());
 
         // Prepara DTO para retorno
-        return new EventDetailsResponseDTO(
-            saveEvent.getId(),
-            saveEvent.getTitle(),
-            saveEvent.getEventDate(),
-            saveEvent.getStatus(),
-            eventVenue.getName(),
-            eventVenue.getCity(),
-            eventVenue.getState(),
-            homeTeam.getName(),
-            awayTeam.getName(),
-            eventSectorsDetails
-        );
+        return createEventDetailsResponseDTO(saveEvent, eventVenue, homeTeam, awayTeam, eventSectorsDetails);
     }
 
     @Transactional
     public SectorPricingResponseDTO addSectorToAnEvent(String eventId, SectorPricingRequestDTO dto) {
-        Event eventFound = eventRepository.findById(eventId)
-            .orElseThrow(() -> new IllegalArgumentException("Evento não encontrado"));
-
-        EventSectorPricing newESP = new EventSectorPricing(
-            eventFound,
-            dto.sectorId(),
-            dto.basePrice(),
-            dto.halfPrice()
-        );
-        EventSectorPricing savedESP = eventSectorPricingRepository.save(newESP);
+        Event eventFound = getEventById(eventId);
+        EventSectorPricing savedESP = createEventSectorPricingInstance(eventFound, dto);
         eventFound.addPricing(savedESP);
-
-        Sector sector = sectorRepository.findById(savedESP.getSectorId())
-            .orElseThrow(() -> new IllegalArgumentException("Setor não encontrado"));
-
-        return new SectorPricingResponseDTO(
-            sector.getId(),
-            sector.getName(),
-            savedESP.getBasePrice(),
-            savedESP.getHalfPrice(),
-            sector.getHasNumberedSeats()
-        );
+        return createSectorPricingResponse(getSectorById(dto.sectorId()), savedESP);
     }
 
     @Transactional
     public void removeSectorFromAnEvent(String eventId, String secId) {
-        Event eventFound = eventRepository.findById(eventId)
-            .orElseThrow(() -> new IllegalArgumentException("Evento não encontrado"));
-
+        Event eventFound = getEventById(eventId);
         EventSectorPricing espFound = eventFound.getPricings()
             .stream()
             .filter(eventSectorPricing -> eventSectorPricing.getSectorId().equals(secId)).toList().getFirst();
-
         eventFound.removePricing(espFound);
     }
+
 }

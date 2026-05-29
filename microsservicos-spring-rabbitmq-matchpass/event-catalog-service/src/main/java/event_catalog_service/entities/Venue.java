@@ -8,7 +8,6 @@ import jakarta.validation.constraints.Size;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 @Entity
 @Table(name = "tb_venues")
@@ -78,6 +77,10 @@ public class Venue {
     public void addSector(Sector sector) {
         sector.setVenue(this);
         this.sectors.add(sector);
+    }
+
+    public void addMultipleSectors(List<Sector> sectors) {
+        this.sectors.addAll(sectors);
     }
 
     public void removeSector(Sector sector) {
