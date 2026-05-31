@@ -4,8 +4,8 @@ server:
 spring:
   application:
     name: event-catalog-service
-  profiles:
-    active: dev
+  config:
+    import: optional:configserver:http://localhost:8888
 
 management:
   endpoints:

@@ -1,0 +1,12 @@
+server:
+  port: 8888
+spring:
+  application:
+    name: spring-cloud-config-server
+  cloud:
+    config:
+      server:
+        git:
+          uri: https://github.com/RaphaelMun1z/MatchPassProject
+          search-paths:
+            - microsservicos-spring-rabbitmq-matchpass/matchpass-config-server

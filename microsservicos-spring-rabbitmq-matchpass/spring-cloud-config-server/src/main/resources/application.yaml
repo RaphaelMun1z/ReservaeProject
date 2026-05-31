@@ -7,7 +7,6 @@ spring:
     config:
       server:
         git:
-          uri: https://github.com/RaphaelMun1z/MatchPassProject/microsservicos-spring-rabbitmq-matchpass/matchpass-config-server
-#  profiles:
-#    active:
-#      - native
+          uri: https://github.com/RaphaelMun1z/MatchPassProject
+          search-paths:
+            - microsservicos-spring-rabbitmq-matchpass/matchpass-config-server
