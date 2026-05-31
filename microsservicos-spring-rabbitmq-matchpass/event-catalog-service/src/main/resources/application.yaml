@@ -9,13 +9,3 @@ spring:
   cloud:
     config:
       profile: dev
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include:
-          - '*'
-  endpoint:
-    health:
-      show-details: ALWAYS

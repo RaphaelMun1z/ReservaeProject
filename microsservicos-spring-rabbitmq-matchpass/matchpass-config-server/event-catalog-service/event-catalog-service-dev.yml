@@ -1,19 +1,12 @@
-server:
-  port: 8080
-
 spring:
   application:
     name: event-catalog-service
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include:
-          - '*'
-  endpoint:
-    health:
-      show-details: ALWAYS
-
-event-catalog-service:
-  teste: "abacate"
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/db_event_catalog}
+    driver-class-name: org.postgresql.Driver
+    username: ${SPRING_DATASOURCE_USERNAME:postgres}
+    password: ${SPRING_DATASOURCE_PASSWORD:postgres}
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: false

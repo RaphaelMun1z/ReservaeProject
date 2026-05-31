@@ -5,12 +5,5 @@ spring:
   application:
     name: event-catalog-service
 
-management:
-  endpoints:
-    web:
-      exposure:
-        include:
-          - '*'
-  endpoint:
-    health:
-      show-details: ALWAYS
+event-catalog-service:
+  teste: "abacate"
