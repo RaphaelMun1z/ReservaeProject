@@ -8,6 +8,7 @@
         <outputRelativeToContentRoot value="true" />
         <module name="event-catalog-service" />
         <module name="spring-cloud-config-server" />
+        <module name="inventory-service" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -17,6 +18,7 @@
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="event-catalog-service" options="-parameters" />
+      <module name="inventory-service" options="-parameters" />
       <module name="spring-cloud-config-server" options="-parameters" />
     </option>
   </component>

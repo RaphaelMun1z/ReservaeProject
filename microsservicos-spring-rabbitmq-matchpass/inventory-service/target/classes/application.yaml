@@ -1,11 +1,15 @@
 server:
-  port: 8080
+  port: 8100
 
 spring:
   application:
-    name: event-catalog-service
+    name: inventory-service
   config:
     import: optional:configserver:http://localhost:8888
   cloud:
     config:
       profile: dev
+  data:
+    redis:
+      host: localhost
+      port: 6379

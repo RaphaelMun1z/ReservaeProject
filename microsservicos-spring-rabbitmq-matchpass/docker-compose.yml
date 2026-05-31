@@ -4,7 +4,7 @@ services:
   event-catalog-service-postgres-db:
     image: postgres:18.4
     restart: unless-stopped
-    container_name: postgresql-18.4
+    container_name: postgresql-18.4-event-catalog-service
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -14,6 +14,15 @@ services:
     volumes:
       - postgres_data:/var/lib/postgresql
 
+  inventory-service-redis-db:
+    image: redis:7-alpine
+    restart: unless-stopped
+    container_name: redis-7-inventory-service
+    ports:
+      - '6379:6379'
+    volumes:
+      - redis_data:/data
 
 volumes:
   postgres_data:
+  redis_data:
