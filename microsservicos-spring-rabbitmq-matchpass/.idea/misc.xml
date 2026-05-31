@@ -6,6 +6,7 @@
       <list>
         <option value="$PROJECT_DIR$/event-catalog-service/pom.xml" />
         <option value="$PROJECT_DIR$/spring-cloud-config-server/pom.xml" />
+        <option value="$PROJECT_DIR$/matchpass-config-server/pom.xml" />
       </list>
     </option>
   </component>
