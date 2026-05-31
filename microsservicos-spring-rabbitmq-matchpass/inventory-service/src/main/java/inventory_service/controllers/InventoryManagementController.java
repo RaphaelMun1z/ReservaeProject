@@ -8,6 +8,8 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("api/inventory")
 public class InventoryManagementController {
@@ -19,16 +21,29 @@ public class InventoryManagementController {
         this.inventoryManagementService = inventoryManagementService;
     }
 
-    @GetMapping
-    public ResponseEntity<String> teste() {
-        return ResponseEntity.ok().body("ok");
+    @PostMapping(
+        value = "/create-seats/event/{eventId}/sector/{sectorId}/amount/{amount}",
+        produces = MediaType.APPLICATION_JSON_VALUE
+    )
+    public ResponseEntity<List<SeatStatusResponseDTO>> createSeats(
+        @PathVariable String eventId,
+        @PathVariable String sectorId,
+        @PathVariable int amount) {
+        return ResponseEntity.ok(inventoryManagementService.createSeats(
+            amount,
+            new SeatReservationRequestDTO(
+                eventId,
+                sectorId,
+                null
+            )
+        ));
     }
 
     @PostMapping(
         value = "/lock-seat/event/{eventId}/sector/{sectorId}/seat/{seatTag}/user/{userId}",
         produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public SeatStatusResponseDTO tryLockSeat(
+    public ResponseEntity<SeatStatusResponseDTO> tryLockSeat(
         @PathVariable String eventId,
         @PathVariable String sectorId,
         @PathVariable String seatTag,
@@ -38,31 +53,41 @@ public class InventoryManagementController {
             sectorId,
             seatTag
         );
-        return inventoryManagementService.tryLockSeat(
+        return ResponseEntity.ok(inventoryManagementService.tryLockSeat(
             dto,
             userId,
             "PORT " + informationService.retrieveServerPort()
-        );
+        ));
     }
 
     @GetMapping(
-        value = "/check/{lockId}",
+        value = "/check/{seatTag}",
         produces = MediaType.APPLICATION_JSON_VALUE
     )
-    public SeatStatusResponseDTO checkSeatStatus(@PathVariable String lockId) {
-        return inventoryManagementService.checkSeatStatus(
-            lockId,
+    public ResponseEntity<SeatStatusResponseDTO> checkSeatStatus(@PathVariable String seatTag) {
+        return ResponseEntity.ok(inventoryManagementService.checkSeatStatus(
+            seatTag,
             "PORT " + informationService.retrieveServerPort()
-        );
+        ));
     }
 
-    @PostMapping("/confirm/{lockId}")
-    public void confirmSeatSold(@PathVariable String lockId) {
-        inventoryManagementService.confirmSeatSold(lockId);
+    @PatchMapping("/confirm/{seatTag}")
+    public ResponseEntity<Void> confirmSeatSold(@PathVariable String seatTag) {
+        inventoryManagementService.confirmSeatSold(seatTag);
+        return ResponseEntity.ok().build();
     }
 
-    @DeleteMapping("/release/{lockId}")
-    public void releaseSeat(@PathVariable String lockId) {
-        inventoryManagementService.releaseSeat(lockId);
+    @PatchMapping("/release/{seatTag}")
+    public ResponseEntity<Void> releaseSeat(@PathVariable String seatTag) {
+        inventoryManagementService.releaseSeat(seatTag);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("user/{userId}")
+    public ResponseEntity<List<SeatStatusResponseDTO>> findUserSeats(@PathVariable String userId) {
+        return ResponseEntity.ok(inventoryManagementService.findUserSeats(
+            userId,
+            "PORT " + informationService.retrieveServerPort()
+        ));
     }
 }

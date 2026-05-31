@@ -10,6 +10,7 @@ import event_catalog_service.entities.Event;
 import event_catalog_service.entities.EventSectorPricing;
 import event_catalog_service.entities.Team;
 import event_catalog_service.entities.Venue;
+import event_catalog_service.exceptions.models.NotFoundException;
 import event_catalog_service.repositories.EventRepository;
 import event_catalog_service.repositories.EventSectorPricingRepository;
 import event_catalog_service.services.dataHandler.event.EventMapper;
@@ -110,8 +111,7 @@ public class EventCatalogService {
                 .stream()
                 .filter(eventSectorPricing -> eventSectorPricing.getSectorId().equals(secId))
                 .findFirst()
-                .orElseThrow(() -> new IllegalArgumentException("Setor não encontrado no evento"));
+                .orElseThrow(() -> new NotFoundException("Setor não encontrado no evento"));
         eventFound.removePricing(eventSectorPricingFound);
     }
-
 }

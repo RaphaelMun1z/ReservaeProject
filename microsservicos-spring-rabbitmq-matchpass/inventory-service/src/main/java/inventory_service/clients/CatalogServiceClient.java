@@ -9,19 +9,19 @@ import org.springframework.web.bind.annotation.PathVariable;
     url = "${event-catalog.service.url}"
 )
 public interface CatalogServiceClient {
-    @GetMapping("/api/event/v1/{eventId}/exists")
+    @GetMapping("/api/event/validate/v1/{eventId}/exists")
     void validateEvent(@PathVariable String eventId);
 
-    @GetMapping("/api/event/v1/{eventId}/sector/{sectorId}/exists")
-    void validateSector(
+    @GetMapping("/api/event/validate/v1/{eventId}/sector/{sectorId}/exists")
+    void validateEventSector(
         @PathVariable String eventId,
         @PathVariable String sectorId
     );
 
-    @GetMapping("/api/event/v1/{eventId}/sector/{sectorId}/seat/{seatTag}/exists")
-    void validateSeat(
+    @GetMapping("/api/event/validate/v1/{eventId}/sector/{sectorId}/seats/{seatsAmount}")
+    void validateEventSectorSeatCreating(
         @PathVariable String eventId,
         @PathVariable String sectorId,
-        @PathVariable String seatTag
+        @PathVariable int seatsAmount
     );
 }

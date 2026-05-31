@@ -8,6 +8,7 @@ public record EventSectorDetailsDTO(
     String sectorName,
     BigDecimal sectorBasePrice,
     BigDecimal sectorHalfPrice,
-    Boolean hasNumberedSeats
+    Boolean hasNumberedSeats,
+    Integer totalCapacity
 ) {
 }

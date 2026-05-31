@@ -6,10 +6,12 @@ import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
 import org.springframework.data.redis.core.index.Indexed;
 
+import java.util.UUID;
+
 @RedisHash("SeatLock")
 public class SeatLock {
     @Id
-    private String lockId;
+    private String seatTag;
 
     @Indexed
     private String eventId;
@@ -17,28 +19,30 @@ public class SeatLock {
     @Indexed
     private String sectorId;
 
+    @Indexed
     private String userId;
-    private String seatTag;
+
     private SeatStatusEnum status;
 
     @TimeToLive
     private Long ttl;
 
+    private static final long LOCK_TTL_SECONDS = 600L;
+
     public SeatLock() {
     }
 
-    public SeatLock(String lockId, String eventId, String sectorId, String userId, String seatTag, SeatStatusEnum status, Long ttl) {
-        this.lockId = lockId;
+    public SeatLock(
+        String eventId,
+        String sectorId,
+        String userId,
+        SeatStatusEnum status) {
+        this.seatTag = UUID.randomUUID().toString();
         this.eventId = eventId;
         this.sectorId = sectorId;
         this.userId = userId;
-        this.seatTag = seatTag;
         this.status = status;
-        this.ttl = ttl;
-    }
-
-    public String getLockId() {
-        return lockId;
+        this.ttl = (long) -1;
     }
 
     public String getEventId() {
@@ -66,12 +70,20 @@ public class SeatLock {
     }
 
     // Métodos auxiliares
-    public void lock() {
+    public void lock(String userId) {
+        this.userId = userId;
         this.status = SeatStatusEnum.LOCKED;
+        this.ttl = LOCK_TTL_SECONDS;
+    }
+
+    public void release() {
+        this.status = SeatStatusEnum.AVAILABLE;
+        this.ttl = (long) -1;
     }
 
     public void sold() {
         this.status = SeatStatusEnum.SOLD;
+        this.ttl = (long) -1;
     }
 
     public void removeExpiration() {
@@ -82,11 +94,23 @@ public class SeatLock {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof SeatLock seatLock)) return false;
-        return lockId != null && lockId.equals(seatLock.lockId);
+        return seatTag != null && seatTag.equals(seatLock.seatTag);
     }
 
     @Override
     public int hashCode() {
         return getClass().hashCode();
+    }
+
+    @Override
+    public String toString() {
+        return "SeatLock{" +
+            ", seatTag='" + seatTag + '\'' +
+            ", eventId='" + eventId + '\'' +
+            ", sectorId='" + sectorId + '\'' +
+            ", userId='" + userId + '\'' +
+            ", status=" + status +
+            ", ttl=" + ttl +
+            '}';
     }
 }

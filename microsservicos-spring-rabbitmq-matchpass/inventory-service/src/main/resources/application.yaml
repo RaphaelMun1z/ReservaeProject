@@ -14,13 +14,13 @@ spring:
       host: localhost
       port: 6379
 
-#event-catalog:
-#  service:
-#    url: http://localhost:8080
-#
-#feign:
-#  client:
-#    config:
-#      event-catalog-service:
-#        connectTimeout: 5000
-#        readTimeout: 5000
+event-catalog:
+  service:
+    url: http://localhost:8080
+
+feign:
+  client:
+    config:
+      event-catalog-service:
+        connectTimeout: 5000
+        readTimeout: 5000

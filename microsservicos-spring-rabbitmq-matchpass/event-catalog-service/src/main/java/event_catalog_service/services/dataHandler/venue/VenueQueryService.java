@@ -1,6 +1,7 @@
 package event_catalog_service.services.dataHandler.venue;
 
 import event_catalog_service.entities.Venue;
+import event_catalog_service.exceptions.models.NotFoundException;
 import event_catalog_service.repositories.VenueRepository;
 import org.springframework.stereotype.Component;
 
@@ -16,7 +17,7 @@ public class VenueQueryService {
 
     public Venue findVenueById(String id) {
         return venueRepository.findByIdWithSectors(id)
-            .orElseThrow(() -> new IllegalArgumentException("Venue não encontrado com o ID: " + id));
+            .orElseThrow(() -> new NotFoundException("Venue não encontrado com o ID: " + id));
     }
 
     public List<Venue> findAllVenuesWithSectors() {

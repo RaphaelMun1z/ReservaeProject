@@ -34,4 +34,6 @@ public interface VenueRepository extends JpaRepository<Venue, String> {
         String city,
         String state
     );
+
+    Optional<Venue> findByNameAndCityAndState(String name, String city, String state);
 }

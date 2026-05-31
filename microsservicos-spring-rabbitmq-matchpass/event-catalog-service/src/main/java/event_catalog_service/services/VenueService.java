@@ -6,6 +6,8 @@ import event_catalog_service.dtos.res.SectorResponseDTO;
 import event_catalog_service.dtos.res.VenueResponseDTO;
 import event_catalog_service.entities.Sector;
 import event_catalog_service.entities.Venue;
+import event_catalog_service.exceptions.models.DuplicatedResourceException;
+import event_catalog_service.exceptions.models.NotFoundException;
 import event_catalog_service.repositories.SectorRepository;
 import event_catalog_service.repositories.VenueRepository;
 import event_catalog_service.services.dataHandler.venue.VenueMapper;
@@ -54,6 +56,7 @@ public class VenueService {
     @Transactional
     public VenueResponseDTO createVenue(CreateVenueRequestDTO dto) {
         validator.validateTotalCapacity(dto);
+        validateDuplicatedVenue(dto);
 
         Venue venue = new Venue(
             dto.name(),
@@ -80,6 +83,19 @@ public class VenueService {
         Venue savedVenue = venueRepository.save(venue);
 
         return mapper.toVenueResponseDTO(savedVenue);
+    }
+
+    private void validateDuplicatedVenue(CreateVenueRequestDTO dto) {
+        System.out.println(dto.name());
+        System.out.println(dto.city());
+        System.out.println(dto.state());
+        venueRepository.findByNameAndCityAndState(
+            dto.name(),
+            dto.city(),
+            dto.state()
+        ).ifPresent(venue -> {
+            throw new DuplicatedResourceException("O local informado já foi registrado.");
+        });
     }
 
     @Transactional
@@ -111,7 +127,7 @@ public class VenueService {
                 )
                 .findFirst()
                 .orElseThrow(() ->
-                    new IllegalArgumentException("Setor não encontrado")
+                    new NotFoundException("Setor não encontrado")
                 );
 
         venue.removeSector(sector);

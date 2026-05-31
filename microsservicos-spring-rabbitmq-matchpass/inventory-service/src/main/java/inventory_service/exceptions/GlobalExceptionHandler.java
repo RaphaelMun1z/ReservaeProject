@@ -1,6 +1,6 @@
-package event_catalog_service.exceptions;
+package inventory_service.exceptions;
 
-import event_catalog_service.exceptions.models.*;
+import inventory_service.exceptions.models.*;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.springframework.dao.DataIntegrityViolationException;

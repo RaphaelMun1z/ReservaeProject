@@ -4,7 +4,6 @@ import event_catalog_service.dtos.query.EventDetailsProjection;
 import event_catalog_service.entities.Event;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
 
@@ -36,5 +35,5 @@ public interface EventRepository extends JpaRepository<Event, String> {
         
         WHERE e.id = :eventId
         """, nativeQuery = true)
-    Optional<EventDetailsProjection> findEventDetailsByEventId(@Param("eventId") String eventId);
+    Optional<EventDetailsProjection> findEventDetailsByEventId(String eventId);
 }
