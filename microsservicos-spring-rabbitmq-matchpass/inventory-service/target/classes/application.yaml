@@ -24,3 +24,8 @@ feign:
       event-catalog-service:
         connectTimeout: 5000
         readTimeout: 5000
+
+springdoc:
+  pathsToMatch: /**
+  swagger-ui:
+    use-root-path: true
