@@ -120,7 +120,7 @@ public class InventoryManagementService {
 
     public SeatStatusResponseDTO checkSeatStatus(String seatTag, String port) {
         SeatLock seatLock = seatLockRepository.findById(seatTag)
-            .orElseThrow(() -> new RuntimeException("Assento não encontrado ou expirado"));
+            .orElseThrow(() -> new NotFoundException("Assento não encontrado ou expirado"));
 
         return new SeatStatusResponseDTO(
             seatLock.getSeatTag(),
@@ -140,12 +140,12 @@ public class InventoryManagementService {
             )).toList();
     }
 
-    public List<SeatResponseDTO> findEventAvailableSeats(String eventId, String port) {
+    public List<SeatResponseDTO> findEventSeatsByStatus(String eventId, SeatStatusEnum status, String port) {
         if (eventId == null) {
             throw new IllegalArgumentException("O ID do evento não pode ser nulo.");
         }
 
-        return seatLockRepository.findByEventIdAndStatus(eventId, SeatStatusEnum.AVAILABLE).stream().map(
+        return seatLockRepository.findByEventIdAndStatus(eventId, status).stream().map(
             e -> new SeatResponseDTO(
                 e.getSeatTag(),
                 e.getEventId(),
@@ -167,8 +167,8 @@ public class InventoryManagementService {
         );
     }
 
-    public List<SeatResponseDTO> findAvailableSeatsByEventSector(String eventId, String sectorId, String port) {
-        return seatLockRepository.findByEventIdAndSectorId(eventId, sectorId).stream()
+    public List<SeatResponseDTO> findEventSectorSeatsByStatus(String eventId, String sectorId, SeatStatusEnum status, String port) {
+        return seatLockRepository.findByEventIdAndSectorIdAndStatus(eventId, sectorId, status).stream()
             .map(seat -> new SeatResponseDTO(
                 seat.getSeatTag(),
                 seat.getEventId(),

@@ -3,6 +3,7 @@ package inventory_service.controllers;
 import inventory_service.dtos.req.SeatReservationRequestDTO;
 import inventory_service.dtos.res.SeatResponseDTO;
 import inventory_service.dtos.res.SeatStatusResponseDTO;
+import inventory_service.entities.enums.SeatStatusEnum;
 import inventory_service.environment.InstanceInformationService;
 import inventory_service.services.InventoryManagementService;
 import org.springframework.http.MediaType;
@@ -92,12 +93,14 @@ public class InventoryManagementController {
         ));
     }
 
-    @GetMapping("event/{eventId}/seat/available")
-    public ResponseEntity<List<SeatResponseDTO>> findEventAvailableSeats(
-        @PathVariable String eventId
+    @GetMapping("event/{eventId}/seat")
+    public ResponseEntity<List<SeatResponseDTO>> findEventSeatsByStatus(
+        @PathVariable String eventId,
+        @RequestParam SeatStatusEnum status
     ) {
-        return ResponseEntity.ok(inventoryManagementService.findEventAvailableSeats(
+        return ResponseEntity.ok(inventoryManagementService.findEventSeatsByStatus(
             eventId,
+            status,
             "PORT " + informationService.retrieveServerPort())
         );
     }
@@ -110,13 +113,15 @@ public class InventoryManagementController {
         );
     }
 
-    @GetMapping("event/{eventId}/sector/{sectorId}/available-seats")
-    public ResponseEntity<List<SeatResponseDTO>> findAvailableSeatsByEventSector(
+    @GetMapping("event/{eventId}/sector/{sectorId}/seats")
+    public ResponseEntity<List<SeatResponseDTO>> findEventSectorSeatsByStatus(
         @PathVariable String eventId,
-        @PathVariable String sectorId) {
-        return ResponseEntity.ok(inventoryManagementService.findAvailableSeatsByEventSector(
+        @PathVariable String sectorId,
+        @RequestParam SeatStatusEnum status) {
+        return ResponseEntity.ok(inventoryManagementService.findEventSectorSeatsByStatus(
             eventId,
             sectorId,
+            status,
             "PORT " + informationService.retrieveServerPort()
         ));
     }

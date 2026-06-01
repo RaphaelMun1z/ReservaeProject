@@ -1,0 +1,9 @@
+server:
+  port: 8200
+
+spring:
+  application:
+    name: order-service
+
+order-service:
+  teste: "abacate"
