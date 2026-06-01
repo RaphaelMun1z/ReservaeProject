@@ -1,6 +1,7 @@
 package inventory_service.controllers;
 
 import inventory_service.dtos.req.SeatReservationRequestDTO;
+import inventory_service.dtos.res.SeatResponseDTO;
 import inventory_service.dtos.res.SeatStatusResponseDTO;
 import inventory_service.environment.InstanceInformationService;
 import inventory_service.services.InventoryManagementService;
@@ -77,7 +78,7 @@ public class InventoryManagementController {
         return ResponseEntity.ok().build();
     }
 
-    @PatchMapping("/release/{seatTag}")
+    @PostMapping("/release/{seatTag}")
     public ResponseEntity<Void> releaseSeat(@PathVariable String seatTag) {
         inventoryManagementService.releaseSeat(seatTag);
         return ResponseEntity.ok().build();
@@ -87,6 +88,35 @@ public class InventoryManagementController {
     public ResponseEntity<List<SeatStatusResponseDTO>> findUserSeats(@PathVariable String userId) {
         return ResponseEntity.ok(inventoryManagementService.findUserSeats(
             userId,
+            "PORT " + informationService.retrieveServerPort()
+        ));
+    }
+
+    @GetMapping("event/{eventId}/seat/available")
+    public ResponseEntity<List<SeatResponseDTO>> findEventAvailableSeats(
+        @PathVariable String eventId
+    ) {
+        return ResponseEntity.ok(inventoryManagementService.findEventAvailableSeats(
+            eventId,
+            "PORT " + informationService.retrieveServerPort())
+        );
+    }
+
+    @GetMapping("seat/{seatId}")
+    public ResponseEntity<SeatResponseDTO> findSeatById(@PathVariable String seatId) {
+        return ResponseEntity.ok(inventoryManagementService.findSeatById(
+            seatId,
+            "PORT " + informationService.retrieveServerPort())
+        );
+    }
+
+    @GetMapping("event/{eventId}/sector/{sectorId}/available-seats")
+    public ResponseEntity<List<SeatResponseDTO>> findAvailableSeatsByEventSector(
+        @PathVariable String eventId,
+        @PathVariable String sectorId) {
+        return ResponseEntity.ok(inventoryManagementService.findAvailableSeatsByEventSector(
+            eventId,
+            sectorId,
             "PORT " + informationService.retrieveServerPort()
         ));
     }

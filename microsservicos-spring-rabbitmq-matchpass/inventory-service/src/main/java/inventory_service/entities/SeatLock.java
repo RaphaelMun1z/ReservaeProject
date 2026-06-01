@@ -22,6 +22,7 @@ public class SeatLock {
     @Indexed
     private String userId;
 
+    @Indexed
     private SeatStatusEnum status;
 
     @TimeToLive

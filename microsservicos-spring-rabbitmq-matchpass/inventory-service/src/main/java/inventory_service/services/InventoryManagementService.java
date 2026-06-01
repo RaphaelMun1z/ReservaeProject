@@ -3,6 +3,7 @@ package inventory_service.services;
 import feign.FeignException;
 import inventory_service.clients.CatalogServiceClient;
 import inventory_service.dtos.req.SeatReservationRequestDTO;
+import inventory_service.dtos.res.SeatResponseDTO;
 import inventory_service.dtos.res.SeatStatusResponseDTO;
 import inventory_service.entities.SeatLock;
 import inventory_service.entities.enums.SeatStatusEnum;
@@ -10,6 +11,7 @@ import inventory_service.environment.InstanceInformationService;
 import inventory_service.exceptions.models.BusinessException;
 import inventory_service.exceptions.models.NotFoundException;
 import inventory_service.repositories.SeatLockRepository;
+import org.springframework.data.repository.core.support.RepositoryMethodInvocationListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,11 +27,13 @@ public class InventoryManagementService {
 
     private final SeatLockRepository seatLockRepository;
     private final CatalogServiceClient catalogServiceClient;
+    private final RepositoryMethodInvocationListener repositoryMethodInvocationListener;
 
-    public InventoryManagementService(InstanceInformationService informationService, SeatLockRepository seatLockRepository, CatalogServiceClient catalogServiceClient) {
+    public InventoryManagementService(InstanceInformationService informationService, SeatLockRepository seatLockRepository, CatalogServiceClient catalogServiceClient, RepositoryMethodInvocationListener repositoryMethodInvocationListener) {
         this.informationService = informationService;
         this.seatLockRepository = seatLockRepository;
         this.catalogServiceClient = catalogServiceClient;
+        this.repositoryMethodInvocationListener = repositoryMethodInvocationListener;
     }
 
     @Transactional
@@ -136,7 +140,40 @@ public class InventoryManagementService {
             )).toList();
     }
 
-    public List<SeatStatusResponseDTO> findEventAvailableSeats(String eventId, String port) {
-        return seatLockRepository.findByEventIdAndStatus()
+    public List<SeatResponseDTO> findEventAvailableSeats(String eventId, String port) {
+        if (eventId == null) {
+            throw new IllegalArgumentException("O ID do evento não pode ser nulo.");
+        }
+
+        return seatLockRepository.findByEventIdAndStatus(eventId, SeatStatusEnum.AVAILABLE).stream().map(
+            e -> new SeatResponseDTO(
+                e.getSeatTag(),
+                e.getEventId(),
+                e.getSectorId(),
+                port
+            )
+        ).toList();
+    }
+
+    public SeatResponseDTO findSeatById(String seatTag, String port) {
+        SeatLock seat = seatLockRepository.findById(seatTag).orElseThrow(
+            () -> new NotFoundException("Assento inexistente.")
+        );
+        return new SeatResponseDTO(
+            seat.getSeatTag(),
+            seat.getEventId(),
+            seat.getSectorId(),
+            port
+        );
+    }
+
+    public List<SeatResponseDTO> findAvailableSeatsByEventSector(String eventId, String sectorId, String port) {
+        return seatLockRepository.findByEventIdAndSectorId(eventId, sectorId).stream()
+            .map(seat -> new SeatResponseDTO(
+                seat.getSeatTag(),
+                seat.getEventId(),
+                seat.getSectorId(),
+                port
+            )).toList();
     }
 }
