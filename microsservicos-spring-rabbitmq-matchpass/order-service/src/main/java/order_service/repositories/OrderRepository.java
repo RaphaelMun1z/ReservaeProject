@@ -9,5 +9,7 @@ import java.util.Optional;
 public interface OrderRepository extends JpaRepository<Order, String> {
     List<Order> findByEventId(String eventId);
 
+    List<Order> findByUserId(String userId);
+
     Optional<Order> findByItemsSeatTag(String seatTag);
 }

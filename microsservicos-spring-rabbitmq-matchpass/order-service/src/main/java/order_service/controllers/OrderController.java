@@ -55,4 +55,11 @@ public class OrderController {
     ) {
         return ResponseEntity.ok(orderService.updateProcessStatus(orderId, status));
     }
+
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<OrderSummaryResponseDTO>> findOrdersByUserId(
+        @PathVariable String userId
+    ) {
+        return ResponseEntity.ok(orderService.findOrdersByUserId(userId));
+    }
 }

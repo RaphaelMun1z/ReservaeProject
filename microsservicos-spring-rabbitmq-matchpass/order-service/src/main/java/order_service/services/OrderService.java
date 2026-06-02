@@ -117,4 +117,16 @@ public class OrderService {
             "payment-url"
         );
     }
+
+    public List<OrderSummaryResponseDTO> findOrdersByUserId(String userId) {
+        List<Order> orders = orderRepository.findByUserId(userId);
+        
+        return orders.stream()
+            .map(order -> new OrderSummaryResponseDTO(
+                order.getId(),
+                order.getTotalAmount(),
+                order.getStatus(),
+                "payment-url"
+            )).toList();
+    }
 }
