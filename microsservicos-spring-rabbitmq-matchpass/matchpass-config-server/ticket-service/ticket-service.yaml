@@ -1,0 +1,9 @@
+server:
+  port: 8200
+
+spring:
+  application:
+    name: ticket-service
+
+ticket-service:
+  teste: "abacate"
