@@ -38,8 +38,8 @@ Todos os serviços, orquestradores e bancos de dados estão mapeados individualm
 | Status | Componente | Porta | Papel |
 | :--- | :--- | :--- | :--- |
 | 🟡 | Spring Cloud Config | `8888` | Centralização |
-| 🔴 | Eureka Naming Server | `8761` | Service Discovery |
-| 🔴 | API Gateway | `8765` | Roteamento |
+| 🟡 | Eureka Naming Server | `8761` | Service Discovery |
+| 🟡 | API Gateway | `8765` | Roteamento |
 | 🔴 | Zipkin Server | `9411` | Rastreamento |
 | 🔴 | RabbitMQ | `5672` | Mensageria AMQP |
 
