@@ -1,0 +1,9 @@
+server:
+  port: 8500
+
+spring:
+  application:
+    name: notification-service
+
+notification-service:
+  teste: "abacate"

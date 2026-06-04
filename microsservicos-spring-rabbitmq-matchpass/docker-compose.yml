@@ -49,8 +49,18 @@ services:
     volumes:
       - postgres_ticket_service_data:/var/lib/postgresql
 
+  notification-service-mongodb-db:
+    image: mongo:7.0
+    restart: unless-stopped
+    container_name: mongodb-7.0-notification-service
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongodb_notification_service_data:/data/db
+
 volumes:
   postgres_event_catalog_service_data:
   postgres_order_service_data:
   postgres_ticket_service_data:
   redis_inventory_service_data:
+  mongodb_notification_service_data:
