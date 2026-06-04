@@ -34,24 +34,32 @@ A topologia do sistema segue uma arquitetura baseada em eventos e persistência 
 
 ### Portas e Serviços Em Execução
 Todos os serviços, orquestradores e bancos de dados estão mapeados individualmente no ambiente para garantir a total segregação de responsabilidades e evitar conflitos.
+### 1. Infraestrutura de Apoio
+| Status | Componente | Porta | Papel |
+| :--- | :--- | :--- | :--- |
+| 🟡 | Spring Cloud Config | `8888` | Centralização |
+| 🔴 | Eureka Naming Server | `8761` | Service Discovery |
+| 🔴 | API Gateway | `8765` | Roteamento |
+| 🔴 | Zipkin Server | `9411` | Rastreamento |
+| 🔴 | RabbitMQ | `5672` | Mensageria AMQP |
 
-| Microsserviço / Componente | Porta Mapeada | Descrição / Papel |
-| :--- | :--- | :--- |
-| **Spring Cloud Config Server** | `8888` | Centralização das configurações dos microsserviços. |
-| **Netflix Eureka Naming Server** | `8761` | *Service Discovery* e registro dinâmico de instâncias. |
-| **API Gateway (Spring Cloud Gateway)** | `8765` | Ponto único de entrada, roteamento e *Load Balancer*. |
-| **Zipkin Server** | `9411` | Rastreamento distribuído (*Distributed Tracing*). |
-| **Catalog Service** | `80xx` | Gestão de partidas, eventos e mapa do estádio. |
-| **Identity Service** | `81xx` | Gerenciamento de usuários, autenticação e cadastro. |
-| **Checkout Service** | `82xx` | Processo de reserva e finalização da compra. |
-| **Inventory Service** | `83xx` | Controle de inventário de assentos e concorrência. |
-| **Payment Service** | `84xx` | Processamento de transações e pagamentos. |
-| **Ticket Service** | `85xx` | Geração e emissão dos ingressos digitais. |
-| **Notification Service** | `86xx` | Envio de notificações (E-mail/SMS) e auditoria. |
-| **RabbitMQ** | `5672` / `15672` | Mensageria AMQP (5672) e Painel Administrativo (15672). |
-| **PostgreSQL** | `5432` | Persistência relacional (Users, Matches, Orders, etc). |
-| **Redis** | `6379` | Cache e *Distributed Locks* para alta concorrência. |
-| **MongoDB** | `27017` | Persistência orientada a documentos (Logs). |
+### 2. Microsserviços e Persistência
+| Status | Microsserviço | Porta | Banco de Dados (Porta) |
+| :--- | :--- | :--- | :--- |
+| 🟡 | Event Catalog Service | `8080` | PostgreSQL `5432` - db_event_catalog |
+| 🟡 | Inventory Service | `8100` | Redis `6379` - Cache/Locks |
+| 🟡 | Order Service | `8200` | PostgreSQL `5433` - db_order |
+| 🟡 | Ticket Service | `8300` | PostgreSQL `5434` - db_ticket |
+| 🔴 | Payment Service | `8400` | PostgreSQL `5432` - db_payment |
+| 🔴 | Notification Service| `8500` | MongoDB `27017` - db_logs |
+| 🔴 | Identity Service | `8600` | PostgreSQL `5432` - db_identity |
+
+---
+**Legenda de Status:**
+* 🟡 **Em desenvolvimento**
+* 🟢 **Finalizado**
+* 🟠 **Manutenção**
+* 🔴 **Ainda não iniciado**
 
 ---
 
