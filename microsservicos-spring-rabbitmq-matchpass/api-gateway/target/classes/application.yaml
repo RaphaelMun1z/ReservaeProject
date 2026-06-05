@@ -4,6 +4,35 @@ server:
 spring:
   application:
     name: api-gateway
+  cloud:
+    gateway:
+      server:
+        webflux:
+          routes:
+            - id: inventory-service
+              uri: lb://inventory-service
+              predicates:
+                - Path=/inventory-service/**
+
+            - id: event-catalog-service
+              uri: lb://event-catalog-service
+              predicates:
+                - Path=/event-catalog-service/**
+
+            - id: order-service
+              uri: lb://order-service
+              predicates:
+                - Path=/order-service/**
+
+            - id: ticket-service
+              uri: lb://ticket-service
+              predicates:
+                - Path=/ticket-service/**
+
+            - id: notification-service
+              uri: lb://notification-service
+              predicates:
+                - Path=/notification-service/**
 
 eureka:
   instance:

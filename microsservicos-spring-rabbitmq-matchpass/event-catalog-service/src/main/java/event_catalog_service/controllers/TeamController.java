@@ -1,15 +1,15 @@
 package event_catalog_service.controllers;
 
+import event_catalog_service.controllers.contracts.TeamContract;
 import event_catalog_service.dtos.req.TeamRequestDTO;
 import event_catalog_service.dtos.res.TeamResponseDTO;
 import event_catalog_service.services.TeamService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/event-catalog-service/api/team")
-public class TeamController {
+public class TeamController implements TeamContract {
     private final TeamService teamService;
 
     @Value("${event-catalog-service.teste:valor-padrao}")
@@ -19,12 +19,12 @@ public class TeamController {
         this.teamService = teamService;
     }
 
-    @PostMapping("/v1")
-    public ResponseEntity<TeamResponseDTO> createTeam(@RequestBody TeamRequestDTO dto) {
+    @Override
+    public ResponseEntity<TeamResponseDTO> createTeam(TeamRequestDTO dto) {
         return ResponseEntity.ok().body(teamService.createTeam(dto));
     }
 
-    @GetMapping("/test-config")
+    @Override
     public ResponseEntity<String> getTestConfig() {
         return ResponseEntity.ok("O valor da variável é: " + teste);
     }

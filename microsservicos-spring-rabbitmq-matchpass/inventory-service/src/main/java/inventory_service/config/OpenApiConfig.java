@@ -1,21 +1,25 @@
 package inventory_service.config;
 
+import io.swagger.v3.oas.annotations.OpenAPIDefinition;
+import io.swagger.v3.oas.annotations.info.Info;
+import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
-import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 
-@Configuration
+@OpenAPIDefinition(info =
+@Info(title = "Inventory Microservice API",
+    version = "v0.0.1",
+    description = "Camada reativa de alta concorrência encarregada de controlar o estado em tempo real dos ingressos."))
 public class OpenApiConfig {
 
     @Bean
-    OpenAPI customOpenAPI() {
+    public OpenAPI customOpenAPI() {
         return new OpenAPI()
-            .info(new Info().title("Inventory Service [MatchPass]")
+            .components(new Components())
+            .info(new io.swagger.v3.oas.models.info.Info()
+                .title("Inventory Microservice API")
                 .version("v0.0.1")
-                .description("O projeto MatchPass tem como seu domínio central a \"venda de ingressos para partidas de futebol\". Entre os diferenciais presentes, é possível listar: foco na experiência do usuário, preocupação com escalabilidade e resiliência, modularização para permitir realizar manutenções e adições de features de maneira facilitada.")
-                .termsOfService("https://github.com/RaphaelMun1z/MatchPassProject")
                 .license(
                     new License()
                         .name("Apache 2.0")
