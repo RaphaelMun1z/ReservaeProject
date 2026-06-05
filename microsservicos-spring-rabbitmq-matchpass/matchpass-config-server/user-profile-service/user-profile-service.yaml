@@ -1,0 +1,9 @@
+server:
+  port: 8600
+
+spring:
+  application:
+    name: user-profile-service
+
+user-profile-service:
+  teste: "abacate"

@@ -1,6 +1,6 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:h2_db_event_catalog
+    url: jdbc:h2:mem:h2_db_user_profile
     username: sa
     password:
   h2:
