@@ -29,7 +29,7 @@ feign:
         connectTimeout: 5000
         readTimeout: 5000
 
-#springdoc:
-#  pathsToMatch: /**
-#  swagger-ui:
-#    use-root-path: true
+springdoc:
+  api-docs:
+    path: /inventory-service/v3/api-docs
+  override-server-url: true

@@ -9,7 +9,6 @@ eureka:
     prefer-ip-address: true
     instance-id: ${spring.application.name}:${server.port}
 
-
 spring:
   application:
     name: event-catalog-service
@@ -37,3 +36,8 @@ resilience4j:
         max-attempts: 7
         wait-duration: 1s
         enable-exponential-backoff: true
+
+springdoc:
+  api-docs:
+    path: /event-catalog-service/v3/api-docs
+  override-server-url: true

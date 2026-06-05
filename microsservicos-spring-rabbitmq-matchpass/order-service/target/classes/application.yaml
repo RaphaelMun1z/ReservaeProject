@@ -18,18 +18,7 @@ spring:
     config:
       profile: dev
 
-#order-service:
-#  service:
-#    url: http://localhost:8080
-#
-#feign:
-#  client:
-#    config:
-#      event-catalog-service:
-#        connectTimeout: 5000
-#        readTimeout: 5000
-#
-#springdoc:
-#  pathsToMatch: /**
-#  swagger-ui:
-#    use-root-path: true
+springdoc:
+  api-docs:
+    path: /order-service/v3/api-docs
+  override-server-url: true

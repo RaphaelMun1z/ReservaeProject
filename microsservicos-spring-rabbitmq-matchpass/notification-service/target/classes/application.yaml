@@ -17,3 +17,8 @@ spring:
   cloud:
     config:
       profile: dev
+
+springdoc:
+  api-docs:
+    path: /notification-service/v3/api-docs
+  override-server-url: true
