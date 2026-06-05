@@ -34,6 +34,11 @@ spring:
               predicates:
                 - Path=/notification-service/**
 
+            - id: user-profile-service
+              uri: lb://user-profile-service
+              predicates:
+                - Path=/user-profile-service/**
+
 eureka:
   instance:
     prefer-ip-address: true
@@ -56,3 +61,6 @@ springdoc:
 
       - name: notification-service
         url: /notification-service/v3/api-docs
+
+      - name: user-profile-service
+        url: /user-profile-service/v3/api-docs
