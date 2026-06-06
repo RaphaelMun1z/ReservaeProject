@@ -46,7 +46,7 @@ Todos os serviços, orquestradores e bancos de dados estão mapeados individualm
 ### 2. Microsserviços e Persistência
 | Status Serviço | Status BD | Microsserviço | Porta da Aplicação | Persistência | Porta BD | Database |
 |----------------|-----------|---------------|--------------------|--------------|----------|----------|
-| 🟡 | 🟡 | Identity Service | `8000` | PostgreSQL | `5432` | `db_identity` |
+| 🟡 | 🟡 | User Profile Service | `8000` | PostgreSQL | `5432` | `db_identity` |
 | 🟡 | 🟡 | Event Catalog Service | `8100` | PostgreSQL | `5433` | `db_event_catalog` |
 | 🟡 | 🟡 | Inventory Service | `8200` | Redis (Cache / Distributed Locks) | `6379` | — |
 | 🟡 | 🟡 | Order Service | `8300` | PostgreSQL | `5434` | `db_order` |
