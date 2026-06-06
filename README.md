@@ -44,22 +44,24 @@ Todos os serviços, orquestradores e bancos de dados estão mapeados individualm
 | 🔴 | RabbitMQ | `5672` | Mensageria AMQP |
 
 ### 2. Microsserviços e Persistência
-| Status | Microsserviço | Porta | Banco de Dados (Porta) |
-| :--- | :--- | :--- | :--- |
-| 🟡 | Event Catalog Service | `8080` | PostgreSQL `5432` - db_event_catalog |
-| 🟡 | Inventory Service | `8100` | Redis `6379` - Cache/Locks |
-| 🟡 | Order Service | `8200` | PostgreSQL `5433` - db_order |
-| 🟡 | Ticket Service | `8300` | PostgreSQL `5434` - db_ticket |
-| 🔴 | Payment Service | `8400` | PostgreSQL `5432` - db_payment |
-| 🟡 | Notification Service| `8500` | MongoDB `27017` - db_logs |
-| 🔴 | Identity Service | `8600` | PostgreSQL `5432` - db_identity |
+| Status Serviço | Status BD | Microsserviço | Porta da Aplicação | Persistência | Porta BD | Database |
+|----------------|-----------|---------------|--------------------|--------------|----------|----------|
+| 🟡 | 🟡 | User Profile Service | `8000` | PostgreSQL | `5432` | `db_identity` |
+| 🟡 | 🟡 | Event Catalog Service | `8100` | PostgreSQL | `5433` | `db_event_catalog` |
+| 🟡 | 🟡 | Inventory Service | `8200` | Redis (Cache / Distributed Locks) | `6379` | — |
+| 🟡 | 🟡 | Order Service | `8300` | PostgreSQL | `5434` | `db_order` |
+| 🟡 | ⚪ | Payment Service | `8400` | — | — | — |
+| 🟡 | 🟡 | Ticket Service | `8500` | PostgreSQL | `5435` | `db_ticket` |
+| 🟡 | 🟡 | Notification Service | `8600` | MongoDB | `27017` | `db_logs` |
+| 🟡 | ⚪ | Auth Service (Keycloak) | `8080` | — | — | — |
 
 ---
 **Legenda de Status:**
+* ⚪ **Não aplicável**
 * 🟡 **Em desenvolvimento**
 * 🟢 **Finalizado**
 * 🟠 **Manutenção**
-* 🔴 **Ainda não iniciado**
+* 🔴 **Fora do ar**
 
 ---
 
