@@ -73,8 +73,11 @@ public class OrderService {
         // Gerar sessão de pagamento
         StripeResponseDTO stripeResponseDTO;
         try {
-            ProductRequestDTO productRequestDTO = new ProductRequestDTO(1L, 1L, "Ingresso", "BRL");
-            stripeResponseDTO = paymentProxy.checkoutProducts(productRequestDTO);
+            List<ProductRequestDTO> productRequestDTOS = savedOrder.getItems()
+                .stream()
+                .map(item -> new ProductRequestDTO(item.getAppliedPrice().longValue() * 100, 1L, "Ingresso", "BRL")).toList();
+
+            stripeResponseDTO = paymentProxy.checkoutProducts(productRequestDTOS.getFirst());
         } catch (Exception ex) {
             logger.error("Erro no Stripe. Revertendo bloqueio de assentos. Motivo: {}", ex.getMessage());
             savedOrder.getItems().forEach(item -> {

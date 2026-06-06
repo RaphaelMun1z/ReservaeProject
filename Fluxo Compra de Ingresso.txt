@@ -5,9 +5,9 @@ Fluxo Compra de Ingresso:
 [OK] 3. Escolher um assento disponível via InventoryService;
 [OK] 4. Gerar um pedido no OrderService;
 [OK] 4.1. Bloquear assento temporariamente via InventoryService; 
-[...] 4.2. Gerar sessão de pagamento no PaymentService;
-5. Realizar o pagamento no PaymentService;
-5.1. Alterar status do assento para vendido no InventoryService;
-6. Gerar Ingresso no TicketService
+[OK] 4.2. Gerar sessão de pagamento no PaymentService;
+[OK] 5. Realizar o pagamento no PaymentService;
+[...] 5.1. Alterar status do assento para vendido no InventoryService;
+[OK] 6. Gerar Ingresso no TicketService
 6.1. Enviar notificação com ingresso para cliente via NotificationService
 

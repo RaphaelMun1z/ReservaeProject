@@ -36,9 +36,11 @@ public class StripeService {
     }
 
     public StripeResponseDTO checkoutProducts(ProductRequestDTO req) {
+        logger.info("Chegou no payment-service");
         configureStripe();
 
         try {
+            logger.info("Entrou no try");
             SessionCreateParams.LineItem.PriceData.ProductData productData = SessionCreateParams.LineItem.PriceData.ProductData.builder().setName(req.name()).build();
 
             SessionCreateParams.LineItem.PriceData priceData = SessionCreateParams.LineItem.PriceData.builder().setCurrency(req.currency() == null ? "BRL" : req.currency()).setUnitAmount(req.amount()).setProductData(productData).build();
