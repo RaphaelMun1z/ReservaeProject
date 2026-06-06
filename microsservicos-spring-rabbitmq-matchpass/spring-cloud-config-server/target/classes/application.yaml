@@ -8,4 +8,6 @@ spring:
       server:
         git:
           uri: https://github.com/RaphaelMun1z/MatchPassProject
-          search-paths: "microsservicos-spring-rabbitmq-matchpass/matchpass-config-server/*"
+          search-paths:
+            - microsservicos-spring-rabbitmq-matchpass/matchpass-config-server
+            - microsservicos-spring-rabbitmq-matchpass/matchpass-config-server/*
