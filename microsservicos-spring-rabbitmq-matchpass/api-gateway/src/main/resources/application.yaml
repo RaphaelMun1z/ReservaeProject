@@ -41,6 +41,27 @@ spring:
               predicates:
                 - Path=/user-profile-service/**
 
+springdoc:
+  swagger-ui:
+    urls:
+      - name: inventory-service
+        url: /inventory-service/v3/api-docs
+
+      - name: event-catalog-service
+        url: /event-catalog-service/v3/api-docs
+
+      - name: order-service
+        url: /order-service/v3/api-docs
+
+      - name: ticket-service
+        url: /ticket-service/v3/api-docs
+
+      - name: notification-service
+        url: /notification-service/v3/api-docs
+
+      - name: user-profile-service
+        url: /user-profile-service/v3/api-docs
+
 eureka:
   client:
     service-url:
