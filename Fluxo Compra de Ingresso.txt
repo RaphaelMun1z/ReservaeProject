@@ -1,0 +1,12 @@
+Fluxo Compra de Ingresso:
+
+1. Acessar o EventCatalogService e buscar por um evento/setor;
+2. Consultar no InventoryService a disponibilidade de assentos;
+3. Escolher um assento disponível via InventoryService;
+4. Bloquear assento temporariamente via InventoryService; 
+4.1. Gerar um pedido no OrderService;
+4.2. Gerar sessão de pagamento no PaymentService;
+5. Realizar o pagamento no PaymentService;
+5.1. Alterar status do assento para vendido no InventoryService;
+6. Gerar Ingresso no TicketService
+6.1. Enviar notificação com ingresso para cliente via NotificationService

@@ -18,3 +18,7 @@ eureka:
 
 springdoc:
   override-server-url: true
+
+logging:
+  level:
+    org.springframework.cloud.gateway: TRACE

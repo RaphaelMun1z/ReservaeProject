@@ -1,39 +1,3 @@
-spring:
-  cloud:
-    gateway:
-      server:
-        webflux:
-          routes:
-            - id: inventory-service
-              uri: lb://inventory-service
-              predicates:
-                - Path=/inventory-service/**
-
-            - id: event-catalog-service
-              uri: lb://event-catalog-service
-              predicates:
-                - Path=/event-catalog-service/**
-
-            - id: order-service
-              uri: lb://order-service
-              predicates:
-                - Path=/order-service/**
-
-            - id: ticket-service
-              uri: lb://ticket-service
-              predicates:
-                - Path=/ticket-service/**
-
-            - id: notification-service
-              uri: lb://notification-service
-              predicates:
-                - Path=/notification-service/**
-
-            - id: user-profile-service
-              uri: lb://user-profile-service
-              predicates:
-                - Path=/user-profile-service/**
-
 springdoc:
   swagger-ui:
     urls:
