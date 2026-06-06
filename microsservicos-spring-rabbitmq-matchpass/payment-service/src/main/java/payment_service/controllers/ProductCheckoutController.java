@@ -11,7 +11,7 @@ import payment_service.dtos.res.StripeResponseDTO;
 import payment_service.services.StripeService;
 
 @RestController
-@RequestMapping("/product/v1")
+@RequestMapping("/payment-service/api/product/v1")
 public class ProductCheckoutController {
     private final StripeService stripeService;
 

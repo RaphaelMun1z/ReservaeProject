@@ -1,6 +1,5 @@
 package order_service.services;
 
-import feign.FeignException;
 import order_service.dtos.req.CheckoutRequestDTO;
 import order_service.dtos.req.OrderItemRequestDTO;
 import order_service.dtos.res.OrderItemResponseDTO;
@@ -9,9 +8,12 @@ import order_service.dtos.res.OrderSummaryResponseDTO;
 import order_service.entities.Order;
 import order_service.entities.OrderItem;
 import order_service.entities.enums.OrderStatusEnum;
+import order_service.exceptions.models.BusinessException;
 import order_service.exceptions.models.NotFoundException;
-import order_service.proxy.InventoryProxy;
-import order_service.proxy.SeatStatusResponseDTO;
+import order_service.proxy.inventory.InventoryProxy;
+import order_service.proxy.payment.PaymentProxy;
+import order_service.proxy.payment.ProductRequestDTO;
+import order_service.proxy.payment.StripeResponseDTO;
 import order_service.repositories.OrderRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.util.List;
 
+@SuppressWarnings("LoggingSimilarMessage")
 @Service
 public class OrderService {
     private Logger logger = LoggerFactory.getLogger(OrderService.class);
@@ -28,10 +31,12 @@ public class OrderService {
     private final OrderRepository orderRepository;
 
     private final InventoryProxy inventoryProxy;
+    private final PaymentProxy paymentProxy;
 
-    public OrderService(OrderRepository orderRepository, InventoryProxy inventoryProxy) {
+    public OrderService(OrderRepository orderRepository, InventoryProxy inventoryProxy, PaymentProxy paymentProxy) {
         this.orderRepository = orderRepository;
         this.inventoryProxy = inventoryProxy;
+        this.paymentProxy = paymentProxy;
     }
 
     @Transactional
@@ -60,26 +65,34 @@ public class OrderService {
 
         Order savedOrder = orderRepository.save(newOrder);
 
-        logger.info("Antes do try");
         // Bloquear assento temporariamente
+        savedOrder.getItems()
+            .stream()
+            .map(orderItem -> inventoryProxy.tryLockSeat(orderItem.getSeatTag(), savedOrder.getUserId())).toList();
+
+        // Gerar sessão de pagamento
+        StripeResponseDTO stripeResponseDTO;
         try {
-            logger.info("Entrou no try");
-            List<SeatStatusResponseDTO> seatsStatus = savedOrder.getItems()
-                .stream()
-                .map(orderItem -> inventoryProxy.tryLockSeat(orderItem.getSeatTag(), savedOrder.getUserId())).toList();
-        } catch (FeignException.NotFound ex) {
-            logger.error(ex.getMessage());
-            throw new NotFoundException("Não foi possível realizar a reserva dos ingressos.");
+            ProductRequestDTO productRequestDTO = new ProductRequestDTO(1L, 1L, "Ingresso", "BRL");
+            stripeResponseDTO = paymentProxy.checkoutProducts(productRequestDTO);
         } catch (Exception ex) {
-            logger.error("Outro erro: {}", ex.getMessage());
+            logger.error("Erro no Stripe. Revertendo bloqueio de assentos. Motivo: {}", ex.getMessage());
+            savedOrder.getItems().forEach(item -> {
+                try {
+                    inventoryProxy.releaseSeat(item.getSeatTag());
+                } catch (Exception releaseEx) {
+                    logger.error("Falha ao soltar assento {}: {}", item.getSeatTag(), releaseEx.getMessage());
+                }
+            });
+
+            throw new BusinessException("Ocorreu um erro ao gerar sessão de pagamento. Tente novamente.");
         }
-        logger.info("Depois do try");
 
         return new OrderSummaryResponseDTO(
             savedOrder.getId(),
             savedOrder.getTotalAmount(),
             savedOrder.getStatus(),
-            "payment-url"
+            stripeResponseDTO.sessionUrl()
         );
     }
 

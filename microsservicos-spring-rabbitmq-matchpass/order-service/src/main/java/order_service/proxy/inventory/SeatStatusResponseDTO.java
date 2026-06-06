@@ -1,4 +1,4 @@
-package order_service.proxy;
+package order_service.proxy.inventory;
 
 import java.time.LocalDateTime;
 

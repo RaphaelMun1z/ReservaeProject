@@ -41,6 +41,11 @@ spring:
               predicates:
                 - Path=/user-profile-service/**
 
+            - id: payment-service
+              uri: lb://payment-service
+              predicates:
+                - Path=/payment-service/**
+
 springdoc:
   swagger-ui:
     urls:
@@ -61,6 +66,9 @@ springdoc:
 
       - name: user-profile-service
         url: /user-profile-service/v3/api-docs
+
+      - name: payment-service
+        url: /payment-service/v3/api-docs
 
 eureka:
   client:

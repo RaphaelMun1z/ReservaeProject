@@ -6,16 +6,16 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 @FeignClient(name = "event-catalog-service")
 public interface EventCatalogProxy {
-    @GetMapping("/api/event/validate/v1/{eventId}/exists")
+    @GetMapping("/event-catalog-service/api/event/validate/v1/{eventId}/exists")
     String validateEvent(@PathVariable String eventId);
 
-    @GetMapping("/api/event/validate/v1/{eventId}/sector/{sectorId}/exists")
+    @GetMapping("/event-catalog-service/api/event/validate/v1/{eventId}/sector/{sectorId}/exists")
     String validateEventSector(
         @PathVariable String eventId,
         @PathVariable String sectorId
     );
 
-    @GetMapping("/api/event/validate/v1/{eventId}/sector/{sectorId}/seats/{seatsAmount}")
+    @GetMapping("/event-catalog-service/api/event/validate/v1/{eventId}/sector/{sectorId}/seats/{seatsAmount}")
     String validateEventSectorSeatCreating(
         @PathVariable String eventId,
         @PathVariable String sectorId,
