@@ -71,15 +71,32 @@ services:
     volumes:
       - mongodb_notification_service_data:/data/db
 
+  #  keycloak:
+  #    image: quay.io/keycloak/keycloak:26.6.3
+  #    container_name: keycloak-dev
+  #    ports:
+  #      - "127.0.0.1:8080:8080"
+  #    environment:
+  #      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+  #      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+  #    command: start-dev
   keycloak:
     image: quay.io/keycloak/keycloak:26.6.3
     container_name: keycloak-dev
+    restart: unless-stopped
     ports:
       - "127.0.0.1:8080:8080"
     environment:
       KC_BOOTSTRAP_ADMIN_USERNAME: admin
       KC_BOOTSTRAP_ADMIN_PASSWORD: admin
-    command: start-dev
+    command:
+      - start-dev
+      - --spi-theme--static-max-age=-1
+      - --spi-theme--cache-themes=false
+      - --spi-theme--cache-templates=false
+    volumes:
+      - ./infrastructure/keycloak/themes:/opt/keycloak/themes
+      - keycloak_data:/opt/keycloak/data
 
 volumes:
   postgres_user_profile_service_data:
@@ -88,3 +105,4 @@ volumes:
   postgres_order_service_data:
   postgres_ticket_service_data:
   mongodb_notification_service_data:
+  keycloak_data:

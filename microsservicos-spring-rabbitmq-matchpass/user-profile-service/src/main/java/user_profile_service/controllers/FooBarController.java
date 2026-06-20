@@ -7,15 +7,15 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/foo-bar")
+@RequestMapping("/user-profile-service/api/foo-bar")
 public class FooBarController {
-    @GetMapping("/")
+    @GetMapping
     @PreAuthorize("hasRole('CUSTOMER')")
     public String list() {
         return "Listando algo";
     }
 
-    @PostMapping("/")
+    @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     public String create() {
         return "Cadastrando algo";

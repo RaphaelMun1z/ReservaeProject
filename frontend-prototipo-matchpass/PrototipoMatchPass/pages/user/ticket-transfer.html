@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="pt-PT">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Music Tour - Transferir Ingresso</title>
+
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+        <link rel="stylesheet" href="../../src/styles/user/ticket-transfer.css" />
+    </head>
+    <body data-api-page="ticket-detail">
+
+        <main class="transfer-container">
+            <a href="my-tickets.html" class="back-link">
+                <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" fill="none" stroke-width="2"><polyline points="15 18 9 12 15 6"></polyline></svg>
+                Cancelar e voltar
+            </a>
+
+            <div class="glass-box">
+                <h1 class="title">Transferir Ingresso</h1>
+                <p class="subtitle"></p>
+
+                <form id="transfer-form">
+                    <div class="form-group">
+                        <label class="label">E-mail do Destinatário</label>
+                        <input type="email" class="input-field" placeholder="amigo@email.com" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="label">Confirmar Palavra-passe</label>
+                        <input type="password" class="input-field" placeholder="••••••••" required>
+                    </div>
+
+                    <button type="submit" class="btn-action">Confirmar Transferência</button>
+                </form>
+
+                <div class="security-notice">
+                    <strong>Atenção:</strong> Ao confirmar, este ingresso será removido permanentemente da sua carteira e enviado para o destinatário. Esta ação é irreversível.
+                </div>
+            </div>
+        </main>
+
+        <script src="../../src/scripts/user/ticket-transfer-01.js"></script>
+        <link rel="stylesheet" href="../../src/styles/components/toast.css" />
+        <link rel="stylesheet" href="../../src/styles/components/skeleton.css" />
+        <script src="../../src/scripts/page-data.bootstrap.js"></script>
+    </body>
+</html>
