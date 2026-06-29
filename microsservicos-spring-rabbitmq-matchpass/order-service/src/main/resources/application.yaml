@@ -12,3 +12,11 @@ spring:
 springdoc:
   api-docs:
     path: /${spring.application.name}/v3/api-docs
+
+matchpass:
+  config:
+    kafka:
+      server-url: 'http://localhost:29092'
+      topics:
+        pedidos-criados: 'matchpass.pedidos-criados'
+        pedidos-pagos: 'matchpass.pedidos-pagos'

@@ -1,41 +1,43 @@
-import type { MoneyDto } from "./common.dto";
-
-export type OrderStatusDto = "CREATED" | "PENDING_PAYMENT" | "PAID" | "CANCELED" | "EXPIRED";
-export type PaymentMethodDto = "PIX" | "CREDIT_CARD" | "DEBIT_CARD";
+export type OrderStatusDto = "PENDING" | "AWAITING_PAYMENT" | "COMPLETED" | "CANCELED" | "REFUNDED";
+export type TicketTypeDto =
+  | "FULL_TICKET_PRICE"
+  | "HALF_TICKET_PRICE_STUDENT"
+  | "HALF_TICKET_PRICE_SOLIDARITY";
 
 export interface OrderItemRequestDto {
-  eventId: string;
-  sectorId: string;
-  quantity: number;
+  sectorId?: string;
+  seatTag?: string;
+  ticketType?: TicketTypeDto;
+  appliedPrice?: number;
 }
 
-export interface CreateOrderRequestDto {
-  items: OrderItemRequestDto[];
-  couponCode?: string;
+export interface CheckoutRequestDto {
+  userId?: string;
+  eventId?: string;
+  items?: OrderItemRequestDto[];
 }
 
-export interface OrderDto {
-  id: string;
-  status: OrderStatusDto;
-  items: OrderItemDto[];
-  subtotal: MoneyDto;
-  fees?: MoneyDto;
-  total: MoneyDto;
-  createdAt?: string;
-  expiresAt?: string;
+export interface OrderSummaryResponseDto {
+  orderId?: string;
+  totalAmount?: number;
+  status?: OrderStatusDto;
+  paymentUrl?: string;
 }
 
-export interface OrderItemDto {
-  eventId: string;
-  sectorId: string;
-  name: string;
-  quantity: number;
-  unitPrice: MoneyDto;
-  total: MoneyDto;
+export interface OrderItemResponseDto {
+  orderItemId?: string;
+  sectorId?: string;
+  seatTag?: string;
+  ticketType?: TicketTypeDto;
+  appliedPrice?: number;
 }
 
-export interface ConfirmOrderRequestDto {
-  paymentMethod: PaymentMethodDto;
-  paymentToken?: string;
+export interface OrderResponseDto extends OrderSummaryResponseDto {
+  /** Campo retornado com esta grafia pela API. */
+  itens?: OrderItemResponseDto[];
 }
 
+/** @deprecated Use CheckoutRequestDto. */
+export type CreateOrderRequestDto = CheckoutRequestDto;
+/** @deprecated Atualize o pedido por OrderStatusDto. */
+export type ConfirmOrderRequestDto = OrderStatusDto;

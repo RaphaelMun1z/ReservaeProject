@@ -1,52 +1,85 @@
-import type { AddressDto, MoneyDto } from "./common.dto";
+export type EventStatusDto = "SCHEDULED" | "CANCELED" | "FINISHED";
 
-export type EventStatusDto = "DRAFT" | "PUBLISHED" | "SOLD_OUT" | "CANCELED" | "FINISHED";
-
-export interface EventDto {
-  id: string;
-  slug?: string;
+export interface SectorRequestDto {
   name: string;
-  description?: string;
-  status?: EventStatusDto;
-  artistName?: string;
-  tourName?: string;
-  startsAt: string;
-  endsAt?: string;
-  imageUrl?: string;
-  bannerUrl?: string;
-  venue: EventVenueDto;
-  minPrice?: MoneyDto;
-  tags?: string[];
+  capacity: number;
+  hasNumberedSeats: boolean;
 }
 
-export interface EventVenueDto {
+export interface SectorResponseDto {
+  sectorId?: string;
+  sectorName?: string;
+  hasNumberedSeats?: boolean;
+}
+
+export interface CreateVenueRequestDto {
+  name: string;
+  city: string;
+  state: string;
+  totalCapacity: number;
+  sectors: SectorRequestDto[];
+}
+
+export interface VenueResponseDto {
   id?: string;
-  name: string;
-  address: AddressDto;
-  latitude?: number;
-  longitude?: number;
-}
-
-export interface EventSectorDto {
-  id: string;
-  eventId: string;
-  name: string;
-  description?: string;
-  color?: string;
-  capacity?: number;
-  availableQuantity?: number;
-  price: MoneyDto;
-  lotName?: string;
-}
-
-export interface EventSearchParamsDto {
-  q?: string;
+  name?: string;
   city?: string;
   state?: string;
-  status?: EventStatusDto;
-  startsAfter?: string;
-  startsBefore?: string;
-  page?: number;
-  size?: number;
+  totalCapacity?: number;
+  sectors?: SectorResponseDto[];
 }
 
+export interface TeamRequestDto {
+  name?: string;
+}
+
+export interface TeamResponseDto {
+  id?: string;
+  name?: string;
+}
+
+export interface SectorPricingRequestDto {
+  sectorId?: string;
+  basePrice?: number;
+  halfPrice?: number;
+}
+
+export interface CreateEventRequestDto {
+  title?: string;
+  eventDate?: string;
+  venueId?: string;
+  homeTeamId?: string;
+  awayTeamId?: string;
+  sectorsPricing?: SectorPricingRequestDto[];
+}
+
+export interface EventSectorDetailsDto {
+  eventId?: string;
+  sectorId?: string;
+  sectorName?: string;
+  sectorBasePrice?: number;
+  sectorHalfPrice?: number;
+  hasNumberedSeats?: boolean;
+  totalCapacity?: number;
+}
+
+export interface EventDetailsResponseDto {
+  eventId?: string;
+  title?: string;
+  eventDate?: string;
+  status?: EventStatusDto;
+  venueName?: string;
+  venueCity?: string;
+  venueState?: string;
+  homeTeamName?: string;
+  awayTeamName?: string;
+  sectorsDetails?: EventSectorDetailsDto[];
+}
+
+export interface SectorPricingResponseDto {
+  sectorId?: string;
+  sectorName?: string;
+  basePrice?: number;
+  halfPrice?: number;
+  hasNumberedSeats?: boolean;
+}

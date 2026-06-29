@@ -17,11 +17,11 @@ const API_CONFIG = {
 };
 
 const API_ENDPOINTS = {
-	eventCatalog: "/event-catalog-service/api/event",
+	events: "/event-catalog-service/api/event/v1",
 	auth: "/auth-service/api/auth",
 	users: "/user-service/api/users",
-	tickets: "/ticket-service/api/tickets",
-	orders: "/order-service/api/orders",
+	tickets: "/ticket-service/api/ticket/v1",
+	orders: "/order-service/api/order",
 	admin: "/admin-service/api/admin",
 };
 
@@ -96,19 +96,19 @@ async function apiRequest(path, { method = "GET", query, body, headers = {} } = 
 }
 
 const EventCatalogService = {
-	listEvents: (filters = {}) => apiRequest(API_ENDPOINTS.eventCatalog, { query: filters }),
-	getEventById: (eventId) => apiRequest(`${API_ENDPOINTS.eventCatalog}/${eventId}`),
-	getFeaturedEvents: (limit = 6) => apiRequest(`${API_ENDPOINTS.eventCatalog}/featured`, { query: { limit } }),
-	getEventSectors: (eventId) => apiRequest(`${API_ENDPOINTS.eventCatalog}/${eventId}/sectors`),
+	getEventById: (eventId) => apiRequest(`${API_ENDPOINTS.events}/${encodeURIComponent(eventId)}`),
+	getEventSectors: (eventId) =>
+		apiRequest(`${API_ENDPOINTS.events}/${encodeURIComponent(eventId)}`)
+			.then((event) => event?.sectorsDetails ?? []),
 };
 
 const TicketService = {
-	listMyTickets: (filters = {}) => apiRequest(`${API_ENDPOINTS.tickets}/me`, { query: filters }),
-	getTicketById: (ticketId) => apiRequest(`${API_ENDPOINTS.tickets}/${ticketId}`),
+	getTicketsByUser: (userId) => apiRequest(`${API_ENDPOINTS.tickets}/user/${encodeURIComponent(userId)}`),
+	getTicketById: (ticketId) => apiRequest(`${API_ENDPOINTS.tickets}/${encodeURIComponent(ticketId)}`),
 };
 
 const OrderService = {
-	getOrderById: (orderId) => apiRequest(`${API_ENDPOINTS.orders}/${orderId}`),
+	getOrderById: (orderId) => apiRequest(`${API_ENDPOINTS.orders}/${encodeURIComponent(orderId)}`),
 };
 
 const UserService = {
@@ -121,19 +121,20 @@ const AdminService = {
 };
 
 const routeLoaders = {
-	"event-list": () => EventCatalogService.listEvents(readQueryParams()),
-	"featured-events": () => EventCatalogService.getFeaturedEvents(),
+	// O contrato atual não oferece listagem ou destaques de eventos.
+	"event-list": () => Promise.resolve([]),
+	"featured-events": () => Promise.resolve([]),
 	"event-detail": () => {
 		const eventId = readPageParam("eventId");
 		return eventId
 			? EventCatalogService.getEventById(eventId)
-			: EventCatalogService.listEvents();
+			: Promise.resolve(null);
 	},
 	"event-sectors": () => {
 		const eventId = readPageParam("eventId");
 		return eventId
 			? EventCatalogService.getEventSectors(eventId)
-			: EventCatalogService.listEvents();
+			: Promise.resolve([]);
 	},
 	checkout: () => Promise.resolve(readCheckoutDraft()),
 	"order-detail": () => {
@@ -142,12 +143,15 @@ const routeLoaders = {
 			? OrderService.getOrderById(orderId)
 			: Promise.resolve(null);
 	},
-	"user-tickets": () => TicketService.listMyTickets(readQueryParams()),
+	"user-tickets": () => {
+		const userId = readUserId();
+		return userId ? TicketService.getTicketsByUser(userId) : Promise.resolve([]);
+	},
 	"ticket-detail": () => {
 		const ticketId = readPageParam("ticketId");
 		return ticketId
 			? TicketService.getTicketById(ticketId)
-			: TicketService.listMyTickets();
+			: Promise.resolve([]);
 	},
 	"user-profile": () => UserService.getCurrentUser(),
 	"admin-dashboard": () => AdminService.getDashboardSummary(),
@@ -165,6 +169,22 @@ function readQueryParams() {
 function readPageParam(name) {
 	const params = new URLSearchParams(window.location.search);
 	return document.body.dataset[name] || params.get(name) || params.get("id");
+}
+
+function readUserId() {
+	const params = new URLSearchParams(window.location.search);
+	if (document.body.dataset.userId || params.get("userId")) {
+		return document.body.dataset.userId || params.get("userId");
+	}
+
+	const storedUser = localStorage.getItem("matchpass.user");
+	if (!storedUser) return localStorage.getItem("matchpass.userId");
+
+	try {
+		return JSON.parse(storedUser)?.id ?? null;
+	} catch {
+		return null;
+	}
 }
 
 function readCheckoutDraft() {

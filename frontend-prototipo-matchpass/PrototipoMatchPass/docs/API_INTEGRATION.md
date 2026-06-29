@@ -18,10 +18,12 @@ Tambem e possivel sobrescrever em tempo de execucao antes dos scripts da pagina:
 
 ## Services
 
-- `src/services/event-catalog.service.js`: eventos, detalhes, setores e ingressos por evento.
+- `src/services/event-catalog.service.js`: eventos, locais, times, setores e validacoes do catalogo.
+- `src/services/inventory.service.js`: criacao, bloqueio, liberacao, venda e consulta de assentos.
 - `src/services/auth.service.js`: login, cadastro, recuperacao e sessao.
-- `src/services/ticket.service.js`: carteira, detalhes, transferencia e validacao.
-- `src/services/order.service.js`: criacao, consulta e confirmacao de pedidos.
+- `src/services/ticket.service.js`: geracao, consulta, revogacao, acesso e logs.
+- `src/services/order.service.js`: checkout, consulta e atualizacao de status de pedidos.
+- `src/services/notification.service.js`: envio de notificacoes transacionais.
 - `src/services/user.service.js`: perfil do usuario.
 - `src/services/admin.service.js`: dashboard e operacoes administrativas.
 
@@ -34,9 +36,22 @@ http://localhost:8765/event-catalog-service/api/event/
 No frontend, isso corresponde a:
 
 ```js
-EventCatalogService.listEvents();
 EventCatalogService.getEventById(eventId);
 EventCatalogService.getEventSectors(eventId);
+```
+
+O Swagger atual do catalogo nao expoe endpoints para listar, pesquisar ou destacar
+eventos. Por isso, essas operacoes nao sao simuladas pela camada de servicos. As
+paginas de listagem permanecem vazias ate o backend publicar uma rota correspondente.
+
+As bases configuradas seguem exatamente os contratos versionados quando aplicavel:
+
+```txt
+/event-catalog-service/api/event/v1
+/inventory-service/api/inventory
+/order-service/api/order
+/ticket-service/api/ticket/v1
+/notification-service/api/notifications
 ```
 
 ## DTOs
