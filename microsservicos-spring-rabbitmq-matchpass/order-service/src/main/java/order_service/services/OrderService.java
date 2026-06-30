@@ -8,15 +8,14 @@ import order_service.dtos.res.OrderSummaryResponseDTO;
 import order_service.entities.Order;
 import order_service.entities.OrderItem;
 import order_service.entities.enums.OrderStatusEnum;
-import order_service.exceptions.models.BusinessException;
 import order_service.exceptions.models.NotFoundException;
-import order_service.proxy.inventory.InventoryProxy;
-import order_service.proxy.payment.PaymentProxy;
-import order_service.proxy.payment.ProductRequestDTO;
-import order_service.proxy.payment.StripeResponseDTO;
+import order_service.messaging.event.InventoryReservationResultEvent;
+import order_service.messaging.event.OrderReservationRequestedEvent;
+import order_service.messaging.mapper.OrderEventMapper;
 import order_service.repositories.OrderRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,17 +25,21 @@ import java.util.List;
 @SuppressWarnings("LoggingSimilarMessage")
 @Service
 public class OrderService {
-    private Logger logger = LoggerFactory.getLogger(OrderService.class);
+    private static final Logger logger =
+        LoggerFactory.getLogger(OrderService.class);
 
     private final OrderRepository orderRepository;
+    private final OrderEventMapper orderEventMapper;
+    private final ApplicationEventPublisher applicationEventPublisher;
 
-    private final InventoryProxy inventoryProxy;
-    private final PaymentProxy paymentProxy;
-
-    public OrderService(OrderRepository orderRepository, InventoryProxy inventoryProxy, PaymentProxy paymentProxy) {
+    public OrderService(
+        OrderRepository orderRepository,
+        OrderEventMapper orderEventMapper,
+        ApplicationEventPublisher applicationEventPublisher
+    ) {
         this.orderRepository = orderRepository;
-        this.inventoryProxy = inventoryProxy;
-        this.paymentProxy = paymentProxy;
+        this.orderEventMapper = orderEventMapper;
+        this.applicationEventPublisher = applicationEventPublisher;
     }
 
     @Transactional
@@ -54,109 +57,164 @@ public class OrderService {
         );
 
         List<OrderItem> newOrderItems = request.items()
-            .stream().map(dto -> new OrderItem(
-                dto.sectorId(),
-                dto.seatTag(),
-                dto.ticketType(),
-                dto.appliedPrice()
-            )).toList();
+            .stream()
+            .map(item -> new OrderItem(
+                item.sectorId(),
+                item.seatTag(),
+                item.ticketType(),
+                item.appliedPrice()
+            ))
+            .toList();
 
         newOrder.addItems(newOrderItems);
 
         Order savedOrder = orderRepository.save(newOrder);
 
-        // Bloquear assento temporariamente
-        savedOrder.getItems()
-            .stream()
-            .map(orderItem -> inventoryProxy.tryLockSeat(orderItem.getSeatTag(), savedOrder.getUserId())).toList();
+        OrderReservationRequestedEvent event =
+            orderEventMapper.toReservationRequestedEvent(savedOrder);
 
-        // Gerar sessão de pagamento
-        StripeResponseDTO stripeResponseDTO;
-        try {
-            List<ProductRequestDTO> productRequestDTOS = savedOrder.getItems()
-                .stream()
-                .map(item -> new ProductRequestDTO(item.getAppliedPrice().longValue() * 100, 1L, "Ingresso", "BRL")).toList();
+        applicationEventPublisher.publishEvent(event);
 
-            stripeResponseDTO = paymentProxy.checkoutProducts(productRequestDTOS.getFirst());
-        } catch (Exception ex) {
-            logger.error("Erro no Stripe. Revertendo bloqueio de assentos. Motivo: {}", ex.getMessage());
-            savedOrder.getItems().forEach(item -> {
-                try {
-                    inventoryProxy.releaseSeat(item.getSeatTag());
-                } catch (Exception releaseEx) {
-                    logger.error("Falha ao soltar assento {}: {}", item.getSeatTag(), releaseEx.getMessage());
-                }
-            });
-
-            throw new BusinessException("Ocorreu um erro ao gerar sessão de pagamento. Tente novamente.");
-        }
+        logger.info(
+            "Pedido {} criado. Solicitação de reserva preparada.",
+            savedOrder.getId()
+        );
 
         return new OrderSummaryResponseDTO(
             savedOrder.getId(),
             savedOrder.getTotalAmount(),
             savedOrder.getStatus(),
-            stripeResponseDTO.sessionUrl()
-        );
-    }
-
-    public OrderResponseDTO findProcessById(String processId) {
-        Order order = orderRepository.findById(processId).orElseThrow(
-            () -> new NotFoundException("Nenhum pedido encontrado.")
-        );
-        List<OrderItemResponseDTO> orderItems = order.getItems()
-            .stream().map(oi -> new OrderItemResponseDTO(
-                oi.getId(),
-                oi.getSectorId(),
-                oi.getSeatTag(),
-                oi.getTicketType(),
-                oi.getAppliedPrice()
-            )).toList();
-        return new OrderResponseDTO(
-            order.getId(),
-            order.getTotalAmount(),
-            order.getStatus(),
-            "payment-url",
-            orderItems
-        );
-    }
-
-    public List<OrderSummaryResponseDTO> findProcessByEventId(String eventId) {
-        List<Order> orders = orderRepository.findByEventId(eventId);
-        return orders.stream().map(order -> new OrderSummaryResponseDTO(
-            order.getId(),
-            order.getTotalAmount(),
-            order.getStatus(),
-            "payment-url"
-        )).toList();
-    }
-
-    public OrderSummaryResponseDTO findProcessBySeatTag(String seatTag) {
-        Order order = orderRepository.findByItemsSeatTag(seatTag).orElseThrow(
-            () -> new NotFoundException("Nenhum pedido encontrado.")
-        );
-        return new OrderSummaryResponseDTO(
-            order.getId(),
-            order.getTotalAmount(),
-            order.getStatus(),
-            "payment-url"
+            null
         );
     }
 
     @Transactional
-    public OrderSummaryResponseDTO updateProcessStatus(String orderId, OrderStatusEnum orderStatusEnum) {
-        Order order = orderRepository.findById(orderId).orElseThrow(
-            () -> new NotFoundException("Nenhum pedido encontrado.")
+    public void handleInventoryReservationResult(
+        InventoryReservationResultEvent event
+    ) {
+        Order order = orderRepository.findById(event.orderId())
+            .orElseThrow(
+                () -> new NotFoundException(
+                    "Nenhum pedido encontrado para processar o resultado da reserva."
+                )
+            );
+
+        if (order.getStatus() != OrderStatusEnum.PENDING) {
+            logger.warn(
+                "O resultado da reserva do pedido {} foi ignorado. Status atual: {}.",
+                order.getId(),
+                order.getStatus()
+            );
+            return;
+        }
+
+        if (event.reserved()) {
+            order.updateStatus(OrderStatusEnum.AWAITING_PAYMENT);
+
+            logger.info(
+                "Reserva confirmada para o pedido {}. Assentos: {}.",
+                order.getId(),
+                event.seatTags()
+            );
+        } else {
+            order.updateStatus(OrderStatusEnum.RESERVATION_FAILED);
+
+            logger.warn(
+                "Reserva recusada para o pedido {}. Motivo: {}.",
+                order.getId(),
+                event.reason()
+            );
+        }
+
+        orderRepository.save(order);
+    }
+
+    public OrderResponseDTO findProcessById(String processId) {
+        Order order = orderRepository.findById(processId)
+            .orElseThrow(
+                () -> new NotFoundException(
+                    "Nenhum pedido encontrado."
+                )
+            );
+
+        List<OrderItemResponseDTO> orderItems = order.getItems()
+            .stream()
+            .map(orderItem -> new OrderItemResponseDTO(
+                orderItem.getId(),
+                orderItem.getSectorId(),
+                orderItem.getSeatTag(),
+                orderItem.getTicketType(),
+                orderItem.getAppliedPrice()
+            ))
+            .toList();
+
+        return new OrderResponseDTO(
+            order.getId(),
+            order.getTotalAmount(),
+            order.getStatus(),
+            null,
+            orderItems
         );
-        order.updateStatus(orderStatusEnum);
+    }
+
+    public List<OrderSummaryResponseDTO> findProcessByEventId(
+        String eventId
+    ) {
+        List<Order> orders = orderRepository.findByEventId(eventId);
+
+        return orders.stream()
+            .map(order -> new OrderSummaryResponseDTO(
+                order.getId(),
+                order.getTotalAmount(),
+                order.getStatus(),
+                null
+            ))
+            .toList();
+    }
+
+    public OrderSummaryResponseDTO findProcessBySeatTag(
+        String seatTag
+    ) {
+        Order order = orderRepository.findByItemsSeatTag(seatTag)
+            .orElseThrow(
+                () -> new NotFoundException(
+                    "Nenhum pedido encontrado."
+                )
+            );
+
         return new OrderSummaryResponseDTO(
             order.getId(),
             order.getTotalAmount(),
             order.getStatus(),
-            "payment-url"
+            null
         );
     }
 
-    public List<OrderSummaryResponseDTO> findOrdersByUserId(String userId) {
+    @Transactional
+    public OrderSummaryResponseDTO updateProcessStatus(
+        String orderId,
+        OrderStatusEnum orderStatusEnum
+    ) {
+        Order order = orderRepository.findById(orderId)
+            .orElseThrow(
+                () -> new NotFoundException(
+                    "Nenhum pedido encontrado."
+                )
+            );
+
+        order.updateStatus(orderStatusEnum);
+
+        return new OrderSummaryResponseDTO(
+            order.getId(),
+            order.getTotalAmount(),
+            order.getStatus(),
+            null
+        );
+    }
+
+    public List<OrderSummaryResponseDTO> findOrdersByUserId(
+        String userId
+    ) {
         List<Order> orders = orderRepository.findByUserId(userId);
 
         return orders.stream()
@@ -164,7 +222,8 @@ public class OrderService {
                 order.getId(),
                 order.getTotalAmount(),
                 order.getStatus(),
-                "payment-url"
-            )).toList();
+                null
+            ))
+            .toList();
     }
 }

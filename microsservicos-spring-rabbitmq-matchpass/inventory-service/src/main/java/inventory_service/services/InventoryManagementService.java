@@ -199,4 +199,42 @@ public class InventoryManagementService {
                 environment
             )).toList();
     }
+
+    @Transactional
+    public List<String> reserveSeats(String userId, List<String> seatTags) {
+        if (seatTags == null || seatTags.isEmpty()) {
+            throw new BusinessException("O pedido não possui assentos para reservar.");
+        }
+
+        List<String> lockedSeatTags = new ArrayList<>();
+
+        try {
+            for (String seatTag : seatTags) {
+                tryLockSeat(seatTag, userId);
+                lockedSeatTags.add(seatTag);
+            }
+
+            return List.copyOf(lockedSeatTags);
+        } catch (RuntimeException ex) {
+            logger.error(
+                "Falha ao reservar os assentos. Liberando {} assento(s) já bloqueado(s). Motivo: {}",
+                lockedSeatTags.size(),
+                ex.getMessage()
+            );
+
+            for (String lockedSeatTag : lockedSeatTags) {
+                try {
+                    releaseSeat(lockedSeatTag);
+                } catch (RuntimeException releaseEx) {
+                    logger.error(
+                        "Falha ao liberar o assento {} durante a compensação. Motivo: {}",
+                        lockedSeatTag,
+                        releaseEx.getMessage()
+                    );
+                }
+            }
+
+            throw ex;
+        }
+    }
 }

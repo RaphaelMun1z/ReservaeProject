@@ -16,7 +16,8 @@ springdoc:
 matchpass:
   config:
     kafka:
-      server-url: 'http://localhost:29092'
+      server-url: localhost:29092
+      consumer-group: order-service-inventory-reservation
       topics:
-        pedidos-criados: 'matchpass.pedidos-criados'
-        pedidos-pagos: 'matchpass.pedidos-pagos'
+        reserva-solicitada: matchpass.order.reservation-requested.v1
+        resultado-reserva: matchpass.inventory.reservation-result.v1
