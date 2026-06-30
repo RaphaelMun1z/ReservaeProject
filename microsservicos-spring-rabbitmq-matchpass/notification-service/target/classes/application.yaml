@@ -12,3 +12,13 @@ spring:
 springdoc:
   api-docs:
     path: /${spring.application.name}/v3/api-docs
+
+notification:
+  email:
+    sender-email: ${NOTIFICATION_EMAIL}
+    sender-name: MatchPass
+
+brevo:
+  api:
+    url: https://api.brevo.com/v3
+    key: ${BREVO_API_KEY}

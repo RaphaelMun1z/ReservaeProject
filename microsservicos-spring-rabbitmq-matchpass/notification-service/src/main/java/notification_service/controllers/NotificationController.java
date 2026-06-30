@@ -17,7 +17,7 @@ public class NotificationController implements NotificationContract {
 
     @Override
     public ResponseEntity<Void> sendNotification(SendNotificationRequestDTO dto) {
-        notificationService.processNotification(dto);
+        //notificationService.processNotification(dto);
         return ResponseEntity.accepted().build();
     }
 }
