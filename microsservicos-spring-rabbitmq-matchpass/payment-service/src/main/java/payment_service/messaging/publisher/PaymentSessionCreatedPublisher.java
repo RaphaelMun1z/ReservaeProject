@@ -7,16 +7,16 @@ import payment_service.messaging.event.PaymentSessionCreatedEvent;
 @Component
 public class PaymentSessionCreatedPublisher {
     private static final String TOPIC = "matchpass.payment.session-created.v1";
-    private final KafkaTemplate<String, PaymentSessionCreatedEvent> kafkaTemplate;
+    private final KafkaTemplate<String, Object> kafkaTemplate;
 
-    public PaymentSessionCreatedPublisher(KafkaTemplate<String, PaymentSessionCreatedEvent> kafkaTemplate) {
+    public PaymentSessionCreatedPublisher(KafkaTemplate<String, Object> kafkaTemplate) {
         this.kafkaTemplate = kafkaTemplate;
     }
 
     public void publish(PaymentSessionCreatedEvent event) {
         kafkaTemplate.send(
                 TOPIC,
-                event.orderId().toString(),
+                event.orderId(),
                 event
         );
     }
