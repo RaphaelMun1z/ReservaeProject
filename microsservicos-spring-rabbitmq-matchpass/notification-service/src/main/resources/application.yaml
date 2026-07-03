@@ -14,9 +14,23 @@ springdoc:
     path: /${spring.application.name}/v3/api-docs
 
 notification:
+  frontend-url: http://localhost:5500
+
   email:
     sender-email: ${NOTIFICATION_EMAIL}
     sender-name: MatchPass
+
+    assets:
+      payment-background-url: https://seu-dominio.com/email/payment-background.png
+      payment-header-illustration-url: https://seu-dominio.com/email/payment-header.png
+      payment-footer-illustration-url: https://seu-dominio.com/email/payment-footer.png
+
+      facebook-icon-url: https://seu-dominio.com/email/facebook.png
+      linkedin-icon-url: https://seu-dominio.com/email/linkedin.png
+      x-icon-url: https://seu-dominio.com/email/x.png
+      instagram-icon-url: https://seu-dominio.com/email/instagram.png
+      youtube-icon-url: https://seu-dominio.com/email/youtube.png
+      pinterest-icon-url: https://seu-dominio.com/email/pinterest.png
 
 brevo:
   api:

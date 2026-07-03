@@ -27,98 +27,35 @@ public class KafkaConfig {
     @Bean
     public ProducerFactory<String, Object> producerFactory() {
         Map<String, Object> properties = new HashMap<>();
-
-        properties.put(
-            ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
-            kafkaServerUrl
-        );
-
-        properties.put(
-            ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
-            StringSerializer.class
-        );
-
-        properties.put(
-            ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
-            JsonSerializer.class
-        );
-
-        properties.put(
-            JsonSerializer.ADD_TYPE_INFO_HEADERS,
-            false
-        );
-
+        properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaServerUrl);
+        properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
+        properties.put(JsonSerializer.ADD_TYPE_INFO_HEADERS, false);
         return new DefaultKafkaProducerFactory<>(properties);
     }
 
     @Bean
-    public KafkaTemplate<String, Object> kafkaTemplate(
-        ProducerFactory<String, Object> producerFactory
-    ) {
+    public KafkaTemplate<String, Object> kafkaTemplate(ProducerFactory<String, Object> producerFactory) {
         return new KafkaTemplate<>(producerFactory);
     }
 
     @Bean
-    public ConsumerFactory<String, InventoryReservationResultEvent>
-    inventoryReservationConsumerFactory() {
+    public ConsumerFactory<String, InventoryReservationResultEvent> inventoryReservationConsumerFactory() {
         Map<String, Object> properties = new HashMap<>();
-
-        properties.put(
-            ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
-            kafkaServerUrl
-        );
-
-        properties.put(
-            ConsumerConfig.GROUP_ID_CONFIG,
-            consumerGroup
-        );
-
-        properties.put(
-            ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
-            "earliest"
-        );
-
-        properties.put(
-            ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG,
-            false
-        );
-
-        properties.put(
-            ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
-            StringDeserializer.class
-        );
-
-        JsonDeserializer<InventoryReservationResultEvent> deserializer =
-            new JsonDeserializer<>(
-                InventoryReservationResultEvent.class,
-                false
-            );
-
-        deserializer.addTrustedPackages(
-            "order_service.messaging.event"
-        );
-
-        return new DefaultKafkaConsumerFactory<>(
-            properties,
-            new StringDeserializer(),
-            deserializer
-        );
+        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaServerUrl);
+        properties.put(ConsumerConfig.GROUP_ID_CONFIG, consumerGroup);
+        properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
+        properties.put(ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG, false);
+        properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
+        JsonDeserializer<InventoryReservationResultEvent> deserializer = new JsonDeserializer<>(InventoryReservationResultEvent.class, false);
+        deserializer.addTrustedPackages("order_service.messaging.event");
+        return new DefaultKafkaConsumerFactory<>(properties, new StringDeserializer(), deserializer);
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<
-        String,
-        InventoryReservationResultEvent
-        > inventoryReservationKafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<
-            String,
-            InventoryReservationResultEvent
-            > factory = new ConcurrentKafkaListenerContainerFactory<>();
-
-        factory.setConsumerFactory(
-            inventoryReservationConsumerFactory()
-        );
-
+    public ConcurrentKafkaListenerContainerFactory<String, InventoryReservationResultEvent> inventoryReservationKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, InventoryReservationResultEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
+        factory.setConsumerFactory(inventoryReservationConsumerFactory());
         return factory;
     }
 }

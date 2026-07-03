@@ -25,18 +25,13 @@ import java.util.List;
 @SuppressWarnings("LoggingSimilarMessage")
 @Service
 public class OrderService {
-    private static final Logger logger =
-        LoggerFactory.getLogger(OrderService.class);
+    private static final Logger logger = LoggerFactory.getLogger(OrderService.class);
 
     private final OrderRepository orderRepository;
     private final OrderEventMapper orderEventMapper;
     private final ApplicationEventPublisher applicationEventPublisher;
 
-    public OrderService(
-        OrderRepository orderRepository,
-        OrderEventMapper orderEventMapper,
-        ApplicationEventPublisher applicationEventPublisher
-    ) {
+    public OrderService(OrderRepository orderRepository, OrderEventMapper orderEventMapper, ApplicationEventPublisher applicationEventPublisher) {
         this.orderRepository = orderRepository;
         this.orderEventMapper = orderEventMapper;
         this.applicationEventPublisher = applicationEventPublisher;
@@ -45,185 +40,95 @@ public class OrderService {
     @Transactional
     public OrderSummaryResponseDTO processCheckout(CheckoutRequestDTO request) {
         BigDecimal totalAmount = request.items()
-            .stream()
-            .map(OrderItemRequestDTO::appliedPrice)
-            .reduce(BigDecimal.ZERO, BigDecimal::add);
+                .stream()
+                .map(OrderItemRequestDTO::appliedPrice)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
 
         Order newOrder = new Order(
-            request.eventId(),
-            request.userId(),
-            totalAmount,
-            OrderStatusEnum.PENDING
+                request.eventId(),
+                request.userId(),
+                totalAmount,
+                OrderStatusEnum.PENDING
         );
 
         List<OrderItem> newOrderItems = request.items()
-            .stream()
-            .map(item -> new OrderItem(
-                item.sectorId(),
-                item.seatTag(),
-                item.ticketType(),
-                item.appliedPrice()
-            ))
-            .toList();
+                .stream()
+                .map(item ->
+                        new OrderItem(
+                                item.sectorId(),
+                                item.seatTag(),
+                                item.ticketType(),
+                                item.appliedPrice()
+                        )).toList();
 
         newOrder.addItems(newOrderItems);
-
         Order savedOrder = orderRepository.save(newOrder);
 
-        OrderReservationRequestedEvent event =
-            orderEventMapper.toReservationRequestedEvent(savedOrder);
-
+        OrderReservationRequestedEvent event = orderEventMapper.toReservationRequestedEvent(savedOrder);
         applicationEventPublisher.publishEvent(event);
-
-        logger.info(
-            "Pedido {} criado. Solicitação de reserva preparada.",
-            savedOrder.getId()
-        );
+        logger.info("Pedido {} criado. Solicitação de reserva preparada.", savedOrder.getId());
 
         return new OrderSummaryResponseDTO(
-            savedOrder.getId(),
-            savedOrder.getTotalAmount(),
-            savedOrder.getStatus(),
-            null
+                savedOrder.getId(),
+                savedOrder.getTotalAmount(),
+                savedOrder.getStatus(),
+                null
         );
     }
 
     @Transactional
-    public void handleInventoryReservationResult(
-        InventoryReservationResultEvent event
-    ) {
+    public void handleInventoryReservationResult(InventoryReservationResultEvent event) {
         Order order = orderRepository.findById(event.orderId())
-            .orElseThrow(
-                () -> new NotFoundException(
-                    "Nenhum pedido encontrado para processar o resultado da reserva."
-                )
-            );
+                .orElseThrow(() -> new NotFoundException("Nenhum pedido encontrado para processar o resultado da reserva."));
 
         if (order.getStatus() != OrderStatusEnum.PENDING) {
-            logger.warn(
-                "O resultado da reserva do pedido {} foi ignorado. Status atual: {}.",
-                order.getId(),
-                order.getStatus()
-            );
+            logger.warn("O resultado da reserva do pedido {} foi ignorado. Status atual: {}.", order.getId(), order.getStatus());
             return;
         }
 
         if (event.reserved()) {
             order.updateStatus(OrderStatusEnum.AWAITING_PAYMENT);
-
-            logger.info(
-                "Reserva confirmada para o pedido {}. Assentos: {}.",
-                order.getId(),
-                event.seatTags()
-            );
+            logger.info("Reserva confirmada para o pedido {}. Assentos: {}.", order.getId(), event.seatTags());
         } else {
             order.updateStatus(OrderStatusEnum.RESERVATION_FAILED);
-
-            logger.warn(
-                "Reserva recusada para o pedido {}. Motivo: {}.",
-                order.getId(),
-                event.reason()
-            );
+            logger.warn("Reserva recusada para o pedido {}. Motivo: {}.", order.getId(), event.reason());
         }
 
         orderRepository.save(order);
     }
 
     public OrderResponseDTO findProcessById(String processId) {
-        Order order = orderRepository.findById(processId)
-            .orElseThrow(
-                () -> new NotFoundException(
-                    "Nenhum pedido encontrado."
-                )
-            );
+        Order order = orderRepository.findById(processId).orElseThrow(() -> new NotFoundException("Nenhum pedido encontrado."));
 
-        List<OrderItemResponseDTO> orderItems = order.getItems()
-            .stream()
-            .map(orderItem -> new OrderItemResponseDTO(
-                orderItem.getId(),
-                orderItem.getSectorId(),
-                orderItem.getSeatTag(),
-                orderItem.getTicketType(),
-                orderItem.getAppliedPrice()
-            ))
-            .toList();
+        List<OrderItemResponseDTO> orderItems = order.getItems().stream().map(orderItem -> new OrderItemResponseDTO(orderItem.getId(), orderItem.getSectorId(), orderItem.getSeatTag(), orderItem.getTicketType(), orderItem.getAppliedPrice())).toList();
 
-        return new OrderResponseDTO(
-            order.getId(),
-            order.getTotalAmount(),
-            order.getStatus(),
-            null,
-            orderItems
-        );
+        return new OrderResponseDTO(order.getId(), order.getTotalAmount(), order.getStatus(), null, orderItems);
     }
 
-    public List<OrderSummaryResponseDTO> findProcessByEventId(
-        String eventId
-    ) {
+    public List<OrderSummaryResponseDTO> findProcessByEventId(String eventId) {
         List<Order> orders = orderRepository.findByEventId(eventId);
 
-        return orders.stream()
-            .map(order -> new OrderSummaryResponseDTO(
-                order.getId(),
-                order.getTotalAmount(),
-                order.getStatus(),
-                null
-            ))
-            .toList();
+        return orders.stream().map(order -> new OrderSummaryResponseDTO(order.getId(), order.getTotalAmount(), order.getStatus(), null)).toList();
     }
 
-    public OrderSummaryResponseDTO findProcessBySeatTag(
-        String seatTag
-    ) {
-        Order order = orderRepository.findByItemsSeatTag(seatTag)
-            .orElseThrow(
-                () -> new NotFoundException(
-                    "Nenhum pedido encontrado."
-                )
-            );
+    public OrderSummaryResponseDTO findProcessBySeatTag(String seatTag) {
+        Order order = orderRepository.findByItemsSeatTag(seatTag).orElseThrow(() -> new NotFoundException("Nenhum pedido encontrado."));
 
-        return new OrderSummaryResponseDTO(
-            order.getId(),
-            order.getTotalAmount(),
-            order.getStatus(),
-            null
-        );
+        return new OrderSummaryResponseDTO(order.getId(), order.getTotalAmount(), order.getStatus(), null);
     }
 
     @Transactional
-    public OrderSummaryResponseDTO updateProcessStatus(
-        String orderId,
-        OrderStatusEnum orderStatusEnum
-    ) {
-        Order order = orderRepository.findById(orderId)
-            .orElseThrow(
-                () -> new NotFoundException(
-                    "Nenhum pedido encontrado."
-                )
-            );
+    public OrderSummaryResponseDTO updateProcessStatus(String orderId, OrderStatusEnum orderStatusEnum) {
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new NotFoundException("Nenhum pedido encontrado."));
 
         order.updateStatus(orderStatusEnum);
 
-        return new OrderSummaryResponseDTO(
-            order.getId(),
-            order.getTotalAmount(),
-            order.getStatus(),
-            null
-        );
+        return new OrderSummaryResponseDTO(order.getId(), order.getTotalAmount(), order.getStatus(), null);
     }
 
-    public List<OrderSummaryResponseDTO> findOrdersByUserId(
-        String userId
-    ) {
+    public List<OrderSummaryResponseDTO> findOrdersByUserId(String userId) {
         List<Order> orders = orderRepository.findByUserId(userId);
 
-        return orders.stream()
-            .map(order -> new OrderSummaryResponseDTO(
-                order.getId(),
-                order.getTotalAmount(),
-                order.getStatus(),
-                null
-            ))
-            .toList();
+        return orders.stream().map(order -> new OrderSummaryResponseDTO(order.getId(), order.getTotalAmount(), order.getStatus(), null)).toList();
     }
 }

@@ -49,6 +49,19 @@ services:
     volumes:
       - postgres_order_service_data:/var/lib/postgresql
 
+  payment-service-postgres-db:
+    image: postgres:18.4
+    restart: unless-stopped
+    container_name: postgresql-18.4-payment-service
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: db_payment
+    ports:
+      - '5436:5432'
+    volumes:
+      - postgres_payment_service_data:/var/lib/postgresql
+  
   ticket-service-postgres-db:
     image: postgres:18.4
     restart: unless-stopped
@@ -136,6 +149,7 @@ volumes:
   postgres_event_catalog_service_data:
   redis_inventory_service_data:
   postgres_order_service_data:
+  postgres_payment_service_data:
   postgres_ticket_service_data:
   mongodb_notification_service_data:
   keycloak_data:

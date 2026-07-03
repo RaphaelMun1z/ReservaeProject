@@ -7,16 +7,14 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 @Component
 public class OrderReservationRequestedDispatcher {
-    private final OrderEventPublisher orderEventPublisher;
+    private final OrderReservationRequestedPublisher publisher;
 
-    public OrderReservationRequestedDispatcher(
-        OrderEventPublisher orderEventPublisher
-    ) {
-        this.orderEventPublisher = orderEventPublisher;
+    public OrderReservationRequestedDispatcher(OrderReservationRequestedPublisher publisher) {
+        this.publisher = publisher;
     }
 
     @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
     public void dispatch(OrderReservationRequestedEvent event) {
-        orderEventPublisher.publish(event);
+        publisher.publish(event);
     }
 }

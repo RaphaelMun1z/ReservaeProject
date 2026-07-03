@@ -1,0 +1,13 @@
+package payment_service.messaging.event;
+
+import java.time.Instant;
+
+public record PaymentApprovedEvent(
+        String orderId,
+        String externalPaymentId,
+        String paymentIntentId,
+        Long paidAmount,
+        String currency,
+        Instant occurredAt
+) {
+}
