@@ -28,7 +28,7 @@ public class ValidationService {
 
     public String validateEvent(String eventId) {
         Event event = eventRepository.findById(eventId)
-            .orElseThrow(() -> new NotFoundException("Evento não encontrado"));
+                .orElseThrow(() -> new NotFoundException("Evento não encontrado"));
 
         if (event.getStatus() == EventStatusEnum.CANCELED) {
             throw new BusinessException("Evento cancelado. Vendas não permitidas.");
@@ -38,7 +38,8 @@ public class ValidationService {
             throw new BusinessException("Evento finalizado. Vendas não permitidas.");
         }
 
-        if (LocalDateTime.now().isAfter(event.getEventDate())) {
+        if (LocalDateTime.now()
+                .isAfter(event.getEventDate())) {
             throw new BusinessException("Evento já ocorreu. Vendas não permitidas.");
         }
 
@@ -46,9 +47,12 @@ public class ValidationService {
     }
 
     public String validateEventSector(
-        String eventId,
-        String sectorId) {
-        boolean sectorExists = eventSectorPricingRepository.existsByEvent_IdAndSectorId(eventId, sectorId);
+            String eventId,
+            String sectorId) {
+        boolean sectorExists = eventSectorPricingRepository.existsByEvent_IdAndSectorId(
+                eventId,
+                sectorId
+        );
 
         if (!sectorExists) {
             throw new NotFoundException("Setor não encontrado no evento.");
@@ -57,20 +61,24 @@ public class ValidationService {
         return "PORT [EVENT_CATALOG_SERVICE]: " + informationService.retrieveServerPort();
     }
 
-    public String validateEventSectorSeatCreating(
-        String eventId,
-        String sectorId,
-        int seatsAmount
+    public String validateEventSectorTicketCreating(
+            String eventId,
+            String sectorId,
+            int ticketsAmount
     ) {
-        Optional<EventSectorDetailsDTO> eventSectorDetails = eventSectorPricingRepository.findEventSectorDetailsByEventIdAndSectorId(eventId, sectorId);
+        Optional<EventSectorDetailsDTO> eventSectorDetails = eventSectorPricingRepository.findEventSectorDetailsByEventIdAndSectorId(
+                eventId,
+                sectorId
+        );
 
         if (eventSectorDetails.isEmpty()) {
             throw new NotFoundException("Setor não encontrado no evento.");
         }
 
-        int totalCapacity = eventSectorDetails.get().totalCapacity();
-        if (totalCapacity < seatsAmount) {
-            throw new IllegalArgumentException("O setor informado possui capacidade máxima de " + totalCapacity + " assentos, enquanto voce solicitou a criação de " + seatsAmount + " assentos");
+        int totalCapacity = eventSectorDetails.get()
+                .totalCapacity();
+        if (totalCapacity < ticketsAmount) {
+            throw new IllegalArgumentException("O setor informado possui capacidade máxima de " + totalCapacity + " assentos, enquanto voce solicitou a criação de " + ticketsAmount + " assentos");
         }
 
         return "PORT [EVENT_CATALOG_SERVICE]: " + informationService.retrieveServerPort();

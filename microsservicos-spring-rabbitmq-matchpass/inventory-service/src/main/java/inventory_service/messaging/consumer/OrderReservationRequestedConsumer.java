@@ -25,26 +25,44 @@ public class OrderReservationRequestedConsumer {
 
     @KafkaListener(topics = "${matchpass.config.kafka.topics.reserva-solicitada}", groupId = "${matchpass.config.kafka.consumer-group}", containerFactory = "orderReservationKafkaListenerContainerFactory")
     public void consume(OrderReservationRequestedEvent event) {
-        List<String> requestedSeatTags = event.items().stream().map(OrderReservationItemEvent::seatTag).toList();
-
-        logger.info("Solicitação de reserva recebida. Pedido: {}. Usuário: {}. Assentos: {}.", event.orderId(), event.userId(), requestedSeatTags);
-
+        List<String> requestedTicketTags = event.items()
+                .stream()
+                .map(OrderReservationItemEvent::ticketTag)
+                .toList();
+        logger.info(
+                "Solicitação de reserva recebida. Pedido: {}. Usuário: {}. Assentos: {}.",
+                event.orderId(),
+                event.userId(),
+                requestedTicketTags
+        );
         try {
-            List<String> reservedSeatTags = inventoryManagementService.reserveSeats(event.userId(), requestedSeatTags);
-
-            resultPublisher.publishSuccess(event.orderId(), reservedSeatTags);
-
-            logger.info("Todos os assentos do pedido {} foram reservados.", event.orderId());
+            List<String> reservedTicketTags = inventoryManagementService.reserveTickets(
+                    event.userId(),
+                    requestedTicketTags
+            );
+            resultPublisher.publishSuccess(
+                    event.orderId(),
+                    reservedTicketTags
+            );
+            logger.info(
+                    "Todos os assentos do pedido {} foram reservados.",
+                    event.orderId()
+            );
         } catch (RuntimeException exception) {
             String reason = exception.getMessage();
-
             if (reason == null || reason.isBlank()) {
                 reason = "Não foi possível reservar os ingressos.";
             }
-
-            logger.error("Falha ao reservar os assentos do pedido {}. Motivo: {}.", event.orderId(), reason);
-
-            resultPublisher.publishFailure(event.orderId(), requestedSeatTags, reason);
+            logger.error(
+                    "Falha ao reservar os assentos do pedido {}. Motivo: {}.",
+                    event.orderId(),
+                    reason
+            );
+            resultPublisher.publishFailure(
+                    event.orderId(),
+                    requestedTicketTags,
+                    reason
+            );
         }
     }
 }

@@ -14,20 +14,20 @@ public class OrderEventMapper {
 
     public OrderReservationRequestedEvent toReservationRequestedEvent(Order order) {
         List<OrderReservationItemEvent> items = order.getItems()
-            .stream()
-            .map(item -> new OrderReservationItemEvent(
-                item.getSectorId(),
-                item.getSeatTag()
-            ))
-            .toList();
+                .stream()
+                .map(item -> new OrderReservationItemEvent(
+                        item.getSectorId(),
+                        item.getTicketTag()
+                ))
+                .toList();
 
         return new OrderReservationRequestedEvent(
-            UUID.randomUUID().toString(),
-            order.getId(),
-            order.getEventId(),
-            order.getUserId(),
-            items,
-            LocalDateTime.now()
+                UUID.randomUUID().toString(),
+                order.getId(),
+                order.getEventId(),
+                order.getUserId(),
+                items,
+                LocalDateTime.now()
         );
     }
 }

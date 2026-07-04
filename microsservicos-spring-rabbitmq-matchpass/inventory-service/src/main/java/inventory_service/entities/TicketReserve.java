@@ -1,6 +1,6 @@
 package inventory_service.entities;
 
-import inventory_service.entities.enums.SeatStatusEnum;
+import inventory_service.entities.enums.TicketStatusEnum;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 import org.springframework.data.redis.core.TimeToLive;
@@ -8,10 +8,10 @@ import org.springframework.data.redis.core.index.Indexed;
 
 import java.util.UUID;
 
-@RedisHash("SeatLock")
-public class SeatLock {
+@RedisHash("TicketReserve")
+public class TicketReserve {
     @Id
-    private String seatTag;
+    private String ticketTag;
 
     @Indexed
     private String eventId;
@@ -23,22 +23,19 @@ public class SeatLock {
     private String userId;
 
     @Indexed
-    private SeatStatusEnum status;
+    private TicketStatusEnum status;
 
     @TimeToLive
     private Long ttl;
 
     private static final long LOCK_TTL_SECONDS = 600L;
 
-    public SeatLock() {
+    public TicketReserve() {
     }
 
-    public SeatLock(
-        String eventId,
-        String sectorId,
-        String userId,
-        SeatStatusEnum status) {
-        this.seatTag = UUID.randomUUID().toString();
+    public TicketReserve(String eventId, String sectorId, String userId, TicketStatusEnum status) {
+        this.ticketTag = UUID.randomUUID()
+                .toString();
         this.eventId = eventId;
         this.sectorId = sectorId;
         this.userId = userId;
@@ -58,11 +55,11 @@ public class SeatLock {
         return userId;
     }
 
-    public String getSeatTag() {
-        return seatTag;
+    public String getTicketTag() {
+        return ticketTag;
     }
 
-    public SeatStatusEnum getStatus() {
+    public TicketStatusEnum getStatus() {
         return status;
     }
 
@@ -71,19 +68,19 @@ public class SeatLock {
     }
 
     // Métodos auxiliares
-    public void lock(String userId) {
+    public void reserve(String userId) {
         this.userId = userId;
-        this.status = SeatStatusEnum.LOCKED;
+        this.status = TicketStatusEnum.RESERVED;
         this.ttl = LOCK_TTL_SECONDS;
     }
 
     public void release() {
-        this.status = SeatStatusEnum.AVAILABLE;
+        this.status = TicketStatusEnum.AVAILABLE;
         this.ttl = (long) -1;
     }
 
     public void sold() {
-        this.status = SeatStatusEnum.SOLD;
+        this.status = TicketStatusEnum.SOLD;
         this.ttl = (long) -1;
     }
 
@@ -94,8 +91,8 @@ public class SeatLock {
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof SeatLock seatLock)) return false;
-        return seatTag != null && seatTag.equals(seatLock.seatTag);
+        if (!(o instanceof TicketReserve ticketReserve)) return false;
+        return ticketTag != null && ticketTag.equals(ticketReserve.ticketTag);
     }
 
     @Override
@@ -105,13 +102,6 @@ public class SeatLock {
 
     @Override
     public String toString() {
-        return "SeatLock{" +
-            ", seatTag='" + seatTag + '\'' +
-            ", eventId='" + eventId + '\'' +
-            ", sectorId='" + sectorId + '\'' +
-            ", userId='" + userId + '\'' +
-            ", status=" + status +
-            ", ttl=" + ttl +
-            '}';
+        return "TicketReserve{" + ", ticketTag='" + ticketTag + '\'' + ", eventId='" + eventId + '\'' + ", sectorId='" + sectorId + '\'' + ", userId='" + userId + '\'' + ", status=" + status + ", ttl=" + ttl + '}';
     }
 }

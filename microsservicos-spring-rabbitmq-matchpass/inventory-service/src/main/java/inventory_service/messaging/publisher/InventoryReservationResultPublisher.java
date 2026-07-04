@@ -14,74 +14,79 @@ import java.util.UUID;
 @Component
 public class InventoryReservationResultPublisher {
     private static final Logger logger =
-        LoggerFactory.getLogger(InventoryReservationResultPublisher.class);
+            LoggerFactory.getLogger(InventoryReservationResultPublisher.class);
 
     private final KafkaTemplate<String, Object> kafkaTemplate;
     private final String reservationResultTopic;
 
     public InventoryReservationResultPublisher(
-        KafkaTemplate<String, Object> kafkaTemplate,
-        @Value("${matchpass.config.kafka.topics.resultado-reserva}")
-        String reservationResultTopic
+            KafkaTemplate<String, Object> kafkaTemplate,
+            @Value("${matchpass.config.kafka.topics.resultado-reserva}")
+            String reservationResultTopic
     ) {
         this.kafkaTemplate = kafkaTemplate;
         this.reservationResultTopic = reservationResultTopic;
     }
 
-    public void publishSuccess(String orderId, List<String> seatTags) {
+    public void publishSuccess(String orderId, List<String> ticketTags) {
         InventoryReservationResultEvent event =
-            new InventoryReservationResultEvent(
-                UUID.randomUUID().toString(),
-                orderId,
-                true,
-                List.copyOf(seatTags),
-                null,
-                LocalDateTime.now()
-            );
+                new InventoryReservationResultEvent(
+                        UUID.randomUUID()
+                                .toString(),
+                        orderId,
+                        true,
+                        List.copyOf(ticketTags),
+                        null,
+                        LocalDateTime.now()
+                );
 
         publish(event);
     }
 
     public void publishFailure(
-        String orderId,
-        List<String> seatTags,
-        String reason
+            String orderId,
+            List<String> ticketTags,
+            String reason
     ) {
         InventoryReservationResultEvent event =
-            new InventoryReservationResultEvent(
-                UUID.randomUUID().toString(),
-                orderId,
-                false,
-                List.copyOf(seatTags),
-                reason,
-                LocalDateTime.now()
-            );
+                new InventoryReservationResultEvent(
+                        UUID.randomUUID()
+                                .toString(),
+                        orderId,
+                        false,
+                        List.copyOf(ticketTags),
+                        reason,
+                        LocalDateTime.now()
+                );
 
         publish(event);
     }
 
     private void publish(InventoryReservationResultEvent event) {
         kafkaTemplate.send(
-            reservationResultTopic,
-            event.orderId(),
-            event
-        ).whenComplete((result, exception) -> {
-            if (exception != null) {
-                logger.error(
-                    "Erro ao publicar o resultado da reserva do pedido {}.",
-                    event.orderId(),
-                    exception
-                );
-                return;
-            }
+                        reservationResultTopic,
+                        event.orderId(),
+                        event
+                )
+                .whenComplete((result, exception) -> {
+                    if (exception != null) {
+                        logger.error(
+                                "Erro ao publicar o resultado da reserva do pedido {}.",
+                                event.orderId(),
+                                exception
+                        );
+                        return;
+                    }
 
-            logger.info(
-                "Resultado da reserva do pedido {} publicado no tópico {}. Partição: {}. Offset: {}.",
-                event.orderId(),
-                reservationResultTopic,
-                result.getRecordMetadata().partition(),
-                result.getRecordMetadata().offset()
-            );
-        });
+                    logger.info(
+                            "Resultado da reserva do pedido {} publicado no tópico {}. Partição: {}. Offset: {}.",
+                            event.orderId(),
+                            reservationResultTopic,
+                            result.getRecordMetadata()
+                                    .partition(),
+                            result.getRecordMetadata()
+                                    .offset()
+                    );
+                });
     }
 }

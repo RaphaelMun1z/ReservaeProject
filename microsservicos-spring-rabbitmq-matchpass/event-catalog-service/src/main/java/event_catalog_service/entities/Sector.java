@@ -1,10 +1,10 @@
 package event_catalog_service.entities;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.*;
-
-import java.math.BigDecimal;
-import java.util.UUID;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "tb_sectors")
@@ -28,17 +28,17 @@ public class Sector {
     private Integer capacity;
 
     @NotNull
-    @Column(name = "has_numbered_seats", nullable = false)
-    private Boolean hasNumberedSeats;
+    @Column(name = "has_numbered_tickets", nullable = false)
+    private Boolean hasNumberedTickets;
 
     protected Sector() {
     }
 
-    public Sector(Venue venue, String name, Integer capacity, Boolean hasNumberedSeats) {
+    public Sector(Venue venue, String name, Integer capacity, Boolean hasNumberedTickets) {
         this.venue = venue;
         this.name = name;
         this.capacity = capacity;
-        this.hasNumberedSeats = hasNumberedSeats;
+        this.hasNumberedTickets = hasNumberedTickets;
     }
 
     public String getId() {
@@ -57,8 +57,8 @@ public class Sector {
         return capacity;
     }
 
-    public Boolean getHasNumberedSeats() {
-        return hasNumberedSeats;
+    public Boolean getHasNumberedTickets() {
+        return hasNumberedTickets;
     }
 
     // --- MÉTODOS DE COMPORTAMENTO ---

@@ -5,10 +5,10 @@ import order_service.entities.enums.TicketType;
 import java.math.BigDecimal;
 
 public record OrderItemResponseDTO(
-    String orderItemId,
-    String sectorId,
-    String seatTag,
-    TicketType ticketType,
-    BigDecimal appliedPrice
+        String orderItemId,
+        String sectorId,
+        String ticketTag,
+        TicketType ticketType,
+        BigDecimal appliedPrice
 ) {
 }

@@ -1,15 +1,14 @@
 package inventory_service.controllers;
 
 import inventory_service.controllers.contracts.InventoryManagementContract;
-import inventory_service.dtos.req.SeatReservationRequestDTO;
-import inventory_service.dtos.res.SeatResponseDTO;
-import inventory_service.dtos.res.SeatStatusResponseDTO;
-import inventory_service.entities.enums.SeatStatusEnum;
+import inventory_service.dtos.req.TicketReservationRequestDTO;
+import inventory_service.dtos.res.TicketResponseDTO;
+import inventory_service.dtos.res.TicketStatusResponseDTO;
+import inventory_service.entities.enums.TicketStatusEnum;
 import inventory_service.services.InventoryManagementService;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -22,49 +21,77 @@ public class InventoryManagementController implements InventoryManagementContrac
     }
 
     @Override
-    public ResponseEntity<List<SeatStatusResponseDTO>> createSeats(@PathVariable String eventId, @PathVariable String sectorId, @PathVariable int amount) {
-        return ResponseEntity.ok(inventoryManagementService.createSeats(amount, new SeatReservationRequestDTO(eventId, sectorId, null)));
+    @PostMapping(value = "/create-tickets/event/{eventId}/sector/{sectorId}/amount/{amount}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<TicketStatusResponseDTO>> createTickets(@PathVariable String eventId, @PathVariable String sectorId, @PathVariable int amount) {
+        return ResponseEntity.ok(inventoryManagementService.createTickets(
+                amount,
+                new TicketReservationRequestDTO(
+                        eventId,
+                        sectorId,
+                        null
+                )
+        ));
     }
 
     @Override
-    public ResponseEntity<SeatStatusResponseDTO> tryLockSeat(@PathVariable String seatTag, @PathVariable String userId) {
-        return ResponseEntity.ok(inventoryManagementService.tryLockSeat(seatTag, userId));
+    @PostMapping(value = "/reserve-ticket/{ticketTag}/user/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<TicketStatusResponseDTO> tryReserveTicket(@PathVariable String ticketTag, @PathVariable String userId) {
+        return ResponseEntity.ok(inventoryManagementService.tryReserveTicket(
+                ticketTag,
+                userId
+        ));
     }
 
     @Override
-    public ResponseEntity<SeatStatusResponseDTO> checkSeatStatus(@PathVariable String seatTag) {
-        return ResponseEntity.ok(inventoryManagementService.checkSeatStatus(seatTag));
+    @GetMapping(value = "/check/{ticketTag}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<TicketStatusResponseDTO> checkTicketStatus(@PathVariable String ticketTag) {
+        return ResponseEntity.ok(inventoryManagementService.checkTicketStatus(ticketTag));
     }
 
     @Override
-    public ResponseEntity<Void> confirmSeatSold(@PathVariable String seatTag) {
-        inventoryManagementService.confirmSeatSold(seatTag);
-        return ResponseEntity.ok().build();
+    @PatchMapping("/confirm/{ticketTag}")
+    public ResponseEntity<Void> confirmTicketSold(@PathVariable String ticketTag) {
+        inventoryManagementService.confirmTicketSold(ticketTag);
+        return ResponseEntity.ok()
+                .build();
     }
 
     @Override
-    public ResponseEntity<Void> releaseSeat(@PathVariable String seatTag) {
-        inventoryManagementService.releaseSeat(seatTag);
-        return ResponseEntity.ok().build();
+    @PostMapping("/release/{ticketTag}")
+    public ResponseEntity<Void> releaseTicket(@PathVariable String ticketTag) {
+        inventoryManagementService.releaseTicket(ticketTag);
+        return ResponseEntity.ok()
+                .build();
     }
 
     @Override
-    public ResponseEntity<List<SeatStatusResponseDTO>> findUserSeats(@PathVariable String userId) {
-        return ResponseEntity.ok(inventoryManagementService.findUserSeats(userId));
+    @GetMapping(value = "user/{userId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<TicketStatusResponseDTO>> findUserTickets(@PathVariable String userId) {
+        return ResponseEntity.ok(inventoryManagementService.findUserTickets(userId));
     }
 
     @Override
-    public ResponseEntity<List<SeatResponseDTO>> findEventSeatsByStatus(@PathVariable String eventId, @RequestParam SeatStatusEnum status) {
-        return ResponseEntity.ok(inventoryManagementService.findEventSeatsByStatus(eventId, status));
+    @GetMapping(value = "event/{eventId}/ticket", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<TicketResponseDTO>> findEventTicketsByStatus(@PathVariable String eventId, @RequestParam TicketStatusEnum status) {
+        return ResponseEntity.ok(inventoryManagementService.findEventTicketsByStatus(
+                eventId,
+                status
+        ));
     }
 
     @Override
-    public ResponseEntity<SeatResponseDTO> findSeatById(@PathVariable String seatId) {
-        return ResponseEntity.ok(inventoryManagementService.findSeatById(seatId));
+    @GetMapping(value = "ticket/{ticketId}", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<TicketResponseDTO> findTicketById(@PathVariable String ticketId) {
+        return ResponseEntity.ok(inventoryManagementService.findTicketById(ticketId));
     }
 
     @Override
-    public ResponseEntity<List<SeatResponseDTO>> findEventSectorSeatsByStatus(@PathVariable String eventId, @PathVariable String sectorId, @RequestParam SeatStatusEnum status) {
-        return ResponseEntity.ok(inventoryManagementService.findEventSectorSeatsByStatus(eventId, sectorId, status));
+    @GetMapping(value = "event/{eventId}/sector/{sectorId}/tickets", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<List<TicketResponseDTO>> findEventSectorTicketsByStatus(@PathVariable String eventId, @PathVariable String sectorId, @RequestParam TicketStatusEnum status) {
+        return ResponseEntity.ok(inventoryManagementService.findEventSectorTicketsByStatus(
+                eventId,
+                sectorId,
+                status
+        ));
     }
 }

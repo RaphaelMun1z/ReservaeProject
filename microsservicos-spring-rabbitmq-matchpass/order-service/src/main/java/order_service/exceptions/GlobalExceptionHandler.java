@@ -17,6 +17,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.nio.file.AccessDeniedException;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -26,10 +27,10 @@ import java.util.Map;
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
-        MethodArgumentNotValidException ex,
-        HttpHeaders headers,
-        HttpStatusCode status,
-        WebRequest request) {
+            MethodArgumentNotValidException ex,
+            HttpHeaders headers,
+            HttpStatusCode status,
+            WebRequest request) {
 
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getFieldErrors().forEach(error -> {
@@ -45,6 +46,18 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     public final ResponseEntity<ExceptionResponse> badCredentialsException(Exception ex, WebRequest request) {
         ExceptionResponse exceptionResponse = new ExceptionResponse(LocalDateTime.now().toString(), List.of(ex.getMessage()), request.getDescription(false));
         return new ResponseEntity<>(exceptionResponse, HttpStatus.UNAUTHORIZED);
+    }
+
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<Map<String, Object>> handleIllegalStateException(IllegalStateException exception) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(
+                Map.of(
+                        "timestamp", Instant.now().toString(),
+                        "status", HttpStatus.CONFLICT.value(),
+                        "error", "Conflict",
+                        "message", exception.getMessage()
+                )
+        );
     }
 
     @ExceptionHandler(AccessDeniedException.class)
@@ -73,21 +86,21 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public final ResponseEntity<ExceptionResponse> handleMethodArgumentTypeMismatch(
-        MethodArgumentTypeMismatchException ex, WebRequest request) {
+            MethodArgumentTypeMismatchException ex, WebRequest request) {
 
         String nomeParametro = ex.getName();
         String valorRecebido = ex.getValue() != null ? ex.getValue().toString() : "null";
         String tipoEsperado = ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "desconhecido";
 
         String mensagem = String.format(
-            "O valor '%s' enviado para o parâmetro '%s' é inválido. O tipo esperado é '%s'.",
-            valorRecebido, nomeParametro, tipoEsperado
+                "O valor '%s' enviado para o parâmetro '%s' é inválido. O tipo esperado é '%s'.",
+                valorRecebido, nomeParametro, tipoEsperado
         );
 
         ExceptionResponse response = new ExceptionResponse(
-            LocalDateTime.now().toString(),
-            List.of(mensagem),
-            request.getDescription(false)
+                LocalDateTime.now().toString(),
+                List.of(mensagem),
+                request.getDescription(false)
         );
 
         return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
@@ -96,9 +109,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(InvalidDataAccessApiUsageException.class)
     public final ResponseEntity<ExceptionResponse> invalidDataAccess(InvalidDataAccessApiUsageException ex, WebRequest request) {
         ExceptionResponse exceptionResponse = new ExceptionResponse(
-            LocalDateTime.now().toString(),
-            List.of("Formato inválido para datas. Use yyyy-MM-dd."),
-            request.getDescription(false)
+                LocalDateTime.now().toString(),
+                List.of("Formato inválido para datas. Use yyyy-MM-dd."),
+                request.getDescription(false)
         );
         return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
     }
@@ -124,9 +137,9 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(DuplicatedResourceException.class)
     public final ResponseEntity<ExceptionResponse> duplicatedResourceException(DuplicatedResourceException ex, WebRequest request) {
         ExceptionResponse exceptionResponse = new ExceptionResponse(
-            LocalDateTime.now().toString(),
-            List.of(ex.getMessage()),
-            request.getDescription(false)
+                LocalDateTime.now().toString(),
+                List.of(ex.getMessage()),
+                request.getDescription(false)
         );
         return new ResponseEntity<>(exceptionResponse, HttpStatus.CONFLICT);
     }

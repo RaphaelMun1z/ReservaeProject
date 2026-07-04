@@ -28,11 +28,11 @@ public class VenueService {
     private final VenueQueryService queryService;
 
     public VenueService(
-        VenueRepository venueRepository,
-        SectorRepository sectorRepository,
-        VenueQueryService queryService,
-        VenueMapper mapper,
-        VenueValidator validator
+            VenueRepository venueRepository,
+            SectorRepository sectorRepository,
+            VenueQueryService queryService,
+            VenueMapper mapper,
+            VenueValidator validator
     ) {
         this.venueRepository = venueRepository;
         this.sectorRepository = sectorRepository;
@@ -50,7 +50,10 @@ public class VenueService {
     }
 
     public List<VenueResponseDTO> findVenuesByLocation(String city, String state) {
-        return mapper.toVenueResponseDTOList(queryService.findVenuesByLocation(city, state));
+        return mapper.toVenueResponseDTOList(queryService.findVenuesByLocation(
+                city,
+                state
+        ));
     }
 
     @Transactional
@@ -59,24 +62,24 @@ public class VenueService {
         validateDuplicatedVenue(dto);
 
         Venue venue = new Venue(
-            dto.name(),
-            dto.city(),
-            dto.state(),
-            dto.totalCapacity()
+                dto.name(),
+                dto.city(),
+                dto.state(),
+                dto.totalCapacity()
         );
 
         List<Sector> sectors =
-            dto.sectors()
-                .stream()
-                .map(s ->
-                    new Sector(
-                        venue,
-                        s.name(),
-                        s.capacity(),
-                        s.hasNumberedSeats()
-                    )
-                )
-                .toList();
+                dto.sectors()
+                        .stream()
+                        .map(s ->
+                                     new Sector(
+                                             venue,
+                                             s.name(),
+                                             s.capacity(),
+                                             s.hasNumberedTickets()
+                                     )
+                        )
+                        .toList();
 
         venue.addMultipleSectors(sectors);
 
@@ -87,12 +90,13 @@ public class VenueService {
 
     private void validateDuplicatedVenue(CreateVenueRequestDTO dto) {
         venueRepository.findByNameAndCityAndState(
-            dto.name(),
-            dto.city(),
-            dto.state()
-        ).ifPresent(venue -> {
-            throw new DuplicatedResourceException("O local informado já foi registrado.");
-        });
+                        dto.name(),
+                        dto.city(),
+                        dto.state()
+                )
+                .ifPresent(venue -> {
+                    throw new DuplicatedResourceException("O local informado já foi registrado.");
+                });
     }
 
     @Transactional
@@ -100,10 +104,10 @@ public class VenueService {
         Venue venue = queryService.findVenueById(venueId);
 
         Sector sector = new Sector(
-            venue,
-            dto.name(),
-            dto.capacity(),
-            dto.hasNumberedSeats()
+                venue,
+                dto.name(),
+                dto.capacity(),
+                dto.hasNumberedTickets()
         );
         Sector savedSector = sectorRepository.save(sector);
 
@@ -117,15 +121,16 @@ public class VenueService {
         Venue venue = queryService.findVenueById(venueId);
 
         Sector sector =
-            venue.getSectors()
-                .stream()
-                .filter(s ->
-                    s.getId().equals(sectorId)
-                )
-                .findFirst()
-                .orElseThrow(() ->
-                    new NotFoundException("Setor não encontrado")
-                );
+                venue.getSectors()
+                        .stream()
+                        .filter(s ->
+                                        s.getId()
+                                                .equals(sectorId)
+                        )
+                        .findFirst()
+                        .orElseThrow(() ->
+                                             new NotFoundException("Setor não encontrado")
+                        );
 
         venue.removeSector(sector);
     }

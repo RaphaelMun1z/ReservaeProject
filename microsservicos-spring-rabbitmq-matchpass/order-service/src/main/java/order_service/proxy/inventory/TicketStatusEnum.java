@@ -1,7 +1,7 @@
 package order_service.proxy.inventory;
 
-public enum SeatStatusEnum {
+public enum TicketStatusEnum {
     AVAILABLE,
-    LOCKED,
+    RESERVED,
     SOLD
 }

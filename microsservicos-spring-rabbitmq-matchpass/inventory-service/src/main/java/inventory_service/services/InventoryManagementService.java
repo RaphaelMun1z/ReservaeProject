@@ -1,16 +1,16 @@
 package inventory_service.services;
 
 import feign.FeignException;
-import inventory_service.dtos.req.SeatReservationRequestDTO;
-import inventory_service.dtos.res.SeatResponseDTO;
-import inventory_service.dtos.res.SeatStatusResponseDTO;
-import inventory_service.entities.SeatLock;
-import inventory_service.entities.enums.SeatStatusEnum;
+import inventory_service.dtos.req.TicketReservationRequestDTO;
+import inventory_service.dtos.res.TicketResponseDTO;
+import inventory_service.dtos.res.TicketStatusResponseDTO;
+import inventory_service.entities.TicketReserve;
+import inventory_service.entities.enums.TicketStatusEnum;
 import inventory_service.environment.InstanceInformationService;
 import inventory_service.exceptions.models.BusinessException;
 import inventory_service.exceptions.models.NotFoundException;
 import inventory_service.proxy.EventCatalogProxy;
-import inventory_service.repositories.SeatLockRepository;
+import inventory_service.repositories.TicketReserveRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -26,121 +26,121 @@ public class InventoryManagementService {
 
     private final InstanceInformationService informationService;
 
-    private final SeatLockRepository seatLockRepository;
+    private final TicketReserveRepository ticketRepository;
     private final EventCatalogProxy eventCatalogProxy;
 
-    public InventoryManagementService(InstanceInformationService informationService, SeatLockRepository seatLockRepository, EventCatalogProxy eventCatalogProxy) {
+    public InventoryManagementService(InstanceInformationService informationService, TicketReserveRepository ticketRepository, EventCatalogProxy eventCatalogProxy) {
         this.informationService = informationService;
-        this.seatLockRepository = seatLockRepository;
+        this.ticketRepository = ticketRepository;
         this.eventCatalogProxy = eventCatalogProxy;
     }
 
     @Transactional
-    public List<SeatStatusResponseDTO> createSeats(int seatsAmount, SeatReservationRequestDTO seatData) {
+    public List<TicketStatusResponseDTO> createTickets(int ticketsAmount, TicketReservationRequestDTO ticketData) {
         String eventCatalogServicePort;
         try {
-            eventCatalogServicePort = eventCatalogProxy.validateEventSectorSeatCreating(
-                    seatData.eventId(),
-                    seatData.sectorId(),
-                    seatsAmount
+            eventCatalogServicePort = eventCatalogProxy.validateEventSectorTicketCreating(
+                    ticketData.eventId(),
+                    ticketData.sectorId(),
+                    ticketsAmount
             );
             System.out.println("eventCatalogServicePort: " + eventCatalogServicePort);
         } catch (FeignException.NotFound ex) {
             throw new NotFoundException("A criação dos assentos não foi permitida." + ex.getMessage());
         }
 
-        List<SeatLock> newSeats = new ArrayList<>();
-        for (int ii = 0; ii < seatsAmount; ii++) {
-            newSeats.add(new SeatLock(
-                    seatData.eventId(),
-                    seatData.sectorId(),
+        List<TicketReserve> newTickets = new ArrayList<>();
+        for (int ii = 0; ii < ticketsAmount; ii++) {
+            newTickets.add(new TicketReserve(
+                    ticketData.eventId(),
+                    ticketData.sectorId(),
                     null,
-                    SeatStatusEnum.AVAILABLE
+                    TicketStatusEnum.AVAILABLE
             ));
         }
 
-        List<SeatLock> savedSeats = new ArrayList<>();
-        seatLockRepository.saveAll(newSeats).forEach(savedSeats::add);
+        List<TicketReserve> savedTickets = new ArrayList<>();
+        ticketRepository.saveAll(newTickets)
+                .forEach(savedTickets::add);
 
-        String environment =
-                "PORT [INVENTORY]: " + informationService.retrieveServerPort() +
-                        "\n" + eventCatalogServicePort;
+        String environment = "PORT [INVENTORY]: " + informationService.retrieveServerPort() + "\n" + eventCatalogServicePort;
 
-        return savedSeats.stream()
-                .map(sl -> new SeatStatusResponseDTO(
-                        sl.getSeatTag(),
+        return savedTickets.stream()
+                .map(sl -> new TicketStatusResponseDTO(
+                        sl.getTicketTag(),
                         sl.getStatus(),
                         null,
                         environment
-                )).toList();
+                ))
+                .toList();
     }
 
-    public SeatStatusResponseDTO tryLockSeat(String seatTag, String userId) {
-        SeatLock seat = seatLockRepository.findBySeatTag(seatTag).orElseThrow(
-                () -> new NotFoundException("Assento inexistente.")
-        );
+    public TicketStatusResponseDTO tryReserveTicket(String ticketTag, String userId) {
+        TicketReserve ticket = ticketRepository.findByTicketTag(ticketTag)
+                .orElseThrow(() -> new NotFoundException("Assento inexistente."));
 
-        if (seat.getStatus() != SeatStatusEnum.AVAILABLE) {
+        if (ticket.getStatus() != TicketStatusEnum.AVAILABLE) {
             throw new BusinessException("Assento indisponível");
         }
 
         String eventCatalogServicePort;
         try {
-            logger.info("Entrou no try");
-            eventCatalogServicePort = eventCatalogProxy.validateEventSector(seat.getEventId(), seat.getSectorId());
+            eventCatalogServicePort = eventCatalogProxy.validateEventSector(
+                    ticket.getEventId(),
+                    ticket.getSectorId()
+            );
         } catch (FeignException.NotFound ex) {
-            logger.error(ex.getMessage());
             throw new NotFoundException("A reserva dos assentos não foi permitida.");
         } catch (Exception ex) {
-            logger.error("Outro erro: {}", ex.getMessage());
             throw new BusinessException("Ocorreu um erro interno.");
         }
-        logger.info("Depois do try");
 
-        seat.lock(userId);
-        SeatLock updatedSeat = seatLockRepository.save(seat);
+        ticket.reserve(userId);
+        TicketReserve updatedTicket = ticketRepository.save(ticket);
 
-        String environment =
-                "PORT [INVENTORY]: " + informationService.retrieveServerPort() +
-                        "\n" + eventCatalogServicePort;
+        String environment = "PORT [INVENTORY]: " + informationService.retrieveServerPort() + "\n" + eventCatalogServicePort;
 
-        return new SeatStatusResponseDTO(
-                updatedSeat.getSeatTag(),
-                updatedSeat.getStatus(),
-                LocalDateTime.now().plusSeconds(updatedSeat.getTtl()),
+        return new TicketStatusResponseDTO(
+                updatedTicket.getTicketTag(),
+                updatedTicket.getStatus(),
+                LocalDateTime.now()
+                        .plusSeconds(updatedTicket.getTtl()),
                 environment
         );
     }
 
     @Transactional
-    public List<String> reserveSeats(String userId, List<String> seatTags) {
-        if (seatTags == null || seatTags.isEmpty()) {
+    public List<String> reserveTickets(String userId, List<String> ticketTags) {
+        if (ticketTags == null || ticketTags.isEmpty()) {
             throw new BusinessException("O pedido não possui assentos para reservar.");
         }
 
-        List<String> lockedSeatTags = new ArrayList<>();
+        List<String> reservedTicketTags = new ArrayList<>();
 
         try {
-            seatTags.forEach(seatTag -> {
-                tryLockSeat(seatTag, userId);
-                lockedSeatTags.add(seatTag);
+            ticketTags.forEach(ticketTag -> {
+                tryReserveTicket(
+                        ticketTag,
+                        userId
+                );
+                reservedTicketTags.add(ticketTag);
             });
 
-            return List.copyOf(lockedSeatTags);
+            return List.copyOf(reservedTicketTags);
         } catch (RuntimeException ex) {
             logger.error(
                     "Falha ao reservar os assentos. Liberando {} assento(s) já bloqueado(s). Motivo: {}",
-                    lockedSeatTags.size(),
+                    reservedTicketTags.size(),
                     ex.getMessage()
             );
 
-            lockedSeatTags.forEach(lockedSeatTag -> {
+            reservedTicketTags.forEach(reservedTicketTag -> {
                 try {
-                    releaseSeat(lockedSeatTag);
+                    releaseTicket(reservedTicketTag);
                 } catch (RuntimeException releaseEx) {
                     logger.error(
                             "Falha ao liberar o assento {} durante a compensação. Motivo: {}",
-                            lockedSeatTag,
+                            reservedTicketTag,
                             releaseEx.getMessage()
                     );
                 }
@@ -151,95 +151,110 @@ public class InventoryManagementService {
     }
 
     @Transactional
-    public void confirmSeatSold(String seatTag) {
-        SeatLock seatLock = seatLockRepository.findById(seatTag)
+    public void confirmTicketSold(String ticketTag) {
+        TicketReserve ticketReserve = ticketRepository.findById(ticketTag)
                 .orElseThrow(() -> new NotFoundException("Reserva não encontrada"));
 
-        if (!seatLock.getStatus().equals(SeatStatusEnum.LOCKED)) {
+        if (!ticketReserve.getStatus()
+                .equals(TicketStatusEnum.RESERVED)) {
             throw new BusinessException("Assento não reservado previamente.");
         }
 
-        seatLock.sold();
-        seatLock.removeExpiration();
-        seatLockRepository.save(seatLock);
+        ticketReserve.sold();
+        ticketReserve.removeExpiration();
+        ticketRepository.save(ticketReserve);
     }
 
     @Transactional
-    public void releaseSeat(String seatTag) {
-        SeatLock seatLock = seatLockRepository.findById(seatTag)
+    public void releaseTicket(String ticketTag) {
+        TicketReserve ticketReserve = ticketRepository.findById(ticketTag)
                 .orElseThrow(() -> new NotFoundException("Reserva não encontrada"));
 
-        seatLock.release();
-        seatLockRepository.save(seatLock);
+        ticketReserve.release();
+        ticketRepository.save(ticketReserve);
     }
 
-    public SeatStatusResponseDTO checkSeatStatus(String seatTag) {
-        SeatLock seatLock = seatLockRepository.findById(seatTag)
-                .orElseThrow(() -> new NotFoundException("Reserva não encontrada"));
+    public TicketStatusResponseDTO checkTicketStatus(String ticketTag) {
+        TicketReserve ticketReserve = ticketRepository.findById(ticketTag)
+                .orElseThrow(() -> new NotFoundException("Ingresso não encontrado"));
 
         String environment = "PORT [INVENTORY]: " + informationService.retrieveServerPort();
 
-        return new SeatStatusResponseDTO(
-                seatLock.getSeatTag(),
-                seatLock.getStatus(),
-                LocalDateTime.now().minusSeconds(seatLock.getTtl()),
+        return new TicketStatusResponseDTO(
+                ticketReserve.getTicketTag(),
+                ticketReserve.getStatus(),
+                LocalDateTime.now()
+                        .minusSeconds(ticketReserve.getTtl()),
                 environment
         );
     }
 
-    public List<SeatStatusResponseDTO> findUserSeats(String userId) {
+    public List<TicketStatusResponseDTO> findUserTickets(String userId) {
         String environment = "PORT [INVENTORY]: " + informationService.retrieveServerPort();
 
-        return seatLockRepository.findByUserId(userId).stream()
-                .map(sl -> new SeatStatusResponseDTO(
-                        sl.getSeatTag(),
+        return ticketRepository.findByUserId(userId)
+                .stream()
+                .map(sl -> new TicketStatusResponseDTO(
+                        sl.getTicketTag(),
                         sl.getStatus(),
-                        sl.getStatus().equals(SeatStatusEnum.LOCKED) ? LocalDateTime.now().plusSeconds(sl.getTtl()) : null,
+                        sl.getStatus()
+                                .equals(TicketStatusEnum.RESERVED) ? LocalDateTime.now()
+                                .plusSeconds(sl.getTtl()) : null,
                         environment
-                )).toList();
+                ))
+                .toList();
     }
 
-    public List<SeatResponseDTO> findEventSeatsByStatus(String eventId, SeatStatusEnum status) {
+    public List<TicketResponseDTO> findEventTicketsByStatus(String eventId, TicketStatusEnum status) {
         if (eventId == null) {
             throw new IllegalArgumentException("O ID do evento não pode ser nulo.");
         }
 
         String environment = "PORT [INVENTORY]: " + informationService.retrieveServerPort();
 
-        return seatLockRepository.findByEventIdAndStatus(eventId, status).stream().map(
-                e -> new SeatResponseDTO(
-                        e.getSeatTag(),
+        return ticketRepository.findByEventIdAndStatus(
+                        eventId,
+                        status
+                )
+                .stream()
+                .map(e -> new TicketResponseDTO(
+                        e.getTicketTag(),
                         e.getEventId(),
                         e.getSectorId(),
                         environment
-                )
-        ).toList();
+                ))
+                .toList();
     }
 
-    public SeatResponseDTO findSeatById(String seatTag) {
-        SeatLock seat = seatLockRepository.findById(seatTag).orElseThrow(
-                () -> new NotFoundException("Assento inexistente.")
-        );
+    public TicketResponseDTO findTicketById(String ticketTag) {
+        TicketReserve ticket = ticketRepository.findById(ticketTag)
+                .orElseThrow(() -> new NotFoundException("Assento inexistente."));
 
         String environment = "PORT [INVENTORY]: " + informationService.retrieveServerPort();
 
-        return new SeatResponseDTO(
-                seat.getSeatTag(),
-                seat.getEventId(),
-                seat.getSectorId(),
+        return new TicketResponseDTO(
+                ticket.getTicketTag(),
+                ticket.getEventId(),
+                ticket.getSectorId(),
                 environment
         );
     }
 
-    public List<SeatResponseDTO> findEventSectorSeatsByStatus(String eventId, String sectorId, SeatStatusEnum status) {
+    public List<TicketResponseDTO> findEventSectorTicketsByStatus(String eventId, String sectorId, TicketStatusEnum status) {
         String environment = "PORT [INVENTORY]: " + informationService.retrieveServerPort();
 
-        return seatLockRepository.findByEventIdAndSectorIdAndStatus(eventId, sectorId, status).stream()
-                .map(seat -> new SeatResponseDTO(
-                        seat.getSeatTag(),
-                        seat.getEventId(),
-                        seat.getSectorId(),
+        return ticketRepository.findByEventIdAndSectorIdAndStatus(
+                        eventId,
+                        sectorId,
+                        status
+                )
+                .stream()
+                .map(ticket -> new TicketResponseDTO(
+                        ticket.getTicketTag(),
+                        ticket.getEventId(),
+                        ticket.getSectorId(),
                         environment
-                )).toList();
+                ))
+                .toList();
     }
 }

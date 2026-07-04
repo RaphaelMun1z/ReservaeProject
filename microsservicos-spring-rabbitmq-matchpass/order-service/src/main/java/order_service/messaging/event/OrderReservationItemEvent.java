@@ -1,7 +1,7 @@
 package order_service.messaging.event;
 
 public record OrderReservationItemEvent(
-    String sectorId,
-    String seatTag
+        String sectorId,
+        String ticketTag
 ) {
 }

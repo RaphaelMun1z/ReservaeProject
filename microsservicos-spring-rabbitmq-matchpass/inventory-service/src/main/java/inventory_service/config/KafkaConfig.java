@@ -18,7 +18,6 @@ import java.util.Map;
 
 @Configuration
 public class KafkaConfig {
-
     @Value("${matchpass.config.kafka.server-url}")
     private String kafkaServerUrl;
 
@@ -28,10 +27,22 @@ public class KafkaConfig {
     @Bean
     public ProducerFactory<String, Object> producerFactory() {
         Map<String, Object> properties = new HashMap<>();
-        properties.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaServerUrl);
-        properties.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
-        properties.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class);
-        properties.put(JsonSerializer.ADD_TYPE_INFO_HEADERS, false);
+        properties.put(
+                ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
+                kafkaServerUrl
+        );
+        properties.put(
+                ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
+                StringSerializer.class
+        );
+        properties.put(
+                ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
+                JsonSerializer.class
+        );
+        properties.put(
+                JsonSerializer.ADD_TYPE_INFO_HEADERS,
+                false
+        );
         return new DefaultKafkaProducerFactory<>(properties);
     }
 
@@ -43,13 +54,32 @@ public class KafkaConfig {
     @Bean
     public ConsumerFactory<String, OrderReservationRequestedEvent> orderReservationConsumerFactory() {
         Map<String, Object> properties = new HashMap<>();
-        properties.put(ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG, kafkaServerUrl);
-        properties.put(ConsumerConfig.GROUP_ID_CONFIG, consumerGroup);
-        properties.put(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
-        properties.put(ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG, StringDeserializer.class);
-        JsonDeserializer<OrderReservationRequestedEvent> valueDeserializer = new JsonDeserializer<>(OrderReservationRequestedEvent.class, false);
+        properties.put(
+                ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
+                kafkaServerUrl
+        );
+        properties.put(
+                ConsumerConfig.GROUP_ID_CONFIG,
+                consumerGroup
+        );
+        properties.put(
+                ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
+                "earliest"
+        );
+        properties.put(
+                ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+                StringDeserializer.class
+        );
+        JsonDeserializer<OrderReservationRequestedEvent> valueDeserializer = new JsonDeserializer<>(
+                OrderReservationRequestedEvent.class,
+                false
+        );
         valueDeserializer.addTrustedPackages("inventory_service.messaging.event");
-        return new DefaultKafkaConsumerFactory<>(properties, new StringDeserializer(), valueDeserializer);
+        return new DefaultKafkaConsumerFactory<>(
+                properties,
+                new StringDeserializer(),
+                valueDeserializer
+        );
     }
 
     @Bean

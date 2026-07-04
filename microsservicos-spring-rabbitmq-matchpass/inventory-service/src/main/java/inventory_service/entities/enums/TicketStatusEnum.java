@@ -1,7 +1,7 @@
 package inventory_service.entities.enums;
 
-public enum SeatStatusEnum {
+public enum TicketStatusEnum {
     AVAILABLE,
-    LOCKED,
+    RESERVED,
     SOLD
 }

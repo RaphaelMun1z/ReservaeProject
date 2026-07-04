@@ -22,27 +22,26 @@ public class OrderController implements OrderContract {
 
     @Override
     public ResponseEntity<OrderSummaryResponseDTO> checkout(
-        CheckoutRequestDTO dto
+            CheckoutRequestDTO dto
     ) {
-        OrderSummaryResponseDTO response =
-            orderService.processCheckout(dto);
+        OrderSummaryResponseDTO response = orderService.processCheckout(dto);
 
         URI location = URI.create(
-            "/order-service/api/orders/" + response.orderId()
+                "/order-service/api/orders/" + response.orderId()
         );
 
         return ResponseEntity
-            .accepted()
-            .location(location)
-            .body(response);
+                .accepted()
+                .location(location)
+                .body(response);
     }
 
     @Override
     public ResponseEntity<OrderResponseDTO> findProcessById(
-        String orderId
+            String orderId
     ) {
         return ResponseEntity.ok(
-            orderService.findProcessById(orderId)
+                orderService.findProcessById(orderId)
         );
     }
 
@@ -50,28 +49,28 @@ public class OrderController implements OrderContract {
     public ResponseEntity<List<OrderSummaryResponseDTO>>
     findProcessByEventId(String eventId) {
         return ResponseEntity.ok(
-            orderService.findProcessByEventId(eventId)
+                orderService.findProcessByEventId(eventId)
         );
     }
 
     @Override
     public ResponseEntity<OrderSummaryResponseDTO>
-    findProcessBySeatTag(String seatTag) {
+    findProcessByTicketTag(String ticketTag) {
         return ResponseEntity.ok(
-            orderService.findProcessBySeatTag(seatTag)
+                orderService.findProcessByTicketTag(ticketTag)
         );
     }
 
     @Override
     public ResponseEntity<OrderSummaryResponseDTO> updateProcessStatus(
-        String orderId,
-        UpdateOrderStatusRequestDTO request
+            String orderId,
+            UpdateOrderStatusRequestDTO request
     ) {
         return ResponseEntity.ok(
-            orderService.updateProcessStatus(
-                orderId,
-                request.status()
-            )
+                orderService.updateProcessStatus(
+                        orderId,
+                        request.status()
+                )
         );
     }
 
@@ -79,7 +78,7 @@ public class OrderController implements OrderContract {
     public ResponseEntity<List<OrderSummaryResponseDTO>>
     findOrdersByUserId(String userId) {
         return ResponseEntity.ok(
-            orderService.findOrdersByUserId(userId)
+                orderService.findOrdersByUserId(userId)
         );
     }
 }

@@ -31,11 +31,11 @@ public class AccessService {
 
         if (ticketOpt.isEmpty()) {
             return new AccessValidationResponse(
-                false,
-                AccessResultEnum.DENIED_INVALID,
-                "QR Code inválido ou não encontrado.",
-                null,
-                null
+                    false,
+                    AccessResultEnum.DENIED_INVALID,
+                    "QR Code inválido ou não encontrado.",
+                    null,
+                    null
             );
         }
 
@@ -66,19 +66,19 @@ public class AccessService {
         }
 
         AccessLog log = new AccessLog(
-            ticket.getId(),
-            dto.gateId(),
-            LocalDateTime.now(),
-            result
+                ticket.getId(),
+                dto.gateId(),
+                LocalDateTime.now(),
+                result
         );
         accessLogRepository.save(log);
 
         return new AccessValidationResponse(
-            isAllowed,
-            result,
-            message,
-            ticket.getSectorId(),
-            ticket.getSeatTag()
+                isAllowed,
+                result,
+                message,
+                ticket.getSectorId(),
+                ticket.getTicketTag()
         );
     }
 

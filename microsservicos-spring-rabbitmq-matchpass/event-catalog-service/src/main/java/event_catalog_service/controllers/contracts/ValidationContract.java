@@ -18,15 +18,15 @@ public interface ValidationContract {
     @Operation(summary = "Verificar se um setor específico existe dentro de um evento")
     @GetMapping("/v1/{eventId}/sector/{sectorId}/exists")
     ResponseEntity<String> validateEventSector(
-        @PathVariable String eventId,
-        @PathVariable String sectorId
+            @PathVariable String eventId,
+            @PathVariable String sectorId
     );
 
     @Operation(summary = "Validar a criação de assentos (ex: checar limites de capacidade do setor)")
-    @GetMapping("/v1/{eventId}/sector/{sectorId}/seats/{seatsAmount}")
-    ResponseEntity<String> validateEventSectorSeatCreating(
-        @PathVariable String eventId,
-        @PathVariable String sectorId,
-        @PathVariable int seatsAmount
+    @GetMapping("/v1/{eventId}/sector/{sectorId}/tickets/{ticketsAmount}")
+    ResponseEntity<String> validateEventSectorTicketCreating(
+            @PathVariable String eventId,
+            @PathVariable String sectorId,
+            @PathVariable int ticketsAmount
     );
 }

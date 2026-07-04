@@ -3,28 +3,35 @@ package order_service.messaging.publisher;
 import order_service.messaging.event.PaymentRequestedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
 public class PaymentRequestedPublisher {
     private static final Logger logger = LoggerFactory.getLogger(PaymentRequestedPublisher.class);
-    private static final String TOPIC = "matchpass.payment.requested.v1";
-    private final KafkaTemplate<String, PaymentRequestedEvent> kafkaTemplate;
 
-    public PaymentRequestedPublisher(KafkaTemplate<String, PaymentRequestedEvent> kafkaTemplate) {
+    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final String paymentRequestedTopic;
+
+    public PaymentRequestedPublisher(
+            KafkaTemplate<String, Object> kafkaTemplate,
+            @Value("${matchpass.config.kafka.topics.pagamento-solicitado}")
+            String paymentRequestedTopic
+    ) {
         this.kafkaTemplate = kafkaTemplate;
+        this.paymentRequestedTopic = paymentRequestedTopic;
     }
 
     public void publish(PaymentRequestedEvent event) {
         kafkaTemplate.send(
-                TOPIC,
+                paymentRequestedTopic,
                 event.orderId(),
                 event
         ).whenComplete((result, exception) -> {
             if (exception != null) {
                 logger.error(
-                        "Falha ao publicar solicitação de pagamento do pedido {}.",
+                        "Erro ao publicar solicitação de pagamento do pedido {}.",
                         event.orderId(),
                         exception
                 );
@@ -32,8 +39,9 @@ public class PaymentRequestedPublisher {
             }
 
             logger.info(
-                    "Solicitação de pagamento do pedido {} publicada. Partição: {}. Offset: {}.",
+                    "Solicitação de pagamento do pedido {} publicada no tópico {}. Partição: {}. Offset: {}.",
                     event.orderId(),
+                    paymentRequestedTopic,
                     result.getRecordMetadata().partition(),
                     result.getRecordMetadata().offset()
             );

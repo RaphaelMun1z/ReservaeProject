@@ -21,3 +21,6 @@ matchpass:
       topics:
         reserva-solicitada: matchpass.order.reservation-requested.v1
         resultado-reserva: matchpass.inventory.reservation-result.v1
+        pagamento-solicitado: matchpass.payment.requested.v1
+        pagamento-aprovado: matchpass.payment.approved.v1
+        pagamento-falhou: matchpass.payment.failed.v1

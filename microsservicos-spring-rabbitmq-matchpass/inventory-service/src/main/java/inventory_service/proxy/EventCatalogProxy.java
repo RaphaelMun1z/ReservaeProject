@@ -11,14 +11,14 @@ public interface EventCatalogProxy {
 
     @GetMapping("/event-catalog-service/api/event/validate/v1/{eventId}/sector/{sectorId}/exists")
     String validateEventSector(
-        @PathVariable String eventId,
-        @PathVariable String sectorId
+            @PathVariable String eventId,
+            @PathVariable String sectorId
     );
 
-    @GetMapping("/event-catalog-service/api/event/validate/v1/{eventId}/sector/{sectorId}/seats/{seatsAmount}")
-    String validateEventSectorSeatCreating(
-        @PathVariable String eventId,
-        @PathVariable String sectorId,
-        @PathVariable int seatsAmount
+    @GetMapping("/event-catalog-service/api/event/validate/v1/{eventId}/sector/{sectorId}/tickets/{ticketsAmount}")
+    String validateEventSectorTicketCreating(
+            @PathVariable String eventId,
+            @PathVariable String sectorId,
+            @PathVariable int ticketsAmount
     );
 }

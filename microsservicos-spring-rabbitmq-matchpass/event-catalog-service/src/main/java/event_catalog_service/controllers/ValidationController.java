@@ -21,15 +21,18 @@ public class ValidationController implements ValidationContract {
 
     @Override
     public ResponseEntity<String> validateEventSector(String eventId, String sectorId) {
-        return ResponseEntity.ok(validationService.validateEventSector(eventId, sectorId));
+        return ResponseEntity.ok(validationService.validateEventSector(
+                eventId,
+                sectorId
+        ));
     }
 
     @Override
-    public ResponseEntity<String> validateEventSectorSeatCreating(String eventId, String sectorId, int seatsAmount) {
-        return ResponseEntity.ok(validationService.validateEventSectorSeatCreating(
-            eventId,
-            sectorId,
-            seatsAmount
+    public ResponseEntity<String> validateEventSectorTicketCreating(String eventId, String sectorId, int ticketsAmount) {
+        return ResponseEntity.ok(validationService.validateEventSectorTicketCreating(
+                eventId,
+                sectorId,
+                ticketsAmount
         ));
     }
 }
