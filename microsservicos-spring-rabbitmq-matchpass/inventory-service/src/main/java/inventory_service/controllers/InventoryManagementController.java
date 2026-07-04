@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/inventory-service/api/inventory")
+@RequestMapping("/inventory-service/api/tickets")
 public class InventoryManagementController implements InventoryManagementContract {
     private final InventoryManagementService inventoryManagementService;
 
@@ -57,7 +57,7 @@ public class InventoryManagementController implements InventoryManagementContrac
     }
 
     @Override
-    @PatchMapping(value = "/v1/sold/{ticketId}")
+    @PostMapping(value = "/v1/sold/{ticketId}")
     public ResponseEntity<Void> confirmTicketSold(@PathVariable String ticketId) {
         inventoryManagementService.confirmTicketSold(ticketId);
         return ResponseEntity.ok()

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/event-catalog-service/api/event/validate")
+@RequestMapping("/event-catalog-service/api/events/validate")
 public class FooBarController implements FooBarContract {
 
     private final Logger logger = LoggerFactory.getLogger(FooBarController.class);

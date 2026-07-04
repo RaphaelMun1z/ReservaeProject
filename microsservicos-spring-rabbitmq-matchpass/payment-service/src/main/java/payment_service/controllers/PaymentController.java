@@ -12,7 +12,7 @@ import payment_service.dtos.res.PaymentSessionResponseDTO;
 import payment_service.services.PaymentService;
 
 @RestController
-@RequestMapping("/payment-service/api/payments/v1")
+@RequestMapping("/payment-service/api/payments")
 public class PaymentController {
     private final PaymentService paymentService;
 
@@ -20,8 +20,10 @@ public class PaymentController {
         this.paymentService = paymentService;
     }
 
-    @PostMapping("/checkout")
-    public ResponseEntity<PaymentSessionResponseDTO> createPaymentSession(@Valid @RequestBody ProductRequestDTO request) {
+    @PostMapping("/v1/checkout")
+    public ResponseEntity<PaymentSessionResponseDTO> createPaymentSession(
+        @Valid @RequestBody ProductRequestDTO request
+    ) {
         PaymentSessionResponseDTO response = paymentService.createPaymentSession(request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.*;
 import payment_service.services.StripeWebhookService;
 
 @RestController
-@RequestMapping("/payment-service/api/webhooks")
+@RequestMapping("/payment-service/api/payments/webhooks")
 public class StripeWebhookController {
     private final StripeWebhookService stripeWebhookService;
 
@@ -13,7 +13,7 @@ public class StripeWebhookController {
         this.stripeWebhookService = stripeWebhookService;
     }
 
-    @PostMapping("/stripe")
+    @PostMapping("/v1/stripe")
     public ResponseEntity<Void> receiveStripeWebhook(
         @RequestBody String payload,
         @RequestHeader("Stripe-Signature") String signatureHeader

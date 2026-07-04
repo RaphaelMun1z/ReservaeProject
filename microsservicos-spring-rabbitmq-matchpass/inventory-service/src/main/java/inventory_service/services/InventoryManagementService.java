@@ -41,7 +41,7 @@ public class InventoryManagementService {
     public List<TicketStatusResponseDTO> createTickets(int ticketsAmount, TicketReservationRequestDTO ticketData) {
         String eventCatalogServicePort;
         try {
-            eventCatalogServicePort = eventCatalogProxy.validateEventSectorTicketCreating(
+            eventCatalogServicePort = eventCatalogProxy.validateSectorCapacity(
                 ticketData.eventId(),
                 ticketData.sectorId(),
                 ticketsAmount

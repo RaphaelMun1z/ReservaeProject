@@ -10,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/event-catalog-service/api/event")
+@RequestMapping("/event-catalog-service/api/events")
 public class EventCatalogController implements EventCatalogContract {
     private final EventCatalogService eventCatalogService;
 

@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/event-catalog-service/api/venue")
+@RequestMapping("/event-catalog-service/api/venues")
 public class VenueController implements VenueContract {
     private final VenueService venueService;
 
