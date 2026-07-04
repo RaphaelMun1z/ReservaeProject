@@ -4,50 +4,58 @@ import event_catalog_service.dtos.query.EventDetailsProjection;
 import event_catalog_service.dtos.res.EventDetailsResponseDTO;
 import event_catalog_service.dtos.res.EventSectorDetailsDTO;
 import event_catalog_service.dtos.res.SectorPricingResponseDTO;
-import event_catalog_service.entities.*;
+import event_catalog_service.entities.Event;
+import event_catalog_service.entities.EventSectorPricing;
+import event_catalog_service.entities.Sector;
+import event_catalog_service.entities.Venue;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
 public class EventMapper {
-    public SectorPricingResponseDTO toSectorPricingResponseDTO(Sector sector, EventSectorPricing esp) {
+    public SectorPricingResponseDTO toSectorPricingResponseDTO(
+        Sector sector,
+        EventSectorPricing esp
+    ) {
         return new SectorPricingResponseDTO(
-                sector.getId(),
-                sector.getName(),
-                esp.getBasePrice(),
-                esp.getHalfPrice(),
-                sector.getHasNumberedTickets()
+            sector.getId(),
+            sector.getName(),
+            esp.getBasePrice(),
+            esp.getHalfPrice()
         );
     }
 
-    public EventDetailsResponseDTO toEventDetailsResponseDTO(Event event, Venue venue, Team homeTeam, Team awayTeam, List<EventSectorDetailsDTO> sectorDetails) {
+    public EventDetailsResponseDTO toEventDetailsResponseDTO(
+        Event event,
+        Venue venue,
+        List<EventSectorDetailsDTO> sectorDetails
+    ) {
         return new EventDetailsResponseDTO(
-                event.getId(),
-                event.getTitle(),
-                event.getEventDate(),
-                event.getStatus(),
-                venue.getName(),
-                venue.getCity(),
-                venue.getState(),
-                homeTeam.getName(),
-                awayTeam.getName(),
-                sectorDetails
+            event.getId(),
+            event.getTitle(),
+            event.getEventDate(),
+            event.getStatus(),
+            venue.getName(),
+            venue.getCity(),
+            venue.getState(),
+            sectorDetails
         );
     }
 
-    public EventDetailsResponseDTO toEventDetailsResponseDTO(EventDetailsProjection event, List<EventSectorDetailsDTO> sectorDetails) {
+    public EventDetailsResponseDTO toEventDetailsResponseDTO(
+        EventDetailsProjection event,
+        List<EventSectorDetailsDTO> sectorDetails
+    ) {
         return new EventDetailsResponseDTO(
-                event.getEventId(),
-                event.getTitle(),
-                event.getEventDate(),
-                event.getStatus(),
-                event.getVenueName(),
-                event.getVenueCity(),
-                event.getVenueState(),
-                event.getHomeTeamName(),
-                event.getAwayTeamName(),
-                sectorDetails
+            event.getEventId(),
+            event.getTitle(),
+            event.getEventDate(),
+            event.getStatus(),
+            event.getVenueName(),
+            event.getVenueCity(),
+            event.getVenueState(),
+            sectorDetails
         );
     }
 }

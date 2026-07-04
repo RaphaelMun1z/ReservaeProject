@@ -1,8 +1,8 @@
 package payment_service.messaging.event;
 
 public record PaymentSessionCreatedEvent(
-        String orderId,
-        String paymentId,
-        String paymentUrl
+    String orderId,
+    String paymentId,
+    String paymentUrl
 ) {
 }

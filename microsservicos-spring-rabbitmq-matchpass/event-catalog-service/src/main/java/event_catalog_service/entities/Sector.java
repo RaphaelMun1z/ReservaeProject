@@ -27,18 +27,13 @@ public class Sector {
     @Column(nullable = false)
     private Integer capacity;
 
-    @NotNull
-    @Column(name = "has_numbered_tickets", nullable = false)
-    private Boolean hasNumberedTickets;
-
     protected Sector() {
     }
 
-    public Sector(Venue venue, String name, Integer capacity, Boolean hasNumberedTickets) {
+    public Sector(Venue venue, String name, Integer capacity) {
         this.venue = venue;
         this.name = name;
         this.capacity = capacity;
-        this.hasNumberedTickets = hasNumberedTickets;
     }
 
     public String getId() {
@@ -49,22 +44,18 @@ public class Sector {
         return venue;
     }
 
+    void setVenue(Venue venue) {
+        this.venue = venue;
+    }
+
     public String getName() {
         return name;
     }
 
-    public Integer getCapacity() {
-        return capacity;
-    }
-
-    public Boolean getHasNumberedTickets() {
-        return hasNumberedTickets;
-    }
-
     // --- MÉTODOS DE COMPORTAMENTO ---
 
-    void setVenue(Venue venue) {
-        this.venue = venue;
+    public Integer getCapacity() {
+        return capacity;
     }
 
     public void updateCapacity(Integer newCapacity) {

@@ -31,6 +31,11 @@ public class AccessController implements AccessContract {
         String result,
         Pageable pageable
     ) {
-        return ResponseEntity.ok(accessService.findLogs(eventId, gateId, result, pageable));
+        return ResponseEntity.ok(accessService.findLogs(
+            eventId,
+            gateId,
+            result,
+            pageable
+        ));
     }
 }

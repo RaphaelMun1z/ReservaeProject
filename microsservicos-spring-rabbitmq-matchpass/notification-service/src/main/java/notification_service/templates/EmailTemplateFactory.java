@@ -23,86 +23,359 @@ public class EmailTemplateFactory {
         this.frontendUrl = removerBarraFinal(frontendUrl);
     }
 
-    public EmailTemplate compraConfirmada(String nome, String pedidoId, String evento, String dataEvento, String valorTotal) {
+    public EmailTemplate compraConfirmada(
+        String nome,
+        String pedidoId,
+        String evento,
+        String dataEvento,
+        String valorTotal
+    ) {
         String assunto = "Compra confirmada — " + evento;
 
-        String html = montarTemplate("Compra confirmada", "✓", COR_SUCESSO, "Tudo certo!", nome, """
-            Sua compra foi confirmada com sucesso. Os ingressos já estão vinculados à sua conta e disponíveis para consulta.
-            """, List.of(new EmailDetail("Pedido", pedidoId, false), new EmailDetail("Evento", evento, true), new EmailDetail("Data", dataEvento, false), new EmailDetail("Valor total", valorTotal, false)), "Ver ingressos", frontendUrl + "/pages/user/my-tickets.html", """
-            Guarde este e-mail como comprovante da sua compra.
-            """);
+        String html = montarTemplate(
+            "Compra confirmada",
+            "✓",
+            COR_SUCESSO,
+            "Tudo certo!",
+            nome,
+            """
+                Sua compra foi confirmada com sucesso. Os ingressos já estão vinculados à sua conta e disponíveis para consulta.
+                """,
+            List.of(
+                new EmailDetail(
+                    "Pedido",
+                    pedidoId,
+                    false
+                ),
+                new EmailDetail(
+                    "Evento",
+                    evento,
+                    true
+                ),
+                new EmailDetail(
+                    "Data",
+                    dataEvento,
+                    false
+                ),
+                new EmailDetail(
+                    "Valor total",
+                    valorTotal,
+                    false
+                )
+            ),
+            "Ver ingressos",
+            frontendUrl + "/pages/user/my-tickets.html",
+            """
+                Guarde este e-mail como comprovante da sua compra.
+                """
+        );
 
-        return new EmailTemplate(assunto, html);
+        return new EmailTemplate(
+            assunto,
+            html
+        );
     }
 
-    public EmailTemplate pagamentoPendente(String nome, String pedidoId, String evento, String valorTotal, String prazoPagamento, String linkPagamento) {
+    public EmailTemplate pagamentoPendente(
+        String nome,
+        String pedidoId,
+        String evento,
+        String valorTotal,
+        String prazoPagamento,
+        String linkPagamento
+    ) {
         String assunto = "Pagamento pendente — pedido " + pedidoId;
 
-        String html = montarTemplate("Aguardando pagamento", "!", COR_ATENCAO, "Finalize seu pagamento", nome, """
-            Seu pedido foi criado, mas o pagamento ainda não foi confirmado. Conclua o pagamento dentro do prazo para manter sua reserva.
-            """, List.of(new EmailDetail("Pedido", pedidoId, false), new EmailDetail("Evento", evento, true), new EmailDetail("Valor", valorTotal, false), new EmailDetail("Prazo", prazoPagamento, true)), "Finalizar pagamento", linkPagamento, """
-            Após o prazo informado, a reserva poderá ser liberada automaticamente.
-            """);
+        String html = montarTemplate(
+            "Aguardando pagamento",
+            "!",
+            COR_ATENCAO,
+            "Finalize seu pagamento",
+            nome,
+            """
+                Seu pedido foi criado, mas o pagamento ainda não foi confirmado. Conclua o pagamento dentro do prazo para manter sua reserva.
+                """,
+            List.of(
+                new EmailDetail(
+                    "Pedido",
+                    pedidoId,
+                    false
+                ),
+                new EmailDetail(
+                    "Evento",
+                    evento,
+                    true
+                ),
+                new EmailDetail(
+                    "Valor",
+                    valorTotal,
+                    false
+                ),
+                new EmailDetail(
+                    "Prazo",
+                    prazoPagamento,
+                    true
+                )
+            ),
+            "Finalizar pagamento",
+            linkPagamento,
+            """
+                Após o prazo informado, a reserva poderá ser liberada automaticamente.
+                """
+        );
 
-        return new EmailTemplate(assunto, html);
+        return new EmailTemplate(
+            assunto,
+            html
+        );
     }
 
-    public EmailTemplate pagamentoRecusado(String nome, String pedidoId, String evento, String motivo, String linkPagamento) {
+    public EmailTemplate pagamentoRecusado(
+        String nome,
+        String pedidoId,
+        String evento,
+        String motivo,
+        String linkPagamento
+    ) {
         String assunto = "Não foi possível aprovar seu pagamento";
 
-        String html = montarTemplate("Pagamento não aprovado", "×", COR_ERRO, "Pagamento recusado", nome, """
-            Não foi possível concluir o pagamento do seu pedido. Você pode tentar novamente utilizando o mesmo ou outro método de pagamento.
-            """, List.of(new EmailDetail("Pedido", pedidoId, false), new EmailDetail("Evento", evento, true), new EmailDetail("Motivo", motivo, false)), "Tentar novamente", linkPagamento, """
-            Nenhuma cobrança foi confirmada para esta tentativa.
-            """);
+        String html = montarTemplate(
+            "Pagamento não aprovado",
+            "×",
+            COR_ERRO,
+            "Pagamento recusado",
+            nome,
+            """
+                Não foi possível concluir o pagamento do seu pedido. Você pode tentar novamente utilizando o mesmo ou outro método de pagamento.
+                """,
+            List.of(
+                new EmailDetail(
+                    "Pedido",
+                    pedidoId,
+                    false
+                ),
+                new EmailDetail(
+                    "Evento",
+                    evento,
+                    true
+                ),
+                new EmailDetail(
+                    "Motivo",
+                    motivo,
+                    false
+                )
+            ),
+            "Tentar novamente",
+            linkPagamento,
+            """
+                Nenhuma cobrança foi confirmada para esta tentativa.
+                """
+        );
 
-        return new EmailTemplate(assunto, html);
+        return new EmailTemplate(
+            assunto,
+            html
+        );
     }
 
-    public EmailTemplate ingressoDisponivel(String nome, String pedidoId, String evento, String setor, String quantidade) {
+    public EmailTemplate ingressoDisponivel(
+        String nome,
+        String pedidoId,
+        String evento,
+        String setor,
+        String quantidade
+    ) {
         String assunto = "Seu ingresso já está disponível";
 
-        String html = montarTemplate("Ingresso liberado", "🎟", COR_PRINCIPAL, "Prepare-se para o evento", nome, """
-            Seu ingresso foi gerado e já pode ser acessado pela sua carteira digital. Apresente o QR Code na entrada do evento.
-            """, List.of(new EmailDetail("Pedido", pedidoId, false), new EmailDetail("Evento", evento, true), new EmailDetail("Setor", setor, false), new EmailDetail("Quantidade", quantidade, false)), "Abrir minha carteira", frontendUrl + "/pages/user/my-tickets.html", """
-            Evite compartilhar o QR Code. Ele é pessoal e será validado na entrada.
-            """);
+        String html = montarTemplate(
+            "Ingresso liberado",
+            "🎟",
+            COR_PRINCIPAL,
+            "Prepare-se para o evento",
+            nome,
+            """
+                Seu ingresso foi gerado e já pode ser acessado pela sua carteira digital. Apresente o QR Code na entrada do evento.
+                """,
+            List.of(
+                new EmailDetail(
+                    "Pedido",
+                    pedidoId,
+                    false
+                ),
+                new EmailDetail(
+                    "Evento",
+                    evento,
+                    true
+                ),
+                new EmailDetail(
+                    "Setor",
+                    setor,
+                    false
+                ),
+                new EmailDetail(
+                    "Quantidade",
+                    quantidade,
+                    false
+                )
+            ),
+            "Abrir minha carteira",
+            frontendUrl + "/pages/user/my-tickets.html",
+            """
+                Evite compartilhar o QR Code. Ele é pessoal e será validado na entrada.
+                """
+        );
 
-        return new EmailTemplate(assunto, html);
+        return new EmailTemplate(
+            assunto,
+            html
+        );
     }
 
-    public EmailTemplate eventoAlterado(String nome, String evento, String informacaoAnterior, String novaInformacao, String descricaoAlteracao) {
+    public EmailTemplate eventoAlterado(
+        String nome,
+        String evento,
+        String informacaoAnterior,
+        String novaInformacao,
+        String descricaoAlteracao
+    ) {
         String assunto = "Atualização importante sobre " + evento;
 
-        String html = montarTemplate("Evento atualizado", "i", COR_INFORMACAO, "Houve uma alteração", nome, descricaoAlteracao, List.of(new EmailDetail("Evento", evento, true), new EmailDetail("Informação anterior", informacaoAnterior, false), new EmailDetail("Nova informação", novaInformacao, true)), "Ver detalhes do evento", frontendUrl + "/pages/public/shows.html", """
-            Seu ingresso continua válido, salvo indicação diferente na página do evento.
-            """);
+        String html = montarTemplate(
+            "Evento atualizado",
+            "i",
+            COR_INFORMACAO,
+            "Houve uma alteração",
+            nome,
+            descricaoAlteracao,
+            List.of(
+                new EmailDetail(
+                    "Evento",
+                    evento,
+                    true
+                ),
+                new EmailDetail(
+                    "Informação anterior",
+                    informacaoAnterior,
+                    false
+                ),
+                new EmailDetail(
+                    "Nova informação",
+                    novaInformacao,
+                    true
+                )
+            ),
+            "Ver detalhes do evento",
+            frontendUrl + "/pages/public/shows.html",
+            """
+                Seu ingresso continua válido, salvo indicação diferente na página do evento.
+                """
+        );
 
-        return new EmailTemplate(assunto, html);
+        return new EmailTemplate(
+            assunto,
+            html
+        );
     }
 
     public EmailTemplate eventoCancelado(String nome, String evento, String pedidoId, String orientacaoReembolso) {
         String assunto = "Evento cancelado — " + evento;
 
-        String html = montarTemplate("Cancelamento", "×", COR_ERRO, "O evento foi cancelado", nome, """
-            Lamentamos informar que o evento foi cancelado. Consulte abaixo as informações relacionadas ao seu pedido e ao processo de reembolso.
-            """, List.of(new EmailDetail("Evento", evento, true), new EmailDetail("Pedido", pedidoId, false), new EmailDetail("Reembolso", orientacaoReembolso, false)), "Consultar meu pedido", frontendUrl + "/pages/user/profile.html", """
-            O prazo de estorno pode variar conforme o método de pagamento e a instituição financeira.
-            """);
+        String html = montarTemplate(
+            "Cancelamento",
+            "×",
+            COR_ERRO,
+            "O evento foi cancelado",
+            nome,
+            """
+                Lamentamos informar que o evento foi cancelado. Consulte abaixo as informações relacionadas ao seu pedido e ao processo de reembolso.
+                """,
+            List.of(
+                new EmailDetail(
+                    "Evento",
+                    evento,
+                    true
+                ),
+                new EmailDetail(
+                    "Pedido",
+                    pedidoId,
+                    false
+                ),
+                new EmailDetail(
+                    "Reembolso",
+                    orientacaoReembolso,
+                    false
+                )
+            ),
+            "Consultar meu pedido",
+            frontendUrl + "/pages/user/profile.html",
+            """
+                O prazo de estorno pode variar conforme o método de pagamento e a instituição financeira.
+                """
+        );
 
-        return new EmailTemplate(assunto, html);
+        return new EmailTemplate(
+            assunto,
+            html
+        );
     }
 
-    public EmailTemplate lembreteEvento(String nome, String evento, String data, String horario, String local, String setor) {
+    public EmailTemplate lembreteEvento(
+        String nome,
+        String evento,
+        String data,
+        String horario,
+        String local,
+        String setor
+    ) {
         String assunto = "É amanhã: " + evento;
 
-        String html = montarTemplate("Lembrete de evento", "♫", COR_PRINCIPAL, "O palco está quase pronto", nome, """
-            Seu evento está chegando. Confira os dados abaixo e deixe seu ingresso preparado para a entrada.
-            """, List.of(new EmailDetail("Evento", evento, true), new EmailDetail("Data", data, false), new EmailDetail("Horário", horario, false), new EmailDetail("Local", local, false), new EmailDetail("Setor", setor, false)), "Abrir ingresso", frontendUrl + "/pages/user/my-tickets.html", """
-            Recomendamos chegar com antecedência e verificar previamente as regras de acesso do local.
-            """);
+        String html = montarTemplate(
+            "Lembrete de evento",
+            "♫",
+            COR_PRINCIPAL,
+            "O palco está quase pronto",
+            nome,
+            """
+                Seu evento está chegando. Confira os dados abaixo e deixe seu ingresso preparado para a entrada.
+                """,
+            List.of(
+                new EmailDetail(
+                    "Evento",
+                    evento,
+                    true
+                ),
+                new EmailDetail(
+                    "Data",
+                    data,
+                    false
+                ),
+                new EmailDetail(
+                    "Horário",
+                    horario,
+                    false
+                ),
+                new EmailDetail(
+                    "Local",
+                    local,
+                    false
+                ),
+                new EmailDetail(
+                    "Setor",
+                    setor,
+                    false
+                )
+            ),
+            "Abrir ingresso",
+            frontendUrl + "/pages/user/my-tickets.html",
+            """
+                Recomendamos chegar com antecedência e verificar previamente as regras de acesso do local.
+                """
+        );
 
-        return new EmailTemplate(assunto, html);
+        return new EmailTemplate(
+            assunto,
+            html
+        );
     }
 
     public EmailTemplate solicitarAvaliacao(String nome, String evento, String pedidoId) {
@@ -110,16 +383,52 @@ public class EmailTemplateFactory {
 
         String linkAvaliacao = frontendUrl + "/pages/checkout/review.html?orderId=" + codificarParametro(pedidoId);
 
-        String html = montarTemplate("Sua opinião importa", "★", COR_AVALIACAO, "Avalie sua experiência", nome, """
-            Queremos saber como foi seu processo de compra na plataforma. Sua avaliação nos ajuda a melhorar cada etapa da experiência.
-            """, List.of(new EmailDetail("Evento", evento, true), new EmailDetail("Pedido", pedidoId, false)), "Enviar avaliação", linkAvaliacao, """
-            A avaliação é rápida e leva apenas alguns segundos.
-            """);
+        String html = montarTemplate(
+            "Sua opinião importa",
+            "★",
+            COR_AVALIACAO,
+            "Avalie sua experiência",
+            nome,
+            """
+                Queremos saber como foi seu processo de compra na plataforma. Sua avaliação nos ajuda a melhorar cada etapa da experiência.
+                """,
+            List.of(
+                new EmailDetail(
+                    "Evento",
+                    evento,
+                    true
+                ),
+                new EmailDetail(
+                    "Pedido",
+                    pedidoId,
+                    false
+                )
+            ),
+            "Enviar avaliação",
+            linkAvaliacao,
+            """
+                A avaliação é rápida e leva apenas alguns segundos.
+                """
+        );
 
-        return new EmailTemplate(assunto, html);
+        return new EmailTemplate(
+            assunto,
+            html
+        );
     }
 
-    private String montarTemplate(String etiqueta, String icone, String corEstado, String titulo, String nome, String mensagem, List<EmailDetail> detalhes, String textoBotao, String linkBotao, String observacao) {
+    private String montarTemplate(
+        String etiqueta,
+        String icone,
+        String corEstado,
+        String titulo,
+        String nome,
+        String mensagem,
+        List<EmailDetail> detalhes,
+        String textoBotao,
+        String linkBotao,
+        String observacao
+    ) {
         return """
             <!doctype html>
             <html lang="pt-BR">
@@ -384,7 +693,23 @@ public class EmailTemplateFactory {
                 </table>
             </body>
             </html>
-            """.formatted(escaparHtml(titulo), corEstado, escaparHtml(icone), escaparHtml(titulo), escaparHtml(etiqueta), escaparHtml(nome), formatarTexto(mensagem), montarDetalhes(detalhes, corEstado), COR_PRINCIPAL, escaparAtributo(linkBotao), escaparHtml(textoBotao), formatarTexto(observacao));
+            """.formatted(
+            escaparHtml(titulo),
+            corEstado,
+            escaparHtml(icone),
+            escaparHtml(titulo),
+            escaparHtml(etiqueta),
+            escaparHtml(nome),
+            formatarTexto(mensagem),
+            montarDetalhes(
+                detalhes,
+                corEstado
+            ),
+            COR_PRINCIPAL,
+            escaparAtributo(linkBotao),
+            escaparHtml(textoBotao),
+            formatarTexto(observacao)
+        );
     }
 
     private String montarDetalhes(List<EmailDetail> detalhes, String corEstado) {
@@ -403,39 +728,44 @@ public class EmailTemplateFactory {
             String borda = ultimaLinha ? "" : "border-bottom: 1px solid #e3e7ef;";
 
             linhas.append("""
-                <tr>
-                    <td style="
-                        padding: 18px 20px;
-                        %s
-                    ">
-                        <p
-                            style="
-                                margin: 0 0 6px;
-                                color: #777c88;
-                                font-size: 10px;
-                                font-weight: 700;
-                                letter-spacing: 1px;
-                                text-transform: uppercase;
-                            "
-                        >
-                            %s
-                        </p>
-                
-                        <p
-                            style="
-                                margin: 0;
-                                color: %s;
-                                font-size: 15px;
-                                font-weight: 800;
-                                line-height: 1.5;
-                                word-break: break-word;
-                            "
-                        >
-                            %s
-                        </p>
-                    </td>
-                </tr>
-                """.formatted(borda, escaparHtml(detalhe.rotulo()), corValor, escaparHtml(detalhe.valor())));
+                              <tr>
+                                  <td style="
+                                      padding: 18px 20px;
+                                      %s
+                                  ">
+                                      <p
+                                          style="
+                                              margin: 0 0 6px;
+                                              color: #777c88;
+                                              font-size: 10px;
+                                              font-weight: 700;
+                                              letter-spacing: 1px;
+                                              text-transform: uppercase;
+                                          "
+                                      >
+                                          %s
+                                      </p>
+                              
+                                      <p
+                                          style="
+                                              margin: 0;
+                                              color: %s;
+                                              font-size: 15px;
+                                              font-weight: 800;
+                                              line-height: 1.5;
+                                              word-break: break-word;
+                                          "
+                                      >
+                                          %s
+                                      </p>
+                                  </td>
+                              </tr>
+                              """.formatted(
+                borda,
+                escaparHtml(detalhe.rotulo()),
+                corValor,
+                escaparHtml(detalhe.valor())
+            ));
         }
 
         return """
@@ -459,7 +789,13 @@ public class EmailTemplateFactory {
     }
 
     private String formatarTexto(String valor) {
-        return escaparHtml(valor).replace("\r\n", "<br>").replace("\n", "<br>");
+        return escaparHtml(valor).replace(
+            "\r\n",
+            "<br>"
+        ).replace(
+            "\n",
+            "<br>"
+        );
     }
 
     private String escaparHtml(String valor) {
@@ -467,7 +803,22 @@ public class EmailTemplateFactory {
             return "";
         }
 
-        return valor.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;").replace("'", "&#39;");
+        return valor.replace(
+            "&",
+            "&amp;"
+        ).replace(
+            "<",
+            "&lt;"
+        ).replace(
+            ">",
+            "&gt;"
+        ).replace(
+            "\"",
+            "&quot;"
+        ).replace(
+            "'",
+            "&#39;"
+        );
     }
 
     private String escaparAtributo(String valor) {
@@ -479,7 +830,10 @@ public class EmailTemplateFactory {
             return "";
         }
 
-        return URLEncoder.encode(valor, StandardCharsets.UTF_8);
+        return URLEncoder.encode(
+            valor,
+            StandardCharsets.UTF_8
+        );
     }
 
     private String removerBarraFinal(String valor) {
@@ -487,6 +841,9 @@ public class EmailTemplateFactory {
             return "";
         }
 
-        return valor.endsWith("/") ? valor.substring(0, valor.length() - 1) : valor;
+        return valor.endsWith("/") ? valor.substring(
+            0,
+            valor.length() - 1
+        ) : valor;
     }
 }

@@ -7,7 +7,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class StartupApiGateway {
 
     public static void main(String[] args) {
-        SpringApplication.run(StartupApiGateway.class, args);
+        SpringApplication.run(
+            StartupApiGateway.class,
+            args
+        );
     }
 
 }

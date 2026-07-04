@@ -23,36 +23,36 @@ public class KafkaTopicConfig {
     @Bean
     public NewTopic paymentRequestedTopic() {
         return TopicBuilder
-                .name(paymentRequestedTopic)
-                .partitions(3)
-                .replicas(1)
-                .build();
+            .name(paymentRequestedTopic)
+            .partitions(3)
+            .replicas(1)
+            .build();
     }
 
     @Bean
     public NewTopic paymentSessionCreatedTopic() {
         return TopicBuilder
-                .name(paymentSessionCreatedTopic)
-                .partitions(3)
-                .replicas(1)
-                .build();
+            .name(paymentSessionCreatedTopic)
+            .partitions(3)
+            .replicas(1)
+            .build();
     }
 
     @Bean
     public NewTopic paymentApprovedTopic() {
         return TopicBuilder
-                .name(paymentApprovedTopic)
-                .partitions(3)
-                .replicas(1)
-                .build();
+            .name(paymentApprovedTopic)
+            .partitions(3)
+            .replicas(1)
+            .build();
     }
 
     @Bean
     public NewTopic paymentFailedTopic() {
         return TopicBuilder
-                .name(paymentFailedTopic)
-                .partitions(3)
-                .replicas(1)
-                .build();
+            .name(paymentFailedTopic)
+            .partitions(3)
+            .replicas(1)
+            .build();
     }
 }

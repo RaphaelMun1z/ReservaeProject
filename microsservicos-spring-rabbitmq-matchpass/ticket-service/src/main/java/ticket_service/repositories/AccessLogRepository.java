@@ -15,5 +15,6 @@ public interface AccessLogRepository extends JpaRepository<AccessLog, String> {
         @Param("eventId") String eventId,
         @Param("gateId") String gateId,
         @Param("result") String result,
-        Pageable pageable);
+        Pageable pageable
+    );
 }

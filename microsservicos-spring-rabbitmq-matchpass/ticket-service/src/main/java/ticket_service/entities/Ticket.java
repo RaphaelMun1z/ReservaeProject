@@ -14,7 +14,7 @@ public class Ticket {
     private String eventId;
     private String userId;
     private String sectorId;
-    private String ticketTag;
+    private String ticketId;
     private String qrCodeHash;
 
     @Enumerated(EnumType.STRING)
@@ -23,12 +23,20 @@ public class Ticket {
     public Ticket() {
     }
 
-    public Ticket(String orderId, String eventId, String userId, String sectorId, String ticketTag, String qrCodeHash, TicketStatusEnum status) {
+    public Ticket(
+        String orderId,
+        String eventId,
+        String userId,
+        String sectorId,
+        String ticketId,
+        String qrCodeHash,
+        TicketStatusEnum status
+    ) {
         this.orderId = orderId;
         this.eventId = eventId;
         this.userId = userId;
         this.sectorId = sectorId;
-        this.ticketTag = ticketTag;
+        this.ticketId = ticketId;
         this.qrCodeHash = qrCodeHash;
         this.status = status;
     }
@@ -53,8 +61,8 @@ public class Ticket {
         return sectorId;
     }
 
-    public String getTicketTag() {
-        return ticketTag;
+    public String getTicketId() {
+        return ticketId;
     }
 
     public String getQrCodeHash() {

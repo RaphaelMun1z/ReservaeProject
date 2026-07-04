@@ -18,16 +18,16 @@ public class PaymentRequestedConsumer {
     }
 
     @KafkaListener(
-            topics = "${matchpass.config.kafka.topics.pagamento-solicitado}",
-            containerFactory = "paymentRequestedKafkaListenerContainerFactory"
+        topics = "${matchpass.config.kafka.topics.pagamento-solicitado}",
+        containerFactory = "paymentRequestedKafkaListenerContainerFactory"
     )
     public void consume(PaymentRequestedEvent event) {
         logger.info(
-                "Solicitação de pagamento recebida. Pedido: {}. Usuário: {}. Valor: {} {}.",
-                event.orderId(),
-                event.userId(),
-                event.amount(),
-                event.currency()
+            "Solicitação de pagamento recebida. Pedido: {}. Usuário: {}. Valor: {} {}.",
+            event.orderId(),
+            event.userId(),
+            event.amount(),
+            event.currency()
         );
 
         paymentService.processPaymentRequest(event);

@@ -8,155 +8,6 @@ import java.util.List;
 @Component
 public class PaymentEmailTemplateFactory {
 
-    private final String backgroundCabecalhoUrl;
-    private final String ilustracaoCabecalhoUrl;
-    private final String ilustracaoRodapeUrl;
-    private final String facebookIconUrl;
-    private final String linkedinIconUrl;
-    private final String xIconUrl;
-    private final String instagramIconUrl;
-    private final String youtubeIconUrl;
-    private final String pinterestIconUrl;
-
-    public PaymentEmailTemplateFactory(@Value("${notification.email.assets.payment-background-url}") String backgroundCabecalhoUrl,
-
-                                       @Value("${notification.email.assets.payment-header-illustration-url}") String ilustracaoCabecalhoUrl,
-
-                                       @Value("${notification.email.assets.payment-footer-illustration-url}") String ilustracaoRodapeUrl,
-
-                                       @Value("${notification.email.assets.facebook-icon-url}") String facebookIconUrl,
-
-                                       @Value("${notification.email.assets.linkedin-icon-url}") String linkedinIconUrl,
-
-                                       @Value("${notification.email.assets.x-icon-url}") String xIconUrl,
-
-                                       @Value("${notification.email.assets.instagram-icon-url}") String instagramIconUrl,
-
-                                       @Value("${notification.email.assets.youtube-icon-url}") String youtubeIconUrl,
-
-                                       @Value("${notification.email.assets.pinterest-icon-url}") String pinterestIconUrl) {
-        this.backgroundCabecalhoUrl = backgroundCabecalhoUrl;
-        this.ilustracaoCabecalhoUrl = ilustracaoCabecalhoUrl;
-        this.ilustracaoRodapeUrl = ilustracaoRodapeUrl;
-        this.facebookIconUrl = facebookIconUrl;
-        this.linkedinIconUrl = linkedinIconUrl;
-        this.xIconUrl = xIconUrl;
-        this.instagramIconUrl = instagramIconUrl;
-        this.youtubeIconUrl = youtubeIconUrl;
-        this.pinterestIconUrl = pinterestIconUrl;
-    }
-
-    public EmailTemplate criarPagamentoPendente(String nomeDestinatario, String pedidoId, String dataVencimento, String valorPendente, List<EmailItem> itens, String valorTotal, String linkPagamento, String linkPedido, String nomeRemetente) {
-        String assunto = "Pagamento pendente — Pedido #" + pedidoId;
-
-        String html = TEMPLATE.replace("{{TITULO_DOCUMENTO}}", escaparHtml(assunto)).replace("{{BACKGROUND_CABECALHO_URL}}", escaparAtributo(backgroundCabecalhoUrl)).replace("{{ILUSTRACAO_CABECALHO_URL}}", escaparAtributo(ilustracaoCabecalhoUrl)).replace("{{ILUSTRACAO_RODAPE_URL}}", escaparAtributo(ilustracaoRodapeUrl)).replace("{{NOME}}", escaparHtml(nomeDestinatario)).replace("{{PEDIDO_ID}}", escaparHtml(pedidoId)).replace("{{DATA_VENCIMENTO}}", escaparHtml(dataVencimento)).replace("{{VALOR_PENDENTE}}", escaparHtml(valorPendente)).replace("{{ITENS}}", montarItens(itens)).replace("{{VALOR_TOTAL}}", escaparHtml(valorTotal)).replace("{{LINK_PAGAMENTO}}", escaparAtributo(linkPagamento)).replace("{{LINK_PEDIDO}}", escaparAtributo(linkPedido)).replace("{{NOME_REMETENTE}}", escaparHtml(nomeRemetente)).replace("{{REDES_SOCIAIS}}", montarRedesSociais());
-
-        return new EmailTemplate(assunto, html);
-    }
-
-    private String montarItens(List<EmailItem> itens) {
-        if (itens == null || itens.isEmpty()) {
-            return """
-                <tr>
-                    <td
-                        align="center"
-                        style="
-                            padding: 32px 20px;
-                            color: #7c8190;
-                            font-family: Montserrat, Arial, sans-serif;
-                            font-size: 14px;
-                        "
-                    >
-                        Nenhum item disponível para exibição.
-                    </td>
-                </tr>
-                """;
-        }
-
-        StringBuilder html = new StringBuilder();
-
-        for (EmailItem item : itens) {
-            String linha = ITEM_TEMPLATE.replace("{{IMAGEM_URL}}", escaparAtributo(item.imagemUrl())).replace("{{IMAGEM_ALT}}", escaparAtributo(item.nome())).replace("{{NOME_ITEM}}", escaparHtml(item.nome())).replace("{{DESCRICAO_ITEM}}", escaparHtml(item.descricao())).replace("{{QUANTIDADE}}", String.valueOf(item.quantidade())).replace("{{PRECO_UNITARIO}}", escaparHtml(item.precoUnitario())).replace("{{PRECO_TOTAL}}", escaparHtml(item.precoTotal()));
-
-            html.append(linha);
-        }
-
-        return html.toString();
-    }
-
-    private String montarRedesSociais() {
-        return """
-            <table
-                role="presentation"
-                cellspacing="0"
-                cellpadding="0"
-                border="0"
-                align="center"
-                style="margin: 22px auto 0;"
-            >
-                <tr>
-                    %s
-                    %s
-                    %s
-                    %s
-                    %s
-                    %s
-                </tr>
-            </table>
-            """.formatted(montarIconeSocial("Facebook", facebookIconUrl, "https://facebook.com"), montarIconeSocial("LinkedIn", linkedinIconUrl, "https://linkedin.com"), montarIconeSocial("X", xIconUrl, "https://x.com"), montarIconeSocial("Instagram", instagramIconUrl, "https://instagram.com"), montarIconeSocial("YouTube", youtubeIconUrl, "https://youtube.com"), montarIconeSocial("Pinterest", pinterestIconUrl, "https://pinterest.com"));
-    }
-
-    private String montarIconeSocial(String nome, String imagemUrl, String link) {
-        if (imagemUrl == null || imagemUrl.isBlank()) {
-            return "";
-        }
-
-        return """
-            <td
-                align="center"
-                valign="middle"
-                style="padding: 0 5px;"
-            >
-                <a
-                    href="%s"
-                    target="_blank"
-                    title="%s"
-                    style="
-                        display: inline-block;
-                        text-decoration: none;
-                    "
-                >
-                    <img
-                        src="%s"
-                        width="24"
-                        height="24"
-                        alt="%s"
-                        style="
-                            display: block;
-                            width: 24px;
-                            height: 24px;
-                            border: 0;
-                            outline: none;
-                            text-decoration: none;
-                        "
-                    >
-                </a>
-            </td>
-            """.formatted(escaparAtributo(link), escaparAtributo(nome), escaparAtributo(imagemUrl), escaparAtributo(nome));
-    }
-
-    private String escaparHtml(String valor) {
-        if (valor == null) {
-            return "";
-        }
-
-        return valor.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;").replace("\"", "&quot;").replace("'", "&#39;");
-    }
-
-    private String escaparAtributo(String valor) {
-        return escaparHtml(valor);
-    }
-
     private static final String ITEM_TEMPLATE = """
         <tr>
             <td style="padding: 0 0 16px;">
@@ -293,7 +144,6 @@ public class PaymentEmailTemplateFactory {
             </td>
         </tr>
         """;
-
     private static final String TEMPLATE = """
         <!doctype html>
         <html lang="pt-BR">
@@ -773,4 +623,281 @@ public class PaymentEmailTemplateFactory {
         </body>
         </html>
         """;
+    private final String backgroundCabecalhoUrl;
+    private final String ilustracaoCabecalhoUrl;
+    private final String ilustracaoRodapeUrl;
+    private final String facebookIconUrl;
+    private final String linkedinIconUrl;
+    private final String xIconUrl;
+    private final String instagramIconUrl;
+    private final String youtubeIconUrl;
+    private final String pinterestIconUrl;
+
+    public PaymentEmailTemplateFactory(
+        @Value("${notification.email.assets.payment-background-url}") String backgroundCabecalhoUrl,
+
+        @Value("${notification.email.assets.payment-header-illustration-url}") String ilustracaoCabecalhoUrl,
+
+        @Value("${notification.email.assets.payment-footer-illustration-url}") String ilustracaoRodapeUrl,
+
+        @Value("${notification.email.assets.facebook-icon-url}") String facebookIconUrl,
+
+        @Value("${notification.email.assets.linkedin-icon-url}") String linkedinIconUrl,
+
+        @Value("${notification.email.assets.x-icon-url}") String xIconUrl,
+
+        @Value("${notification.email.assets.instagram-icon-url}") String instagramIconUrl,
+
+        @Value("${notification.email.assets.youtube-icon-url}") String youtubeIconUrl,
+
+        @Value("${notification.email.assets.pinterest-icon-url}") String pinterestIconUrl
+    ) {
+        this.backgroundCabecalhoUrl = backgroundCabecalhoUrl;
+        this.ilustracaoCabecalhoUrl = ilustracaoCabecalhoUrl;
+        this.ilustracaoRodapeUrl = ilustracaoRodapeUrl;
+        this.facebookIconUrl = facebookIconUrl;
+        this.linkedinIconUrl = linkedinIconUrl;
+        this.xIconUrl = xIconUrl;
+        this.instagramIconUrl = instagramIconUrl;
+        this.youtubeIconUrl = youtubeIconUrl;
+        this.pinterestIconUrl = pinterestIconUrl;
+    }
+
+    public EmailTemplate criarPagamentoPendente(
+        String nomeDestinatario,
+        String pedidoId,
+        String dataVencimento,
+        String valorPendente,
+        List<EmailItem> itens,
+        String valorTotal,
+        String linkPagamento,
+        String linkPedido,
+        String nomeRemetente
+    ) {
+        String assunto = "Pagamento pendente — Pedido #" + pedidoId;
+
+        String html = TEMPLATE.replace(
+            "{{TITULO_DOCUMENTO}}",
+            escaparHtml(assunto)
+        ).replace(
+            "{{BACKGROUND_CABECALHO_URL}}",
+            escaparAtributo(backgroundCabecalhoUrl)
+        ).replace(
+            "{{ILUSTRACAO_CABECALHO_URL}}",
+            escaparAtributo(ilustracaoCabecalhoUrl)
+        ).replace(
+            "{{ILUSTRACAO_RODAPE_URL}}",
+            escaparAtributo(ilustracaoRodapeUrl)
+        ).replace(
+            "{{NOME}}",
+            escaparHtml(nomeDestinatario)
+        ).replace(
+            "{{PEDIDO_ID}}",
+            escaparHtml(pedidoId)
+        ).replace(
+            "{{DATA_VENCIMENTO}}",
+            escaparHtml(dataVencimento)
+        ).replace(
+            "{{VALOR_PENDENTE}}",
+            escaparHtml(valorPendente)
+        ).replace(
+            "{{ITENS}}",
+            montarItens(itens)
+        ).replace(
+            "{{VALOR_TOTAL}}",
+            escaparHtml(valorTotal)
+        ).replace(
+            "{{LINK_PAGAMENTO}}",
+            escaparAtributo(linkPagamento)
+        ).replace(
+            "{{LINK_PEDIDO}}",
+            escaparAtributo(linkPedido)
+        ).replace(
+            "{{NOME_REMETENTE}}",
+            escaparHtml(nomeRemetente)
+        ).replace(
+            "{{REDES_SOCIAIS}}",
+            montarRedesSociais()
+        );
+
+        return new EmailTemplate(
+            assunto,
+            html
+        );
+    }
+
+    private String montarItens(List<EmailItem> itens) {
+        if (itens == null || itens.isEmpty()) {
+            return """
+                <tr>
+                    <td
+                        align="center"
+                        style="
+                            padding: 32px 20px;
+                            color: #7c8190;
+                            font-family: Montserrat, Arial, sans-serif;
+                            font-size: 14px;
+                        "
+                    >
+                        Nenhum item disponível para exibição.
+                    </td>
+                </tr>
+                """;
+        }
+
+        StringBuilder html = new StringBuilder();
+
+        for (EmailItem item : itens) {
+            String linha = ITEM_TEMPLATE.replace(
+                "{{IMAGEM_URL}}",
+                escaparAtributo(item.imagemUrl())
+            ).replace(
+                "{{IMAGEM_ALT}}",
+                escaparAtributo(item.nome())
+            ).replace(
+                "{{NOME_ITEM}}",
+                escaparHtml(item.nome())
+            ).replace(
+                "{{DESCRICAO_ITEM}}",
+                escaparHtml(item.descricao())
+            ).replace(
+                "{{QUANTIDADE}}",
+                String.valueOf(item.quantidade())
+            ).replace(
+                "{{PRECO_UNITARIO}}",
+                escaparHtml(item.precoUnitario())
+            ).replace(
+                "{{PRECO_TOTAL}}",
+                escaparHtml(item.precoTotal())
+            );
+
+            html.append(linha);
+        }
+
+        return html.toString();
+    }
+
+    private String montarRedesSociais() {
+        return """
+            <table
+                role="presentation"
+                cellspacing="0"
+                cellpadding="0"
+                border="0"
+                align="center"
+                style="margin: 22px auto 0;"
+            >
+                <tr>
+                    %s
+                    %s
+                    %s
+                    %s
+                    %s
+                    %s
+                </tr>
+            </table>
+            """.formatted(
+            montarIconeSocial(
+                "Facebook",
+                facebookIconUrl,
+                "https://facebook.com"
+            ),
+            montarIconeSocial(
+                "LinkedIn",
+                linkedinIconUrl,
+                "https://linkedin.com"
+            ),
+            montarIconeSocial(
+                "X",
+                xIconUrl,
+                "https://x.com"
+            ),
+            montarIconeSocial(
+                "Instagram",
+                instagramIconUrl,
+                "https://instagram.com"
+            ),
+            montarIconeSocial(
+                "YouTube",
+                youtubeIconUrl,
+                "https://youtube.com"
+            ),
+            montarIconeSocial(
+                "Pinterest",
+                pinterestIconUrl,
+                "https://pinterest.com"
+            )
+        );
+    }
+
+    private String montarIconeSocial(String nome, String imagemUrl, String link) {
+        if (imagemUrl == null || imagemUrl.isBlank()) {
+            return "";
+        }
+
+        return """
+            <td
+                align="center"
+                valign="middle"
+                style="padding: 0 5px;"
+            >
+                <a
+                    href="%s"
+                    target="_blank"
+                    title="%s"
+                    style="
+                        display: inline-block;
+                        text-decoration: none;
+                    "
+                >
+                    <img
+                        src="%s"
+                        width="24"
+                        height="24"
+                        alt="%s"
+                        style="
+                            display: block;
+                            width: 24px;
+                            height: 24px;
+                            border: 0;
+                            outline: none;
+                            text-decoration: none;
+                        "
+                    >
+                </a>
+            </td>
+            """.formatted(
+            escaparAtributo(link),
+            escaparAtributo(nome),
+            escaparAtributo(imagemUrl),
+            escaparAtributo(nome)
+        );
+    }
+
+    private String escaparHtml(String valor) {
+        if (valor == null) {
+            return "";
+        }
+
+        return valor.replace(
+            "&",
+            "&amp;"
+        ).replace(
+            "<",
+            "&lt;"
+        ).replace(
+            ">",
+            "&gt;"
+        ).replace(
+            "\"",
+            "&quot;"
+        ).replace(
+            "'",
+            "&#39;"
+        );
+    }
+
+    private String escaparAtributo(String valor) {
+        return escaparHtml(valor);
+    }
 }

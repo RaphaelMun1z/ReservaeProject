@@ -22,10 +22,10 @@ public class PaymentService {
     private final PaymentFailedPublisher paymentFailedPublisher;
 
     public PaymentService(
-            PaymentGateway paymentGateway,
-            PaymentEventMapper paymentEventMapper,
-            PaymentSessionCreatedPublisher paymentSessionCreatedPublisher,
-            PaymentFailedPublisher paymentFailedPublisher
+        PaymentGateway paymentGateway,
+        PaymentEventMapper paymentEventMapper,
+        PaymentSessionCreatedPublisher paymentSessionCreatedPublisher,
+        PaymentFailedPublisher paymentFailedPublisher
     ) {
         this.paymentGateway = paymentGateway;
         this.paymentEventMapper = paymentEventMapper;
@@ -37,13 +37,13 @@ public class PaymentService {
         validateRequest(request);
 
         PaymentSessionRequest paymentSessionRequest = new PaymentSessionRequest(
-                request.orderId(),
-                request.userId(),
-                request.amount(),
-                request.quantity(),
-                request.name(),
-                request.currency(),
-                request.customerEmail()
+            request.orderId(),
+            request.userId(),
+            request.amount(),
+            request.quantity(),
+            request.name(),
+            request.currency(),
+            request.customerEmail()
         );
 
         return paymentGateway.createPaymentSession(paymentSessionRequest);
@@ -54,23 +54,23 @@ public class PaymentService {
 
         try {
             PaymentSessionRequest request =
-                    paymentEventMapper.toPaymentSessionRequest(event);
+                paymentEventMapper.toPaymentSessionRequest(event);
 
             PaymentSessionResponseDTO response =
-                    paymentGateway.createPaymentSession(request);
+                paymentGateway.createPaymentSession(request);
 
             PaymentSessionCreatedEvent sessionCreatedEvent =
-                    paymentEventMapper.toPaymentSessionCreatedEvent(response);
+                paymentEventMapper.toPaymentSessionCreatedEvent(response);
 
             paymentSessionCreatedPublisher.publish(sessionCreatedEvent);
         } catch (RuntimeException exception) {
             paymentFailedPublisher.publish(
-                    new PaymentFailedEvent(
-                            event.orderId(),
-                            null,
-                            "Falha ao criar a sessão de pagamento.",
-                            Instant.now()
-                    )
+                new PaymentFailedEvent(
+                    event.orderId(),
+                    null,
+                    "Falha ao criar a sessão de pagamento.",
+                    Instant.now()
+                )
             );
 
             throw exception;
@@ -80,43 +80,43 @@ public class PaymentService {
     private void validateRequest(ProductRequestDTO request) {
         if (request == null) {
             throw new IllegalArgumentException(
-                    "Os dados do pagamento são obrigatórios."
+                "Os dados do pagamento são obrigatórios."
             );
         }
 
         if (request.orderId() == null || request.orderId().isBlank()) {
             throw new IllegalArgumentException(
-                    "O identificador do pedido é obrigatório."
+                "O identificador do pedido é obrigatório."
             );
         }
 
         if (request.userId() == null || request.userId().isBlank()) {
             throw new IllegalArgumentException(
-                    "O identificador do usuário é obrigatório."
+                "O identificador do usuário é obrigatório."
             );
         }
 
         if (request.amount() == null || request.amount() <= 0) {
             throw new IllegalArgumentException(
-                    "O valor do pagamento deve ser maior que zero."
+                "O valor do pagamento deve ser maior que zero."
             );
         }
 
         if (request.quantity() == null || request.quantity() <= 0) {
             throw new IllegalArgumentException(
-                    "A quantidade deve ser maior que zero."
+                "A quantidade deve ser maior que zero."
             );
         }
 
         if (request.name() == null || request.name().isBlank()) {
             throw new IllegalArgumentException(
-                    "O nome do produto é obrigatório."
+                "O nome do produto é obrigatório."
             );
         }
 
         if (request.currency() == null || request.currency().isBlank()) {
             throw new IllegalArgumentException(
-                    "A moeda é obrigatória."
+                "A moeda é obrigatória."
             );
         }
     }
@@ -124,43 +124,43 @@ public class PaymentService {
     private void validateEvent(PaymentRequestedEvent event) {
         if (event == null) {
             throw new IllegalArgumentException(
-                    "O evento de solicitação de pagamento é obrigatório."
+                "O evento de solicitação de pagamento é obrigatório."
             );
         }
 
         if (event.orderId() == null || event.orderId().isBlank()) {
             throw new IllegalArgumentException(
-                    "O identificador do pedido é obrigatório."
+                "O identificador do pedido é obrigatório."
             );
         }
 
         if (event.userId() == null || event.userId().isBlank()) {
             throw new IllegalArgumentException(
-                    "O identificador do usuário é obrigatório."
+                "O identificador do usuário é obrigatório."
             );
         }
 
         if (event.amount() == null || event.amount() <= 0) {
             throw new IllegalArgumentException(
-                    "O valor do pagamento deve ser maior que zero."
+                "O valor do pagamento deve ser maior que zero."
             );
         }
 
         if (event.quantity() == null || event.quantity() <= 0) {
             throw new IllegalArgumentException(
-                    "A quantidade deve ser maior que zero."
+                "A quantidade deve ser maior que zero."
             );
         }
 
         if (event.productName() == null || event.productName().isBlank()) {
             throw new IllegalArgumentException(
-                    "O nome do produto é obrigatório."
+                "O nome do produto é obrigatório."
             );
         }
 
         if (event.currency() == null || event.currency().isBlank()) {
             throw new IllegalArgumentException(
-                    "A moeda é obrigatória."
+                "A moeda é obrigatória."
             );
         }
     }

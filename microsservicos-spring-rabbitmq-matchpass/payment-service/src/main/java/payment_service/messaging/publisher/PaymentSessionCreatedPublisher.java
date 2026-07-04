@@ -15,9 +15,9 @@ public class PaymentSessionCreatedPublisher {
 
     public void publish(PaymentSessionCreatedEvent event) {
         kafkaTemplate.send(
-                TOPIC,
-                event.orderId(),
-                event
+            TOPIC,
+            event.orderId(),
+            event
         );
     }
 }

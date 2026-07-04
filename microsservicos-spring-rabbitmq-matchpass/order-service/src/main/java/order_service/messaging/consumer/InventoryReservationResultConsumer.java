@@ -14,8 +14,8 @@ public class InventoryReservationResultConsumer {
     }
 
     @KafkaListener(
-            topics = "${matchpass.config.kafka.topics.resultado-reserva}",
-            containerFactory = "inventoryReservationKafkaListenerContainerFactory"
+        topics = "${matchpass.config.kafka.topics.resultado-reserva}",
+        containerFactory = "inventoryReservationKafkaListenerContainerFactory"
     )
     public void consume(InventoryReservationResultEvent event) {
         orderService.handleInventoryReservationResult(event);

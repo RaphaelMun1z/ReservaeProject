@@ -6,9 +6,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 
 @FeignClient(name = "inventory-service")
 public interface InventoryProxy {
-    @PostMapping("/inventory-service/api/inventory/reserve-ticket/{ticketTag}/user/{userId}")
-    TicketStatusResponseDTO tryReserveTicket(@PathVariable String ticketTag, @PathVariable String userId);
+    @PostMapping("/inventory-service/api/inventory/reserve-ticket/{ticketId}/user/{userId}")
+    TicketStatusResponseDTO tryReserveTicket(@PathVariable String ticketId, @PathVariable String userId);
 
-    @PostMapping("/inventory-service/api/inventory/release/{ticketTag}")
-    void releaseTicket(@PathVariable String ticketTag);
+    @PostMapping("/inventory-service/api/inventory/release/{ticketId}")
+    void releaseTicket(@PathVariable String ticketId);
 }

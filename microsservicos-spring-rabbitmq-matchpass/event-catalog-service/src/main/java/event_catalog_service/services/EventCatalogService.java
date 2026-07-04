@@ -8,7 +8,6 @@ import event_catalog_service.dtos.res.EventSectorDetailsDTO;
 import event_catalog_service.dtos.res.SectorPricingResponseDTO;
 import event_catalog_service.entities.Event;
 import event_catalog_service.entities.EventSectorPricing;
-import event_catalog_service.entities.Team;
 import event_catalog_service.entities.Venue;
 import event_catalog_service.exceptions.models.NotFoundException;
 import event_catalog_service.repositories.EventRepository;
@@ -35,7 +34,8 @@ public class EventCatalogService {
         EventSectorPricingRepository eventSectorPricingRepository,
         EventQueryService eventQuery,
         EventMapper mapper,
-        EventValidator validator) {
+        EventValidator validator
+    ) {
         this.eventRepository = eventRepository;
         this.eventSectorPricingRepository = eventSectorPricingRepository;
         this.eventQuery = eventQuery;
@@ -55,17 +55,11 @@ public class EventCatalogService {
     @Transactional
     public EventDetailsResponseDTO registerEvent(CreateEventRequestDTO dto) {
         Venue venue = eventQuery.getVenueById(dto.venueId());
-        Team homeTeam = eventQuery.getTeamById(dto.homeTeamId());
-        Team awayTeam = eventQuery.getTeamById(dto.awayTeamId());
-
-        validator.validateIsSameTeam(homeTeam, awayTeam);
 
         Event newEvent = new Event(
             dto.title(),
             dto.eventDate(),
-            venue.getId(),
-            homeTeam.getId(),
-            awayTeam.getId()
+            venue.getId()
         );
         Event savedEvent = eventRepository.save(newEvent);
 
@@ -77,19 +71,27 @@ public class EventCatalogService {
                     sectorPricing.sectorId(),
                     sectorPricing.basePrice(),
                     sectorPricing.halfPrice()
-                )).toList();
+                ))
+                .toList();
         eventSectorPricingRepository.saveAll(eventSectorPricingList);
 
         List<EventSectorDetailsDTO> eventSectorsDetails = eventSectorPricingRepository.findEventSectorsDetailsByEventId(savedEvent.getId());
 
-        return mapper.toEventDetailsResponseDTO(savedEvent, venue, homeTeam, awayTeam, eventSectorsDetails);
+        return mapper.toEventDetailsResponseDTO(
+            savedEvent,
+            venue,
+            eventSectorsDetails
+        );
     }
 
     @Transactional
     public SectorPricingResponseDTO addSectorToAnEvent(String eventId, SectorPricingRequestDTO dto) {
         Event eventFound = eventQuery.getEventById(eventId);
 
-        validator.validateDuplicatedSector(eventId, dto.sectorId());
+        validator.validateDuplicatedSector(
+            eventId,
+            dto.sectorId()
+        );
 
         EventSectorPricing newESP = new EventSectorPricing(
             eventFound,
@@ -100,7 +102,10 @@ public class EventCatalogService {
         EventSectorPricing savedESP = eventSectorPricingRepository.save(newESP);
 
         eventFound.addPricing(savedESP);
-        return mapper.toSectorPricingResponseDTO(eventQuery.getSectorById(dto.sectorId()), savedESP);
+        return mapper.toSectorPricingResponseDTO(
+            eventQuery.getSectorById(dto.sectorId()),
+            savedESP
+        );
     }
 
     @Transactional
@@ -109,7 +114,8 @@ public class EventCatalogService {
         EventSectorPricing eventSectorPricingFound =
             eventFound.getPricings()
                 .stream()
-                .filter(eventSectorPricing -> eventSectorPricing.getSectorId().equals(secId))
+                .filter(eventSectorPricing -> eventSectorPricing.getSectorId()
+                    .equals(secId))
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("Setor não encontrado no evento"));
         eventFound.removePricing(eventSectorPricingFound);

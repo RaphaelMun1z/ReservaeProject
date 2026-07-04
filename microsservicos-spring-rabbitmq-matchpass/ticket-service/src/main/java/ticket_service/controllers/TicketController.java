@@ -38,7 +38,10 @@ public class TicketController implements TicketContract {
 
     @Override
     public ResponseEntity<Page<Ticket>> getTicketsByEvent(String eventId, Pageable pageable) {
-        return ResponseEntity.ok(ticketService.findByEventId(eventId, pageable));
+        return ResponseEntity.ok(ticketService.findByEventId(
+            eventId,
+            pageable
+        ));
     }
 
     @Override

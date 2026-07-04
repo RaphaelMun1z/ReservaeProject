@@ -18,8 +18,4 @@ public interface EventDetailsProjection {
     String getVenueCity();
 
     String getVenueState();
-
-    String getHomeTeamName();
-
-    String getAwayTeamName();
 }

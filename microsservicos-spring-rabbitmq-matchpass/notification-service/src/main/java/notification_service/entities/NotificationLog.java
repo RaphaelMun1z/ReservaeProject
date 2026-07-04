@@ -24,7 +24,16 @@ public class NotificationLog {
     public NotificationLog() {
     }
 
-    public NotificationLog(String userId, String recipientAddress, NotificationTypeEnum type, String subject, String payload, NotificationStatusEnum status, String errorMessage, LocalDateTime sentAt) {
+    public NotificationLog(
+        String userId,
+        String recipientAddress,
+        NotificationTypeEnum type,
+        String subject,
+        String payload,
+        NotificationStatusEnum status,
+        String errorMessage,
+        LocalDateTime sentAt
+    ) {
         this.userId = userId;
         this.recipientAddress = recipientAddress;
         this.type = type;

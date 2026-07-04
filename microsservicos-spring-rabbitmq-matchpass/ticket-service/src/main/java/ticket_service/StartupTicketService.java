@@ -7,7 +7,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class StartupTicketService {
 
     public static void main(String[] args) {
-        SpringApplication.run(StartupTicketService.class, args);
+        SpringApplication.run(
+            StartupTicketService.class,
+            args
+        );
     }
 
 }

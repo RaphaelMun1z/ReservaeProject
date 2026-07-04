@@ -19,19 +19,10 @@ public interface EventRepository extends JpaRepository<Event, String> {
             v.city AS venueCity,
             v.state AS venueState,
         
-            ht.name AS homeTeamName,
-            at.name AS awayTeamName
-        
         FROM tb_events e
         
         INNER JOIN tb_venues v
             ON v.id = e.venue_id
-        
-        INNER JOIN tb_teams ht
-            ON ht.id = e.home_team_id
-        
-        INNER JOIN tb_teams at
-            ON at.id = e.away_team_id
         
         WHERE e.id = :eventId
         """, nativeQuery = true)

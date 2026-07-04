@@ -23,9 +23,17 @@ public class UserProfileService {
         String document = jwt.getClaimAsString("cpf");
 
         UserProfile profile = repository.findById(keycloakId)
-            .orElseGet(() -> repository.save(new UserProfile(keycloakId, fullName, email, document)));
+            .orElseGet(() -> repository.save(new UserProfile(
+                keycloakId,
+                fullName,
+                email,
+                document
+            )));
 
-        profile.updateFromJwt(fullName, email);
+        profile.updateFromJwt(
+            fullName,
+            email
+        );
 
         return new UserProfileResponseDTO(
             profile.getId(),

@@ -11,7 +11,10 @@ import org.springframework.data.redis.repository.configuration.EnableRedisReposi
 public class StartupInventoryService {
 
     public static void main(String[] args) {
-        SpringApplication.run(StartupInventoryService.class, args);
+        SpringApplication.run(
+            StartupInventoryService.class,
+            args
+        );
     }
 
 }

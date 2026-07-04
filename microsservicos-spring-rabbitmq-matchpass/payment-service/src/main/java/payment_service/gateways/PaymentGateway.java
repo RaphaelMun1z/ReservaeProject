@@ -5,6 +5,6 @@ import payment_service.gateways.model.PaymentSessionRequest;
 
 public interface PaymentGateway {
     PaymentSessionResponseDTO createPaymentSession(
-            PaymentSessionRequest request
+        PaymentSessionRequest request
     );
 }

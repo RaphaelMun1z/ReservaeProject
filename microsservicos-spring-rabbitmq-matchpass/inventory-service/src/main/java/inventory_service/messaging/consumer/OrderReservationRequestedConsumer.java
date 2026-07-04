@@ -1,68 +1,26 @@
 package inventory_service.messaging.consumer;
 
-import inventory_service.messaging.event.OrderReservationItemEvent;
 import inventory_service.messaging.event.OrderReservationRequestedEvent;
-import inventory_service.messaging.publisher.InventoryReservationResultPublisher;
-import inventory_service.services.InventoryManagementService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import inventory_service.services.ReservationRequestHandlerService;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
 
-import java.util.List;
-
 @Component
 public class OrderReservationRequestedConsumer {
-    private static final Logger logger = LoggerFactory.getLogger(OrderReservationRequestedConsumer.class);
+    private final ReservationRequestHandlerService reservationRequestHandlerService;
 
-    private final InventoryManagementService inventoryManagementService;
-    private final InventoryReservationResultPublisher resultPublisher;
-
-    public OrderReservationRequestedConsumer(InventoryManagementService inventoryManagementService, InventoryReservationResultPublisher resultPublisher) {
-        this.inventoryManagementService = inventoryManagementService;
-        this.resultPublisher = resultPublisher;
+    public OrderReservationRequestedConsumer(
+        ReservationRequestHandlerService reservationRequestHandlerService
+    ) {
+        this.reservationRequestHandlerService = reservationRequestHandlerService;
     }
 
-    @KafkaListener(topics = "${matchpass.config.kafka.topics.reserva-solicitada}", groupId = "${matchpass.config.kafka.consumer-group}", containerFactory = "orderReservationKafkaListenerContainerFactory")
+    @KafkaListener(
+        topics = "${matchpass.config.kafka.topics.reserva-solicitada}",
+        groupId = "${matchpass.config.kafka.consumer-group}",
+        containerFactory = "orderReservationKafkaListenerContainerFactory"
+    )
     public void consume(OrderReservationRequestedEvent event) {
-        List<String> requestedTicketTags = event.items()
-                .stream()
-                .map(OrderReservationItemEvent::ticketTag)
-                .toList();
-        logger.info(
-                "Solicitação de reserva recebida. Pedido: {}. Usuário: {}. Assentos: {}.",
-                event.orderId(),
-                event.userId(),
-                requestedTicketTags
-        );
-        try {
-            List<String> reservedTicketTags = inventoryManagementService.reserveTickets(
-                    event.userId(),
-                    requestedTicketTags
-            );
-            resultPublisher.publishSuccess(
-                    event.orderId(),
-                    reservedTicketTags
-            );
-            logger.info(
-                    "Todos os assentos do pedido {} foram reservados.",
-                    event.orderId()
-            );
-        } catch (RuntimeException exception) {
-            String reason = exception.getMessage();
-            if (reason == null || reason.isBlank()) {
-                reason = "Não foi possível reservar os ingressos.";
-            }
-            logger.error(
-                    "Falha ao reservar os assentos do pedido {}. Motivo: {}.",
-                    event.orderId(),
-                    reason
-            );
-            resultPublisher.publishFailure(
-                    event.orderId(),
-                    requestedTicketTags,
-                    reason
-            );
-        }
+        reservationRequestHandlerService.handle(event);
     }
 }

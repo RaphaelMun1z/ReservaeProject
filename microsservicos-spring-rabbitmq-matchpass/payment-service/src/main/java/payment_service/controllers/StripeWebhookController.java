@@ -15,10 +15,13 @@ public class StripeWebhookController {
 
     @PostMapping("/stripe")
     public ResponseEntity<Void> receiveStripeWebhook(
-            @RequestBody String payload,
-            @RequestHeader("Stripe-Signature") String signatureHeader
+        @RequestBody String payload,
+        @RequestHeader("Stripe-Signature") String signatureHeader
     ) {
-        stripeWebhookService.process(payload, signatureHeader);
+        stripeWebhookService.process(
+            payload,
+            signatureHeader
+        );
         return ResponseEntity.ok().build();
     }
 }

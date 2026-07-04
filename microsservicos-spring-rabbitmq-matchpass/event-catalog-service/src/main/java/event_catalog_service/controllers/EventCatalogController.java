@@ -7,9 +7,10 @@ import event_catalog_service.dtos.res.EventDetailsResponseDTO;
 import event_catalog_service.dtos.res.SectorPricingResponseDTO;
 import event_catalog_service.services.EventCatalogService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequestMapping("/event-catalog-service/api/event")
 public class EventCatalogController implements EventCatalogContract {
     private final EventCatalogService eventCatalogService;
 
@@ -18,23 +19,39 @@ public class EventCatalogController implements EventCatalogContract {
     }
 
     @Override
-    public ResponseEntity<EventDetailsResponseDTO> findEventById(String id) {
+    @GetMapping("/v1/{id}")
+    public ResponseEntity<EventDetailsResponseDTO> findEventById(@PathVariable String id) {
         return ResponseEntity.ok().body(eventCatalogService.findEventById(id));
     }
 
     @Override
-    public ResponseEntity<EventDetailsResponseDTO> createEvent(CreateEventRequestDTO dto) {
+    @PostMapping("/v1")
+    public ResponseEntity<EventDetailsResponseDTO> createEvent(@RequestBody CreateEventRequestDTO dto) {
         return ResponseEntity.ok().body(eventCatalogService.registerEvent(dto));
     }
 
     @Override
-    public ResponseEntity<SectorPricingResponseDTO> addSectorToAnEvent(String id, SectorPricingRequestDTO dto) {
-        return ResponseEntity.ok().body(eventCatalogService.addSectorToAnEvent(id, dto));
+    @PostMapping("/v1/{id}/add-sector")
+    public ResponseEntity<SectorPricingResponseDTO> addSectorToAnEvent(
+        @PathVariable String id,
+        @RequestBody SectorPricingRequestDTO dto
+    ) {
+        return ResponseEntity.ok().body(eventCatalogService.addSectorToAnEvent(
+            id,
+            dto
+        ));
     }
 
     @Override
-    public ResponseEntity<Void> removeSectorFromAnEvent(String id, String secId) {
-        eventCatalogService.removeSectorFromAnEvent(id, secId);
+    @DeleteMapping("/v1/{id}/remove-sector/{secId}")
+    public ResponseEntity<Void> removeSectorFromAnEvent(
+        @PathVariable String id,
+        @PathVariable String secId
+    ) {
+        eventCatalogService.removeSectorFromAnEvent(
+            id,
+            secId
+        );
         return ResponseEntity.noContent().build();
     }
 }

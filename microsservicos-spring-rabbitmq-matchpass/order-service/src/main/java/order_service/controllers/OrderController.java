@@ -1,5 +1,6 @@
 package order_service.controllers;
 
+import jakarta.validation.Valid;
 import order_service.controllers.contracts.OrderContract;
 import order_service.dtos.req.CheckoutRequestDTO;
 import order_service.dtos.req.UpdateOrderStatusRequestDTO;
@@ -7,12 +8,13 @@ import order_service.dtos.res.OrderResponseDTO;
 import order_service.dtos.res.OrderSummaryResponseDTO;
 import order_service.services.OrderService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
 import java.util.List;
 
 @RestController
+@RequestMapping("/order-service/api/orders")
 public class OrderController implements OrderContract {
     private final OrderService orderService;
 
@@ -21,64 +23,70 @@ public class OrderController implements OrderContract {
     }
 
     @Override
+    @PostMapping("/v1/checkout")
     public ResponseEntity<OrderSummaryResponseDTO> checkout(
-            CheckoutRequestDTO dto
+        @Valid @RequestBody CheckoutRequestDTO dto
     ) {
         OrderSummaryResponseDTO response = orderService.processCheckout(dto);
 
         URI location = URI.create(
-                "/order-service/api/orders/" + response.orderId()
+            "/order-service/api/orders/" + response.orderId()
         );
 
         return ResponseEntity
-                .accepted()
-                .location(location)
-                .body(response);
+            .accepted()
+            .location(location)
+            .body(response);
     }
 
     @Override
-    public ResponseEntity<OrderResponseDTO> findProcessById(
-            String orderId
+    @GetMapping("/v1/{orderId}")
+    public ResponseEntity<OrderResponseDTO> findOrderById(
+        @PathVariable String orderId
     ) {
         return ResponseEntity.ok(
-                orderService.findProcessById(orderId)
+            orderService.findOrderById(orderId)
         );
     }
 
     @Override
+    @GetMapping("/v1/event/{eventId}/orders")
     public ResponseEntity<List<OrderSummaryResponseDTO>>
-    findProcessByEventId(String eventId) {
+    findOrdersByEventId(@PathVariable String eventId) {
         return ResponseEntity.ok(
-                orderService.findProcessByEventId(eventId)
+            orderService.findOrdersByEventId(eventId)
         );
     }
 
     @Override
+    @GetMapping("/v1/ticket/{ticketId}/order")
     public ResponseEntity<OrderSummaryResponseDTO>
-    findProcessByTicketTag(String ticketTag) {
+    findOrderByTicketId(@PathVariable String ticketId) {
         return ResponseEntity.ok(
-                orderService.findProcessByTicketTag(ticketTag)
+            orderService.findOrderByTicketId(ticketId)
         );
     }
 
     @Override
-    public ResponseEntity<OrderSummaryResponseDTO> updateProcessStatus(
-            String orderId,
-            UpdateOrderStatusRequestDTO request
+    @PatchMapping("/v1/{orderId}/status")
+    public ResponseEntity<OrderSummaryResponseDTO> updateOrderStatus(
+        @PathVariable String orderId,
+        @Valid @RequestBody UpdateOrderStatusRequestDTO request
     ) {
         return ResponseEntity.ok(
-                orderService.updateProcessStatus(
-                        orderId,
-                        request.status()
-                )
+            orderService.updateOrderStatus(
+                orderId,
+                request.status()
+            )
         );
     }
 
     @Override
+    @GetMapping("/v1/user/{userId}/orders")
     public ResponseEntity<List<OrderSummaryResponseDTO>>
-    findOrdersByUserId(String userId) {
+    findOrdersByUserId(@PathVariable String userId) {
         return ResponseEntity.ok(
-                orderService.findOrdersByUserId(userId)
+            orderService.findOrdersByUserId(userId)
         );
     }
 }

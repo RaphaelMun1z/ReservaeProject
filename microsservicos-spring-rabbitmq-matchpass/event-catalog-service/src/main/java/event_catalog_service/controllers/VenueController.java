@@ -7,13 +7,13 @@ import event_catalog_service.dtos.res.SectorResponseDTO;
 import event_catalog_service.dtos.res.VenueResponseDTO;
 import event_catalog_service.services.VenueService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@RequestMapping("/event-catalog-service/api/venue")
 public class VenueController implements VenueContract {
-
     private final VenueService venueService;
 
     public VenueController(VenueService venueService) {
@@ -21,33 +21,57 @@ public class VenueController implements VenueContract {
     }
 
     @Override
+    @GetMapping("/v1")
     public ResponseEntity<List<VenueResponseDTO>> findAllVenuesWithSectors() {
         return ResponseEntity.ok().body(venueService.findAllVenuesWithSectors());
     }
 
     @Override
-    public ResponseEntity<VenueResponseDTO> findVenueById(String id) {
+    @GetMapping("/v1/{id}")
+    public ResponseEntity<VenueResponseDTO> findVenueById(@PathVariable String id) {
         return ResponseEntity.ok(venueService.findVenueById(id));
     }
 
     @Override
-    public ResponseEntity<List<VenueResponseDTO>> findVenuesByLocation(String city, String state) {
-        return ResponseEntity.ok(venueService.findVenuesByLocation(city, state));
+    @GetMapping("/v1/filter-by-location")
+    public ResponseEntity<List<VenueResponseDTO>> findVenuesByLocation(
+        @RequestParam String city,
+        @RequestParam String state
+    ) {
+        return ResponseEntity.ok(venueService.findVenuesByLocation(
+            city,
+            state
+        ));
     }
 
     @Override
-    public ResponseEntity<VenueResponseDTO> createVenue(CreateVenueRequestDTO dto) {
+    @PostMapping("/v1")
+    public ResponseEntity<VenueResponseDTO> createVenue(@RequestBody CreateVenueRequestDTO dto) {
         return ResponseEntity.ok(venueService.createVenue(dto));
     }
 
     @Override
-    public ResponseEntity<SectorResponseDTO> addSectorToVenue(String id, SectorRequestDTO dto) {
-        return ResponseEntity.ok(venueService.addSectorToVenue(dto, id));
+    @PostMapping("/v1/{id}/add-sector")
+    public ResponseEntity<SectorResponseDTO> addSectorToVenue(
+        @PathVariable String id,
+        @RequestBody SectorRequestDTO dto
+    ) {
+        return ResponseEntity.ok(venueService.addSectorToVenue(
+            dto,
+            id
+        ));
     }
 
     @Override
-    public ResponseEntity<Void> removeSectorFromVenue(String venueId, String sectorId) {
-        venueService.removeSectorFromVenue(venueId, sectorId);
+    @DeleteMapping("/v1/{venueId}/remove-sector/{sectorId}")
+    public ResponseEntity<Void> removeSectorFromVenue(
+        @PathVariable String venueId,
+        @PathVariable String sectorId
+    ) {
+        venueService.removeSectorFromVenue(
+            venueId,
+            sectorId
+        );
         return ResponseEntity.noContent().build();
     }
 }

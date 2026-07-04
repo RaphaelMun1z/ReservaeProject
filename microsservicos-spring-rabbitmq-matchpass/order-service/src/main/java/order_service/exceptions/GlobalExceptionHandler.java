@@ -27,97 +27,160 @@ import java.util.Map;
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
-            MethodArgumentNotValidException ex,
-            HttpHeaders headers,
-            HttpStatusCode status,
-            WebRequest request) {
+        MethodArgumentNotValidException ex,
+        HttpHeaders headers,
+        HttpStatusCode status,
+        WebRequest request
+    ) {
 
         Map<String, String> errors = new HashMap<>();
         ex.getBindingResult().getFieldErrors().forEach(error -> {
             String fieldName = error.getField();
             String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
+            errors.put(
+                fieldName,
+                errorMessage
+            );
         });
 
-        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(
+            errors,
+            HttpStatus.BAD_REQUEST
+        );
     }
 
     @ExceptionHandler(BadCredentialsException.class)
     public final ResponseEntity<ExceptionResponse> badCredentialsException(Exception ex, WebRequest request) {
-        ExceptionResponse exceptionResponse = new ExceptionResponse(LocalDateTime.now().toString(), List.of(ex.getMessage()), request.getDescription(false));
-        return new ResponseEntity<>(exceptionResponse, HttpStatus.UNAUTHORIZED);
+        ExceptionResponse exceptionResponse = new ExceptionResponse(
+            LocalDateTime.now().toString(),
+            List.of(ex.getMessage()),
+            request.getDescription(false)
+        );
+        return new ResponseEntity<>(
+            exceptionResponse,
+            HttpStatus.UNAUTHORIZED
+        );
     }
 
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<Map<String, Object>> handleIllegalStateException(IllegalStateException exception) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(
-                Map.of(
-                        "timestamp", Instant.now().toString(),
-                        "status", HttpStatus.CONFLICT.value(),
-                        "error", "Conflict",
-                        "message", exception.getMessage()
-                )
+            Map.of(
+                "timestamp",
+                Instant.now().toString(),
+                "status",
+                HttpStatus.CONFLICT.value(),
+                "error",
+                "Conflict",
+                "message",
+                exception.getMessage()
+            )
         );
     }
 
     @ExceptionHandler(AccessDeniedException.class)
-    public final ResponseEntity<ExceptionResponse> handleAccessDeniedException(AccessDeniedException ex, WebRequest request) {
-        ExceptionResponse exceptionResponse = new ExceptionResponse(LocalDateTime.now().toString(), List.of("Acesso Negado. Você não tem permissão para executar esta ação."), request.getDescription(false));
-        return new ResponseEntity<>(exceptionResponse, HttpStatus.FORBIDDEN);
+    public final ResponseEntity<ExceptionResponse> handleAccessDeniedException(
+        AccessDeniedException ex,
+        WebRequest request
+    ) {
+        ExceptionResponse exceptionResponse = new ExceptionResponse(
+            LocalDateTime.now().toString(),
+            List.of("Acesso Negado. Você não tem permissão para executar esta ação."),
+            request.getDescription(false)
+        );
+        return new ResponseEntity<>(
+            exceptionResponse,
+            HttpStatus.FORBIDDEN
+        );
     }
 
     @ExceptionHandler(NotFoundException.class)
     public final ResponseEntity<ExceptionResponse> notFoundException(Exception ex, WebRequest request) {
-        ExceptionResponse exceptionResponse = new ExceptionResponse(LocalDateTime.now().toString(), List.of(ex.getMessage()), request.getDescription(false));
-        return new ResponseEntity<>(exceptionResponse, HttpStatus.NOT_FOUND);
+        ExceptionResponse exceptionResponse = new ExceptionResponse(
+            LocalDateTime.now().toString(),
+            List.of(ex.getMessage()),
+            request.getDescription(false)
+        );
+        return new ResponseEntity<>(
+            exceptionResponse,
+            HttpStatus.NOT_FOUND
+        );
     }
 
     @ExceptionHandler(BusinessException.class)
     public final ResponseEntity<ExceptionResponse> businessException(Exception ex, WebRequest request) {
-        ExceptionResponse exceptionResponse = new ExceptionResponse(LocalDateTime.now().toString(), List.of(ex.getMessage()), request.getDescription(false));
-        return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
+        ExceptionResponse exceptionResponse = new ExceptionResponse(
+            LocalDateTime.now().toString(),
+            List.of(ex.getMessage()),
+            request.getDescription(false)
+        );
+        return new ResponseEntity<>(
+            exceptionResponse,
+            HttpStatus.BAD_REQUEST
+        );
     }
 
     @ExceptionHandler(IllegalArgumentException.class)
     public final ResponseEntity<ExceptionResponse> illegalArgumentException(Exception ex, WebRequest request) {
-        ExceptionResponse exceptionResponse = new ExceptionResponse(LocalDateTime.now().toString(), List.of(ex.getMessage()), request.getDescription(false));
-        return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
+        ExceptionResponse exceptionResponse = new ExceptionResponse(
+            LocalDateTime.now().toString(),
+            List.of(ex.getMessage()),
+            request.getDescription(false)
+        );
+        return new ResponseEntity<>(
+            exceptionResponse,
+            HttpStatus.BAD_REQUEST
+        );
     }
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public final ResponseEntity<ExceptionResponse> handleMethodArgumentTypeMismatch(
-            MethodArgumentTypeMismatchException ex, WebRequest request) {
+        MethodArgumentTypeMismatchException ex, WebRequest request) {
 
         String nomeParametro = ex.getName();
         String valorRecebido = ex.getValue() != null ? ex.getValue().toString() : "null";
         String tipoEsperado = ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "desconhecido";
 
         String mensagem = String.format(
-                "O valor '%s' enviado para o parâmetro '%s' é inválido. O tipo esperado é '%s'.",
-                valorRecebido, nomeParametro, tipoEsperado
+            "O valor '%s' enviado para o parâmetro '%s' é inválido. O tipo esperado é '%s'.",
+            valorRecebido,
+            nomeParametro,
+            tipoEsperado
         );
 
         ExceptionResponse response = new ExceptionResponse(
-                LocalDateTime.now().toString(),
-                List.of(mensagem),
-                request.getDescription(false)
+            LocalDateTime.now().toString(),
+            List.of(mensagem),
+            request.getDescription(false)
         );
 
-        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(
+            response,
+            HttpStatus.BAD_REQUEST
+        );
     }
 
     @ExceptionHandler(InvalidDataAccessApiUsageException.class)
-    public final ResponseEntity<ExceptionResponse> invalidDataAccess(InvalidDataAccessApiUsageException ex, WebRequest request) {
+    public final ResponseEntity<ExceptionResponse> invalidDataAccess(
+        InvalidDataAccessApiUsageException ex,
+        WebRequest request
+    ) {
         ExceptionResponse exceptionResponse = new ExceptionResponse(
-                LocalDateTime.now().toString(),
-                List.of("Formato inválido para datas. Use yyyy-MM-dd."),
-                request.getDescription(false)
+            LocalDateTime.now().toString(),
+            List.of("Formato inválido para datas. Use yyyy-MM-dd."),
+            request.getDescription(false)
         );
-        return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(
+            exceptionResponse,
+            HttpStatus.BAD_REQUEST
+        );
     }
 
     @ExceptionHandler(DataIntegrityViolationException.class)
-    public final ResponseEntity<ExceptionResponse> dataIntegrityViolationException(DataIntegrityViolationException ex, WebRequest request) {
+    public final ResponseEntity<ExceptionResponse> dataIntegrityViolationException(
+        DataIntegrityViolationException ex,
+        WebRequest request
+    ) {
         String mensagemAmigavel = "Ocorreu um erro de integridade dos dados. Verifique os campos informados.";
         HttpStatus status = HttpStatus.BAD_REQUEST;
 
@@ -130,39 +193,79 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             status = HttpStatus.CONFLICT;
         }
 
-        ExceptionResponse exceptionResponse = new ExceptionResponse(LocalDateTime.now().toString(), List.of(mensagemAmigavel), request.getDescription(false));
-        return new ResponseEntity<>(exceptionResponse, status);
+        ExceptionResponse exceptionResponse = new ExceptionResponse(
+            LocalDateTime.now().toString(),
+            List.of(mensagemAmigavel),
+            request.getDescription(false)
+        );
+        return new ResponseEntity<>(
+            exceptionResponse,
+            status
+        );
     }
 
     @ExceptionHandler(DuplicatedResourceException.class)
-    public final ResponseEntity<ExceptionResponse> duplicatedResourceException(DuplicatedResourceException ex, WebRequest request) {
+    public final ResponseEntity<ExceptionResponse> duplicatedResourceException(
+        DuplicatedResourceException ex,
+        WebRequest request
+    ) {
         ExceptionResponse exceptionResponse = new ExceptionResponse(
-                LocalDateTime.now().toString(),
-                List.of(ex.getMessage()),
-                request.getDescription(false)
+            LocalDateTime.now().toString(),
+            List.of(ex.getMessage()),
+            request.getDescription(false)
         );
-        return new ResponseEntity<>(exceptionResponse, HttpStatus.CONFLICT);
+        return new ResponseEntity<>(
+            exceptionResponse,
+            HttpStatus.CONFLICT
+        );
     }
 
     @ExceptionHandler(ConstraintViolationException.class)
-    public final ResponseEntity<ExceptionResponse> constraintViolationException(ConstraintViolationException ex, WebRequest request) {
+    public final ResponseEntity<ExceptionResponse> constraintViolationException(
+        ConstraintViolationException ex,
+        WebRequest request
+    ) {
         List<String> mensagens = ex.getConstraintViolations().stream().map(ConstraintViolation::getMessage).toList();
 
-        ExceptionResponse exceptionResponse = new ExceptionResponse(LocalDateTime.now().toString(), mensagens, request.getDescription(false));
-        return new ResponseEntity<>(exceptionResponse, HttpStatus.BAD_REQUEST);
+        ExceptionResponse exceptionResponse = new ExceptionResponse(
+            LocalDateTime.now().toString(),
+            mensagens,
+            request.getDescription(false)
+        );
+        return new ResponseEntity<>(
+            exceptionResponse,
+            HttpStatus.BAD_REQUEST
+        );
     }
 
     @ExceptionHandler(InvalidJwtAuthenticationException.class)
     public final ResponseEntity<ExceptionResponse> invalidJwtAuthenticationException(Exception ex, WebRequest request) {
-        ExceptionResponse exceptionResponse = new ExceptionResponse(LocalDateTime.now().toString(), List.of(ex.getMessage()), request.getDescription(false));
-        return new ResponseEntity<>(exceptionResponse, HttpStatus.FORBIDDEN);
+        ExceptionResponse exceptionResponse = new ExceptionResponse(
+            LocalDateTime.now().toString(),
+            List.of(ex.getMessage()),
+            request.getDescription(false)
+        );
+        return new ResponseEntity<>(
+            exceptionResponse,
+            HttpStatus.FORBIDDEN
+        );
     }
 
     @ExceptionHandler(Exception.class)
     public final ResponseEntity<ExceptionResponse> handleAllExceptions(Exception ex, WebRequest request) {
-        logger.error("Ocorreu uma exceção não tratada", ex);
+        logger.error(
+            "Ocorreu uma exceção não tratada",
+            ex
+        );
 
-        ExceptionResponse exceptionResponse = new ExceptionResponse(LocalDateTime.now().toString(), List.of("Ocorreu um erro inesperado no servidor. Por favor, tente novamente mais tarde."), request.getDescription(false));
-        return new ResponseEntity<>(exceptionResponse, HttpStatus.INTERNAL_SERVER_ERROR);
+        ExceptionResponse exceptionResponse = new ExceptionResponse(
+            LocalDateTime.now().toString(),
+            List.of("Ocorreu um erro inesperado no servidor. Por favor, tente novamente mais tarde."),
+            request.getDescription(false)
+        );
+        return new ResponseEntity<>(
+            exceptionResponse,
+            HttpStatus.INTERNAL_SERVER_ERROR
+        );
     }
 }

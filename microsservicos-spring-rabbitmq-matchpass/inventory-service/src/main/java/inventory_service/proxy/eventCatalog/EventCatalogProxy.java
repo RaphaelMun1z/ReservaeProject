@@ -1,4 +1,4 @@
-package inventory_service.proxy;
+package inventory_service.proxy.eventCatalog;
 
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -11,14 +11,14 @@ public interface EventCatalogProxy {
 
     @GetMapping("/event-catalog-service/api/event/validate/v1/{eventId}/sector/{sectorId}/exists")
     String validateEventSector(
-            @PathVariable String eventId,
-            @PathVariable String sectorId
+        @PathVariable String eventId,
+        @PathVariable String sectorId
     );
 
-    @GetMapping("/event-catalog-service/api/event/validate/v1/{eventId}/sector/{sectorId}/tickets/{ticketsAmount}")
-    String validateEventSectorTicketCreating(
-            @PathVariable String eventId,
-            @PathVariable String sectorId,
-            @PathVariable int ticketsAmount
+    @GetMapping("/event-catalog-service/api/event/validate/v1/{eventId}/sector/{sectorId}/validate-capacity/{ticketsAmount}")
+    String validateSectorCapacity(
+        @PathVariable String eventId,
+        @PathVariable String sectorId,
+        @PathVariable int ticketsAmount
     );
 }

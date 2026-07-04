@@ -13,8 +13,6 @@ public record EventDetailsResponseDTO(
     String venueName,
     String venueCity,
     String venueState,
-    String homeTeamName,
-    String awayTeamName,
     List<EventSectorDetailsDTO> sectorsDetails
 ) {
 }

@@ -12,32 +12,31 @@ import java.util.List;
 public class VenueMapper {
     public SectorResponseDTO toSectorResponseDTO(Sector sector) {
         return new SectorResponseDTO(
-                sector.getId(),
-                sector.getName(),
-                sector.getHasNumberedTickets()
+            sector.getId(),
+            sector.getName()
         );
     }
 
     public List<SectorResponseDTO> toSectorResponseDTOList(List<Sector> sectors) {
         return sectors.stream()
-                .map(this::toSectorResponseDTO)
-                .toList();
+            .map(this::toSectorResponseDTO)
+            .toList();
     }
 
     public VenueResponseDTO toVenueResponseDTO(Venue venue) {
         return new VenueResponseDTO(
-                venue.getId(),
-                venue.getName(),
-                venue.getCity(),
-                venue.getState(),
-                venue.getTotalCapacity(),
-                toSectorResponseDTOList(venue.getSectors())
+            venue.getId(),
+            venue.getName(),
+            venue.getCity(),
+            venue.getState(),
+            venue.getTotalCapacity(),
+            toSectorResponseDTOList(venue.getSectors())
         );
     }
 
     public List<VenueResponseDTO> toVenueResponseDTOList(List<Venue> venues) {
         return venues.stream()
-                .map(this::toVenueResponseDTO)
-                .toList();
+            .map(this::toVenueResponseDTO)
+            .toList();
     }
 }

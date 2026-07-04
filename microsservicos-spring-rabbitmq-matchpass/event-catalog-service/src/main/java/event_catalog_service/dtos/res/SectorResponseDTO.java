@@ -1,8 +1,7 @@
 package event_catalog_service.dtos.res;
 
 public record SectorResponseDTO(
-        String sectorId,
-        String sectorName,
-        Boolean hasNumberedTickets
+    String sectorId,
+    String sectorName
 ) {
 }

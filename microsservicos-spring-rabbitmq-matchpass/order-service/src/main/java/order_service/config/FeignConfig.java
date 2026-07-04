@@ -55,7 +55,10 @@ public class FeignConfig {
             return switch (response.status()) {
                 case 404 -> new NotFoundException(originalMessage);
                 case 400 -> new BusinessException(originalMessage);
-                default -> defaultErrorDecoder.decode(methodKey, response);
+                default -> defaultErrorDecoder.decode(
+                    methodKey,
+                    response
+                );
             };
         }
     }

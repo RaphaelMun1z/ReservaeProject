@@ -18,13 +18,13 @@ public class OpenApiConfig {
         return new OpenAPI()
             .components(new Components())
             .info(new io.swagger.v3.oas.models.info.Info()
-                .title("User Profile Microservice API")
-                .version("v0.0.1")
-                .license(
-                    new License()
-                        .name("Apache 2.0")
-                        .url("https://github.com/RaphaelMun1z/MatchPassProject")
-                )
+                      .title("User Profile Microservice API")
+                      .version("v0.0.1")
+                      .license(
+                          new License()
+                              .name("Apache 2.0")
+                              .url("https://github.com/RaphaelMun1z/MatchPassProject")
+                      )
             );
     }
 }

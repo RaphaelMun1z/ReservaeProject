@@ -15,9 +15,8 @@ public class PaymentRequestedPublisher {
     private final String paymentRequestedTopic;
 
     public PaymentRequestedPublisher(
-            KafkaTemplate<String, Object> kafkaTemplate,
-            @Value("${matchpass.config.kafka.topics.pagamento-solicitado}")
-            String paymentRequestedTopic
+        KafkaTemplate<String, Object> kafkaTemplate,
+        @Value("${matchpass.config.kafka.topics.pagamento-solicitado}") String paymentRequestedTopic
     ) {
         this.kafkaTemplate = kafkaTemplate;
         this.paymentRequestedTopic = paymentRequestedTopic;
@@ -25,25 +24,25 @@ public class PaymentRequestedPublisher {
 
     public void publish(PaymentRequestedEvent event) {
         kafkaTemplate.send(
-                paymentRequestedTopic,
-                event.orderId(),
-                event
+            paymentRequestedTopic,
+            event.orderId(),
+            event
         ).whenComplete((result, exception) -> {
             if (exception != null) {
                 logger.error(
-                        "Erro ao publicar solicitação de pagamento do pedido {}.",
-                        event.orderId(),
-                        exception
+                    "Erro ao publicar solicitação de pagamento do pedido {}.",
+                    event.orderId(),
+                    exception
                 );
                 return;
             }
 
             logger.info(
-                    "Solicitação de pagamento do pedido {} publicada no tópico {}. Partição: {}. Offset: {}.",
-                    event.orderId(),
-                    paymentRequestedTopic,
-                    result.getRecordMetadata().partition(),
-                    result.getRecordMetadata().offset()
+                "Solicitação de pagamento do pedido {} publicada no tópico {}. Partição: {}. Offset: {}.",
+                event.orderId(),
+                paymentRequestedTopic,
+                result.getRecordMetadata().partition(),
+                result.getRecordMetadata().offset()
             );
         });
     }

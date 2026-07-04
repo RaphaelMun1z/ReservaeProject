@@ -20,7 +20,11 @@ public class ValidationService {
     private final EventRepository eventRepository;
     private final EventSectorPricingRepository eventSectorPricingRepository;
 
-    public ValidationService(InstanceInformationService informationService, EventRepository eventRepository, EventSectorPricingRepository eventSectorPricingRepository) {
+    public ValidationService(
+        InstanceInformationService informationService,
+        EventRepository eventRepository,
+        EventSectorPricingRepository eventSectorPricingRepository
+    ) {
         this.informationService = informationService;
         this.eventRepository = eventRepository;
         this.eventSectorPricingRepository = eventSectorPricingRepository;
@@ -28,7 +32,7 @@ public class ValidationService {
 
     public String validateEvent(String eventId) {
         Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new NotFoundException("Evento não encontrado"));
+            .orElseThrow(() -> new NotFoundException("Evento não encontrado"));
 
         if (event.getStatus() == EventStatusEnum.CANCELED) {
             throw new BusinessException("Evento cancelado. Vendas não permitidas.");
@@ -39,19 +43,17 @@ public class ValidationService {
         }
 
         if (LocalDateTime.now()
-                .isAfter(event.getEventDate())) {
+            .isAfter(event.getEventDate())) {
             throw new BusinessException("Evento já ocorreu. Vendas não permitidas.");
         }
 
         return "PORT [EVENT_CATALOG_SERVICE]: " + informationService.retrieveServerPort();
     }
 
-    public String validateEventSector(
-            String eventId,
-            String sectorId) {
+    public String validateEventSector(String eventId, String sectorId) {
         boolean sectorExists = eventSectorPricingRepository.existsByEvent_IdAndSectorId(
-                eventId,
-                sectorId
+            eventId,
+            sectorId
         );
 
         if (!sectorExists) {
@@ -61,22 +63,17 @@ public class ValidationService {
         return "PORT [EVENT_CATALOG_SERVICE]: " + informationService.retrieveServerPort();
     }
 
-    public String validateEventSectorTicketCreating(
-            String eventId,
-            String sectorId,
-            int ticketsAmount
-    ) {
+    public String validateSectorCapacity(String eventId, String sectorId, int ticketsAmount) {
         Optional<EventSectorDetailsDTO> eventSectorDetails = eventSectorPricingRepository.findEventSectorDetailsByEventIdAndSectorId(
-                eventId,
-                sectorId
+            eventId,
+            sectorId
         );
 
         if (eventSectorDetails.isEmpty()) {
             throw new NotFoundException("Setor não encontrado no evento.");
         }
 
-        int totalCapacity = eventSectorDetails.get()
-                .totalCapacity();
+        int totalCapacity = eventSectorDetails.get().totalCapacity();
         if (totalCapacity < ticketsAmount) {
             throw new IllegalArgumentException("O setor informado possui capacidade máxima de " + totalCapacity + " assentos, enquanto voce solicitou a criação de " + ticketsAmount + " assentos");
         }

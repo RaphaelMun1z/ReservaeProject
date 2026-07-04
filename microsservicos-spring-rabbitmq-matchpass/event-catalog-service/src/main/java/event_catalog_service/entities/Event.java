@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+
 @Entity
 @Table(name = "tb_events", uniqueConstraints = {
     @UniqueConstraint(
@@ -43,27 +44,17 @@ public class Event {
     private String venueId;
 
     @NotNull
-    @Column(name = "home_team_id", nullable = false)
-    private String homeTeamId;
-
-    @NotNull
-    @Column(name = "away_team_id", nullable = false)
-    private String awayTeamId;
-
-    @NotNull
     @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<EventSectorPricing> pricings = new ArrayList<>();
 
     protected Event() {
     }
 
-    public Event(String title, LocalDateTime eventDate, String venueId, String homeTeamId, String awayTeamId) {
+    public Event(String title, LocalDateTime eventDate, String venueId) {
         this.title = title;
         this.eventDate = eventDate;
         this.status = EventStatusEnum.SCHEDULED;
         this.venueId = venueId;
-        this.homeTeamId = homeTeamId;
-        this.awayTeamId = awayTeamId;
     }
 
     public String getId() {
@@ -84,14 +75,6 @@ public class Event {
 
     public String getVenueId() {
         return venueId;
-    }
-
-    public String getHomeTeamId() {
-        return homeTeamId;
-    }
-
-    public String getAwayTeamId() {
-        return awayTeamId;
     }
 
     public List<EventSectorPricing> getPricings() {

@@ -22,36 +22,36 @@ public class TicketService {
 
     @Transactional
     public List<Ticket> generateFromOrder(GenerateTicketRequestDTO dto) {
-        List<Ticket> ticketsToGenerate = dto.ticketTags()
-                .stream()
-                .map(ticketTag -> {
-                    Ticket ticket = new Ticket(
-                            dto.orderId(),
-                            dto.eventId(),
-                            dto.userId(),
-                            dto.sectorId(),
-                            ticketTag,
-                            null,
-                            TicketStatusEnum.VALID
-                    );
+        List<Ticket> ticketsToGenerate = dto.ticketsId()
+            .stream()
+            .map(ticketId -> {
+                Ticket ticket = new Ticket(
+                    dto.orderId(),
+                    dto.eventId(),
+                    dto.userId(),
+                    dto.sectorId(),
+                    ticketId,
+                    null,
+                    TicketStatusEnum.VALID
+                );
 
-                    String rawData = dto.orderId() + ticketTag + System.currentTimeMillis();
-                    String qrHash = java.util.UUID.nameUUIDFromBytes(rawData.getBytes())
-                            .toString();
-                    ticket.setQrCodeHash(qrHash);
+                String rawData = dto.orderId() + ticketId + System.currentTimeMillis();
+                String qrHash = java.util.UUID.nameUUIDFromBytes(rawData.getBytes())
+                    .toString();
+                ticket.setQrCodeHash(qrHash);
 
-                    return ticket;
-                })
-                .toList();
+                return ticket;
+            })
+            .toList();
 
         return ticketRepository.saveAll(ticketsToGenerate);
     }
 
     public Ticket findById(String id) {
         return ticketRepository.findById(id)
-                .orElseThrow(
-                        () -> new NotFoundException("Ticket não encontrado.")
-                );
+            .orElseThrow(
+                () -> new NotFoundException("Ticket não encontrado.")
+            );
     }
 
     public List<Ticket> findByUserId(String userId) {
@@ -60,17 +60,17 @@ public class TicketService {
 
     public Page<Ticket> findByEventId(String eventId, Pageable pageable) {
         return ticketRepository.findByEventId(
-                eventId,
-                pageable
+            eventId,
+            pageable
         );
     }
 
     @Transactional
     public void revokeTicket(String id) {
         Ticket ticket = ticketRepository.findById(id)
-                .orElseThrow(
-                        () -> new NotFoundException("Ticket não encontrado.")
-                );
+            .orElseThrow(
+                () -> new NotFoundException("Ticket não encontrado.")
+            );
         ticket.revokeTicket();
     }
 }

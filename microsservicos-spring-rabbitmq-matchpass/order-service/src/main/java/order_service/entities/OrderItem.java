@@ -13,7 +13,7 @@ public class OrderItem {
     private String id;
 
     private String sectorId;
-    private String ticketTag;
+    private String ticketId;
 
     @Enumerated(EnumType.STRING)
     private TicketType ticketType;
@@ -27,9 +27,9 @@ public class OrderItem {
     public OrderItem() {
     }
 
-    public OrderItem(String sectorId, String ticketTag, TicketType ticketType, BigDecimal appliedPrice) {
+    public OrderItem(String sectorId, String ticketId, TicketType ticketType, BigDecimal appliedPrice) {
         this.sectorId = sectorId;
-        this.ticketTag = ticketTag;
+        this.ticketId = ticketId;
         this.ticketType = ticketType;
         this.appliedPrice = appliedPrice;
     }
@@ -42,8 +42,8 @@ public class OrderItem {
         return sectorId;
     }
 
-    public String getTicketTag() {
-        return ticketTag;
+    public String getTicketId() {
+        return ticketId;
     }
 
     public TicketType getTicketType() {

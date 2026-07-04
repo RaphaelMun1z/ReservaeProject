@@ -7,8 +7,6 @@ public record CreateEventRequestDTO(
     String title,
     LocalDateTime eventDate,
     String venueId,
-    String homeTeamId,
-    String awayTeamId,
     List<SectorPricingRequestDTO> sectorsPricing
 ) {
 }

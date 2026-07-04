@@ -58,6 +58,10 @@ public class EventSectorPricing {
         return event;
     }
 
+    void setEvent(Event event) {
+        this.event = event;
+    }
+
     public String getSectorId() {
         return sectorId;
     }
@@ -70,14 +74,10 @@ public class EventSectorPricing {
         return halfPrice;
     }
 
-    public Boolean getAvailable() {
-        return isAvailable;
-    }
-
     // --- MÉTODOS DE COMPORTAMENTO ---
 
-    void setEvent(Event event) {
-        this.event = event;
+    public Boolean getAvailable() {
+        return isAvailable;
     }
 
     public void suspendSales() {

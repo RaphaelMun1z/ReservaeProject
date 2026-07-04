@@ -14,13 +14,23 @@ public class CorsConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfig = new CorsConfiguration();
         corsConfig.setAllowedOriginPatterns(List.of("*"));
-        corsConfig.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
+        corsConfig.setAllowedMethods(List.of(
+            "GET",
+            "POST",
+            "PUT",
+            "PATCH",
+            "DELETE",
+            "OPTIONS"
+        ));
         corsConfig.setAllowCredentials(true);
         corsConfig.setMaxAge(3600L);
         corsConfig.addAllowedHeader("*");
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", corsConfig);
+        source.registerCorsConfiguration(
+            "/**",
+            corsConfig
+        );
         return source;
     }
 }

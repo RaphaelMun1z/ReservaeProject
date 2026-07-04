@@ -25,6 +25,9 @@ public class VenueQueryService {
     }
 
     public List<Venue> findVenuesByLocation(String city, String state) {
-        return venueRepository.findByLocationWithSectors(city, state);
+        return venueRepository.findByLocationWithSectors(
+            city,
+            state
+        );
     }
 }

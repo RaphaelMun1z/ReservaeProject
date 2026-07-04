@@ -24,9 +24,9 @@ public class ProcessedWebhookEvent {
     }
 
     public ProcessedWebhookEvent(
-            String eventId,
-            String eventType,
-            Instant processedAt
+        String eventId,
+        String eventType,
+        Instant processedAt
     ) {
         this.eventId = eventId;
         this.eventType = eventType;

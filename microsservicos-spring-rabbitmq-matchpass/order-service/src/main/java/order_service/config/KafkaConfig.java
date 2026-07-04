@@ -31,28 +31,28 @@ public class KafkaConfig {
         Map<String, Object> properties = new HashMap<>();
 
         properties.put(
-                ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
-                kafkaServerUrl
+            ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
+            kafkaServerUrl
         );
         properties.put(
-                ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
-                StringSerializer.class
+            ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG,
+            StringSerializer.class
         );
         properties.put(
-                ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
-                JsonSerializer.class
+            ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG,
+            JsonSerializer.class
         );
         properties.put(
-                ProducerConfig.ACKS_CONFIG,
-                "all"
+            ProducerConfig.ACKS_CONFIG,
+            "all"
         );
         properties.put(
-                ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG,
-                true
+            ProducerConfig.ENABLE_IDEMPOTENCE_CONFIG,
+            true
         );
         properties.put(
-                JsonSerializer.ADD_TYPE_INFO_HEADERS,
-                false
+            JsonSerializer.ADD_TYPE_INFO_HEADERS,
+            false
         );
 
         return new DefaultKafkaProducerFactory<>(properties);
@@ -68,16 +68,16 @@ public class KafkaConfig {
         Map<String, Object> properties = defaultConsumerProperties();
 
         JsonDeserializer<InventoryReservationResultEvent> deserializer = new JsonDeserializer<>(
-                InventoryReservationResultEvent.class,
-                false
+            InventoryReservationResultEvent.class,
+            false
         );
 
         deserializer.addTrustedPackages("order_service.messaging.event");
 
         return new DefaultKafkaConsumerFactory<>(
-                properties,
-                new StringDeserializer(),
-                deserializer
+            properties,
+            new StringDeserializer(),
+            deserializer
         );
     }
 
@@ -95,16 +95,16 @@ public class KafkaConfig {
         Map<String, Object> properties = defaultConsumerProperties();
 
         JsonDeserializer<PaymentApprovedEvent> deserializer = new JsonDeserializer<>(
-                PaymentApprovedEvent.class,
-                false
+            PaymentApprovedEvent.class,
+            false
         );
 
         deserializer.addTrustedPackages("order_service.messaging.event");
 
         return new DefaultKafkaConsumerFactory<>(
-                properties,
-                new StringDeserializer(),
-                deserializer
+            properties,
+            new StringDeserializer(),
+            deserializer
         );
     }
 
@@ -122,16 +122,16 @@ public class KafkaConfig {
         Map<String, Object> properties = defaultConsumerProperties();
 
         JsonDeserializer<PaymentFailedEvent> deserializer = new JsonDeserializer<>(
-                PaymentFailedEvent.class,
-                false
+            PaymentFailedEvent.class,
+            false
         );
 
         deserializer.addTrustedPackages("order_service.messaging.event");
 
         return new DefaultKafkaConsumerFactory<>(
-                properties,
-                new StringDeserializer(),
-                deserializer
+            properties,
+            new StringDeserializer(),
+            deserializer
         );
     }
 
@@ -148,24 +148,24 @@ public class KafkaConfig {
         Map<String, Object> properties = new HashMap<>();
 
         properties.put(
-                ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
-                kafkaServerUrl
+            ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
+            kafkaServerUrl
         );
         properties.put(
-                ConsumerConfig.GROUP_ID_CONFIG,
-                consumerGroup
+            ConsumerConfig.GROUP_ID_CONFIG,
+            consumerGroup
         );
         properties.put(
-                ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
-                "earliest"
+            ConsumerConfig.AUTO_OFFSET_RESET_CONFIG,
+            "earliest"
         );
         properties.put(
-                ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG,
-                false
+            ConsumerConfig.ENABLE_AUTO_COMMIT_CONFIG,
+            false
         );
         properties.put(
-                ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
-                StringDeserializer.class
+            ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
+            StringDeserializer.class
         );
 
         return properties;

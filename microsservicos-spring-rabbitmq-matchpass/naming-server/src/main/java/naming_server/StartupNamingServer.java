@@ -9,7 +9,10 @@ import org.springframework.cloud.netflix.eureka.server.EnableEurekaServer;
 public class StartupNamingServer {
 
     public static void main(String[] args) {
-        SpringApplication.run(StartupNamingServer.class, args);
+        SpringApplication.run(
+            StartupNamingServer.class,
+            args
+        );
     }
 
 }

@@ -10,37 +10,30 @@ import java.util.UUID;
 
 @RedisHash("TicketReserve")
 public class TicketReserve {
+    private static final long LOCK_TTL_SECONDS = 600L;
     @Id
-    private String ticketTag;
-
+    private String ticketId;
     @Indexed
     private String eventId;
-
     @Indexed
     private String sectorId;
-
     @Indexed
     private String userId;
-
     @Indexed
-    private TicketStatusEnum status;
-
+    private TicketStatusEnum ticketStatus;
     @TimeToLive
-    private Long ttl;
-
-    private static final long LOCK_TTL_SECONDS = 600L;
+    private Long timeToLive;
 
     public TicketReserve() {
     }
 
-    public TicketReserve(String eventId, String sectorId, String userId, TicketStatusEnum status) {
-        this.ticketTag = UUID.randomUUID()
-                .toString();
+    public TicketReserve(String eventId, String sectorId, String userId, TicketStatusEnum ticketStatus) {
+        this.ticketId = UUID.randomUUID().toString();
         this.eventId = eventId;
         this.sectorId = sectorId;
         this.userId = userId;
-        this.status = status;
-        this.ttl = (long) -1;
+        this.ticketStatus = ticketStatus;
+        this.timeToLive = (long) -1;
     }
 
     public String getEventId() {
@@ -55,53 +48,48 @@ public class TicketReserve {
         return userId;
     }
 
-    public String getTicketTag() {
-        return ticketTag;
+    public String getTicketId() {
+        return ticketId;
     }
 
-    public TicketStatusEnum getStatus() {
-        return status;
+    public TicketStatusEnum getTicketStatus() {
+        return ticketStatus;
     }
 
-    public Long getTtl() {
-        return ttl;
+    public Long getTimeToLive() {
+        return timeToLive;
     }
 
     // Métodos auxiliares
     public void reserve(String userId) {
         this.userId = userId;
-        this.status = TicketStatusEnum.RESERVED;
-        this.ttl = LOCK_TTL_SECONDS;
+        this.ticketStatus = TicketStatusEnum.RESERVED;
+        this.timeToLive = LOCK_TTL_SECONDS;
     }
 
     public void release() {
-        this.status = TicketStatusEnum.AVAILABLE;
-        this.ttl = (long) -1;
+        this.ticketStatus = TicketStatusEnum.AVAILABLE;
+        this.timeToLive = (long) -1;
     }
 
     public void sold() {
-        this.status = TicketStatusEnum.SOLD;
-        this.ttl = (long) -1;
+        this.ticketStatus = TicketStatusEnum.SOLD;
+        this.timeToLive = (long) -1;
     }
 
     public void removeExpiration() {
-        this.ttl = -1L;
+        this.timeToLive = -1L;
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (!(o instanceof TicketReserve ticketReserve)) return false;
-        return ticketTag != null && ticketTag.equals(ticketReserve.ticketTag);
+        return ticketId != null && ticketId.equals(ticketReserve.ticketId);
     }
 
     @Override
     public int hashCode() {
         return getClass().hashCode();
-    }
-
-    @Override
-    public String toString() {
-        return "TicketReserve{" + ", ticketTag='" + ticketTag + '\'' + ", eventId='" + eventId + '\'' + ", sectorId='" + sectorId + '\'' + ", userId='" + userId + '\'' + ", status=" + status + ", ttl=" + ttl + '}';
     }
 }

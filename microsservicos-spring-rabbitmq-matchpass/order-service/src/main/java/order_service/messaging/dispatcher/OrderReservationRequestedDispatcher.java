@@ -1,6 +1,7 @@
-package order_service.messaging.publisher;
+package order_service.messaging.dispatcher;
 
 import order_service.messaging.event.OrderReservationRequestedEvent;
+import order_service.messaging.publisher.OrderReservationRequestedPublisher;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;

@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TicketReserveRepository extends CrudRepository<TicketReserve, String> {
-    Optional<TicketReserve> findByTicketTag(String ticketTag);
+    Optional<TicketReserve> findByTicketId(String ticketId);
 
     List<TicketReserve> findByEventIdAndSectorIdAndStatus(String eventId, String sectorId, TicketStatusEnum status);
 
