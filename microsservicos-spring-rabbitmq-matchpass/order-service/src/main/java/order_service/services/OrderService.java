@@ -57,9 +57,12 @@ public class OrderService {
             .toList();
 
         newOrder.addItems(newOrderItems);
+
         Order savedOrder = orderRepository.save(newOrder);
 
-        OrderReservationRequestedEvent event = orderEventMapper.toReservationRequestedEvent(savedOrder);
+        OrderReservationRequestedEvent event =
+            orderEventMapper.toReservationRequestedEvent(savedOrder);
+
         applicationEventPublisher.publishEvent(event);
 
         logger.info(
@@ -99,13 +102,14 @@ public class OrderService {
             return;
         }
 
+        order.attachReservationIds(event.reservationIds());
         order.updateStatus(OrderStatusEnum.AWAITING_PAYMENT);
         orderRepository.save(order);
 
         logger.info(
-            "Reserva confirmada para o pedido {}. Assentos: {}.",
+            "Reserva confirmada para o pedido {}. Reservas: {}.",
             order.getId(),
-            event.ticketsId()
+            event.reservationIds()
         );
 
         publishPaymentRequest(order);
@@ -164,13 +168,17 @@ public class OrderService {
     }
 
     @Transactional
-    public OrderSummaryResponseDTO updateOrderStatus(String orderId, OrderStatusEnum orderStatusEnum) {
+    public OrderSummaryResponseDTO updateOrderStatus(
+        String orderId,
+        OrderStatusEnum orderStatusEnum
+    ) {
         Order order = findOrderEntityById(
             orderId,
             "Nenhum pedido encontrado."
         );
 
         order.updateStatus(orderStatusEnum);
+
         return toOrderSummaryResponseDTO(order);
     }
 
@@ -195,24 +203,22 @@ public class OrderService {
     }
 
     public List<OrderSummaryResponseDTO> findOrdersByEventId(String eventId) {
-        List<Order> orders = orderRepository.findByEventId(eventId);
-
-        return orders.stream()
+        return orderRepository.findByEventId(eventId)
+            .stream()
             .map(this::toOrderSummaryResponseDTO)
             .toList();
     }
 
-    public OrderSummaryResponseDTO findOrderByTicketId(String ticketId) {
-        Order order = orderRepository.findByItemsTicketId(ticketId)
+    public OrderSummaryResponseDTO findOrderByReservationId(String reservationId) {
+        Order order = orderRepository.findByItemsReservationId(reservationId)
             .orElseThrow(() -> new NotFoundException("Nenhum pedido encontrado."));
 
         return toOrderSummaryResponseDTO(order);
     }
 
     public List<OrderSummaryResponseDTO> findOrdersByUserId(String userId) {
-        List<Order> orders = orderRepository.findByUserId(userId);
-
-        return orders.stream()
+        return orderRepository.findByUserId(userId)
+            .stream()
             .map(this::toOrderSummaryResponseDTO)
             .toList();
     }
@@ -224,8 +230,7 @@ public class OrderService {
             order.getTotalAmount()
                 .movePointRight(2)
                 .longValue(),
-            (long) order.getItems()
-                .size(),
+            (long) order.getTotalTicketsQuantity(),
             "Ingresso MatchPass",
             "BRL"
         );
@@ -245,7 +250,7 @@ public class OrderService {
 
     private BigDecimal calculateTotalAmount(List<OrderItemRequestDTO> items) {
         return items.stream()
-            .map(OrderItemRequestDTO::appliedPrice)
+            .map(item -> item.appliedPrice().multiply(BigDecimal.valueOf(item.quantity())))
             .reduce(
                 BigDecimal.ZERO,
                 BigDecimal::add
@@ -255,8 +260,8 @@ public class OrderService {
     private OrderItem toOrderItem(OrderItemRequestDTO item) {
         return new OrderItem(
             item.sectorId(),
-            item.ticketId(),
             item.ticketType(),
+            item.quantity(),
             item.appliedPrice()
         );
     }
@@ -274,9 +279,11 @@ public class OrderService {
         return new OrderItemResponseDTO(
             orderItem.getId(),
             orderItem.getSectorId(),
-            orderItem.getTicketId(),
+            orderItem.getReservationId(),
             orderItem.getTicketType(),
-            orderItem.getAppliedPrice()
+            orderItem.getQuantity(),
+            orderItem.getAppliedPrice(),
+            orderItem.getSubtotal()
         );
     }
 }

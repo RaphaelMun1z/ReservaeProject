@@ -7,7 +7,7 @@ public record InventoryReservationResultEvent(
     String messageId,
     String orderId,
     boolean reserved,
-    List<String> ticketsId,
+    List<String> reservationIds,
     String reason,
     LocalDateTime occurredAt
 ) {

@@ -30,7 +30,7 @@ public class OrderController implements OrderContract {
         OrderSummaryResponseDTO response = orderService.processCheckout(dto);
 
         URI location = URI.create(
-            "/order-service/api/orders/" + response.orderId()
+            "/order-service/api/orders/v1/" + response.orderId()
         );
 
         return ResponseEntity
@@ -51,19 +51,21 @@ public class OrderController implements OrderContract {
 
     @Override
     @GetMapping("/v1/event/{eventId}/orders")
-    public ResponseEntity<List<OrderSummaryResponseDTO>>
-    findOrdersByEventId(@PathVariable String eventId) {
+    public ResponseEntity<List<OrderSummaryResponseDTO>> findOrdersByEventId(
+        @PathVariable String eventId
+    ) {
         return ResponseEntity.ok(
             orderService.findOrdersByEventId(eventId)
         );
     }
 
     @Override
-    @GetMapping("/v1/ticket/{ticketId}/order")
-    public ResponseEntity<OrderSummaryResponseDTO>
-    findOrderByTicketId(@PathVariable String ticketId) {
+    @GetMapping("/v1/reservation/{reservationId}/order")
+    public ResponseEntity<OrderSummaryResponseDTO> findOrderByReservationId(
+        @PathVariable String reservationId
+    ) {
         return ResponseEntity.ok(
-            orderService.findOrderByTicketId(ticketId)
+            orderService.findOrderByReservationId(reservationId)
         );
     }
 
@@ -83,8 +85,9 @@ public class OrderController implements OrderContract {
 
     @Override
     @GetMapping("/v1/user/{userId}/orders")
-    public ResponseEntity<List<OrderSummaryResponseDTO>>
-    findOrdersByUserId(@PathVariable String userId) {
+    public ResponseEntity<List<OrderSummaryResponseDTO>> findOrdersByUserId(
+        @PathVariable String userId
+    ) {
         return ResponseEntity.ok(
             orderService.findOrdersByUserId(userId)
         );

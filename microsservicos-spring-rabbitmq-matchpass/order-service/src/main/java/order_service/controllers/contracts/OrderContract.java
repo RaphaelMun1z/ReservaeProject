@@ -19,7 +19,7 @@ public interface OrderContract {
 
     @Operation(
         summary = "Criar um novo pedido",
-        description = "Cria o pedido e envia uma solicitação assíncrona para reservar os ingressos no Inventory Service."
+        description = "Cria o pedido e envia uma solicitação assíncrona para reservar ingressos no Inventory Service."
     )
     ResponseEntity<OrderSummaryResponseDTO> checkout(
         CheckoutRequestDTO dto
@@ -43,13 +43,13 @@ public interface OrderContract {
         String eventId
     );
 
-    @Operation(summary = "Buscar um pedido pela tag do ingresso")
-    ResponseEntity<OrderSummaryResponseDTO> findOrderByTicketId(
+    @Operation(summary = "Buscar um pedido pelo ID da reserva vinculada")
+    ResponseEntity<OrderSummaryResponseDTO> findOrderByReservationId(
         @Parameter(
-            description = "Identificador/tag do ingresso vinculado ao pedido",
-            example = "evt_001_sct_002_st_003"
+            description = "Identificador da reserva retornada pelo Inventory Service",
+            example = "550e8400-e29b-41d4-a716-446655440010"
         )
-        String ticketId
+        String reservationId
     );
 
     @Operation(summary = "Atualizar o status de um pedido")

@@ -17,7 +17,7 @@ public class OrderEventMapper {
             .stream()
             .map(item -> new OrderReservationItemEvent(
                 item.getSectorId(),
-                item.getTicketId()
+                item.getQuantity()
             ))
             .toList();
 

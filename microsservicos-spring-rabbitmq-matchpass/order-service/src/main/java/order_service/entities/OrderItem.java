@@ -8,29 +8,43 @@ import java.math.BigDecimal;
 @Entity
 @Table(name = "tb_order_item")
 public class OrderItem {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
+    @Column(name = "sector_id", nullable = false)
     private String sectorId;
-    private String ticketId;
+
+    @Column(name = "reservation_id")
+    private String reservationId;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "ticket_type", nullable = false)
     private TicketType ticketType;
 
+    @Column(name = "quantity", nullable = false)
+    private int quantity;
+
+    @Column(name = "applied_price", nullable = false, precision = 10, scale = 2)
     private BigDecimal appliedPrice;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false)
     private Order order;
 
-    public OrderItem() {
+    protected OrderItem() {
     }
 
-    public OrderItem(String sectorId, String ticketId, TicketType ticketType, BigDecimal appliedPrice) {
+    public OrderItem(
+        String sectorId,
+        TicketType ticketType,
+        int quantity,
+        BigDecimal appliedPrice
+    ) {
         this.sectorId = sectorId;
-        this.ticketId = ticketId;
         this.ticketType = ticketType;
+        this.quantity = quantity;
         this.appliedPrice = appliedPrice;
     }
 
@@ -42,24 +56,36 @@ public class OrderItem {
         return sectorId;
     }
 
-    public String getTicketId() {
-        return ticketId;
+    public String getReservationId() {
+        return reservationId;
     }
 
     public TicketType getTicketType() {
         return ticketType;
     }
 
+    public int getQuantity() {
+        return quantity;
+    }
+
     public BigDecimal getAppliedPrice() {
         return appliedPrice;
+    }
+
+    public BigDecimal getSubtotal() {
+        return appliedPrice.multiply(BigDecimal.valueOf(quantity));
     }
 
     public Order getOrder() {
         return order;
     }
 
-    public void setOrder(Order order) {
+    void setOrder(Order order) {
         this.order = order;
+    }
+
+    public void attachReservation(String reservationId) {
+        this.reservationId = reservationId;
     }
 
     @Override

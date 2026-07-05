@@ -15,22 +15,38 @@ public class Order {
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
+    @Column(name = "event_id", nullable = false)
     private String eventId;
+
+    @Column(name = "user_id", nullable = false)
     private String userId;
+
+    @Column(name = "total_amount", nullable = false, precision = 10, scale = 2)
     private BigDecimal totalAmount;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
     private OrderStatusEnum status;
 
+    @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(
+        mappedBy = "order",
+        cascade = CascadeType.ALL,
+        orphanRemoval = true
+    )
     private List<OrderItem> items = new ArrayList<>();
 
-    public Order() {
+    protected Order() {
     }
 
-    public Order(String eventId, String userId, BigDecimal totalAmount, OrderStatusEnum status) {
+    public Order(
+        String eventId,
+        String userId,
+        BigDecimal totalAmount,
+        OrderStatusEnum status
+    ) {
         this.eventId = eventId;
         this.userId = userId;
         this.totalAmount = totalAmount;
@@ -66,7 +82,6 @@ public class Order {
         return items;
     }
 
-    // Métodos Auxiliares
     public void addItem(OrderItem item) {
         item.setOrder(this);
         this.items.add(item);
@@ -78,6 +93,23 @@ public class Order {
 
     public void updateStatus(OrderStatusEnum status) {
         this.status = status;
+    }
+
+    public void attachReservationIds(List<String> reservationIds) {
+        if (reservationIds == null || reservationIds.size() != items.size()) {
+            throw new IllegalArgumentException(
+                "A quantidade de reservas não corresponde à quantidade de itens do pedido.");
+        }
+
+        for (int index = 0; index < items.size(); index++) {
+            items.get(index).attachReservation(reservationIds.get(index));
+        }
+    }
+
+    public int getTotalTicketsQuantity() {
+        return items.stream()
+            .mapToInt(OrderItem::getQuantity)
+            .sum();
     }
 
     @Override
