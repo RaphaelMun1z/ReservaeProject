@@ -7,7 +7,6 @@
   <img src="https://img.shields.io/badge/status-MVP%20funcional-22C55E?style=for-the-badge" alt="Status: MVP funcional">
   <img src="https://img.shields.io/badge/Java-21-E76F00?style=for-the-badge&logo=openjdk&logoColor=white" alt="Java 21">
   <img src="https://img.shields.io/badge/Spring%20Boot-3.5-6DB33F?style=for-the-badge&logo=springboot&logoColor=white" alt="Spring Boot 3.5">
-  <img src="https://img.shields.io/badge/Angular-21-DD0031?style=for-the-badge&logo=angular&logoColor=white" alt="Angular 21">
   <img src="https://img.shields.io/badge/Docker-Compose-2496ED?style=for-the-badge&logo=docker&logoColor=white" alt="Docker Compose">
 </div>
 
@@ -51,23 +50,24 @@ Os diagramas abaixo registram a concepção arquitetural que originou o MVP.
 | ✅ | Spring Cloud Config Server | `8888` | Configuração centralizada dos serviços |
 | ✅ | Eureka Naming Server | `8761` | Registro e descoberta de serviços |
 | ✅ | API Gateway | `8765` | Roteamento das APIs e acesso ao Swagger |
+| 🔴 | Zipkin Server | `9411` | Rastreamento distribuído |
 | ✅ | Keycloak | `8080` | Identidade, autenticação e autorização |
 | ✅ | Apache Kafka | `29092` | Mensageria e integração orientada a eventos |
 | ✅ | ZooKeeper | `22181` | Coordenação do broker Kafka |
 | ✅ | Kafka UI | `8090` | Inspeção de tópicos, consumidores e mensagens |
-| ✅ | Frontend Angular | `4200` | Interface web em desenvolvimento local |
+| ⚪ | Frontend Angular | — | Diretório reservado para a futura aplicação |
 
 ### Microsserviços e persistência
 
-| Status | Microsserviço | Porta da aplicação | Persistência | Porta local do banco | Database |
-| :--: | :-- | :--: | :-- | :--: | :-- |
-| ✅ | User Profile Service | `8000` | PostgreSQL 18.4 | `5432` | `db_user_profile` |
-| ✅ | Event Catalog Service | `8100` | PostgreSQL 18.4 | `5433` | `db_event_catalog` |
-| ✅ | Inventory Service | `8200` | Redis 7 | `6379` | — |
-| ✅ | Order Service | `8300` | PostgreSQL 18.4 | `5434` | `db_order` |
-| ✅ | Payment Service | `8400` | PostgreSQL 18.4 | `5436` | `db_payment` |
-| ✅ | Ticket Service | `8500` | PostgreSQL 18.4 | `5435` | `db_ticket` |
-| ✅ | Notification Service | `8600` | MongoDB 7 | `27017` | `db_notification` |
+| Status do serviço | Status do banco | Microsserviço | Porta da aplicação | Persistência | Porta local do banco | Database |
+| :--: | :--: | :-- | :--: | :-- | :--: | :-- |
+| ✅ | ✅ | User Profile Service | `8000` | PostgreSQL 18.4 | `5432` | `db_user_profile` |
+| ✅ | ✅ | Event Catalog Service | `8100` | PostgreSQL 18.4 | `5433` | `db_event_catalog` |
+| ✅ | ✅ | Inventory Service | `8200` | Redis 7 | `6379` | — |
+| ✅ | ✅ | Order Service | `8300` | PostgreSQL 18.4 | `5434` | `db_order` |
+| ✅ | ✅ | Payment Service | `8400` | PostgreSQL 18.4 | `5436` | `db_payment` |
+| ✅ | ✅ | Ticket Service | `8500` | PostgreSQL 18.4 | `5435` | `db_ticket` |
+| ✅ | ✅ | Notification Service | `8600` | MongoDB 7 | `27017` | `db_notification` |
 
 > As portas listadas são as portas expostas no host pelo ambiente local. Internamente, os contêineres PostgreSQL utilizam a porta `5432`, o Kafka utiliza `9092`, o ZooKeeper utiliza `2181` e o Kafka UI utiliza `8080`.
 
@@ -91,9 +91,8 @@ Os diagramas abaixo registram a concepção arquitetural que originou o MVP.
 
 ### Frontend
 
-- **Angular 21:** estrutura a aplicação web e seus componentes.
-- **TypeScript:** fornece tipagem estática ao código do frontend.
-- **RxJS:** trata fluxos assíncronos e reativos.
+- **Protótipo web:** telas navegáveis disponíveis em `frontend/prototipo-reservae`.
+- **Angular:** diretório `frontend/angular-reservae` reservado para a futura aplicação.
 
 ### Infraestrutura
 
@@ -107,14 +106,13 @@ Os diagramas abaixo registram a concepção arquitetural que originou o MVP.
 - Java 21;
 - Maven 3.9 ou superior;
 - Docker com Docker Compose;
-- Node.js e npm;
 - Stripe CLI para testar webhooks de pagamento;
 - credenciais da Stripe e de um provedor de e-mail Brevo.
 
 ### 1. Inicie a infraestrutura e os bancos
 
 ```bash
-cd microsservicos-spring-rabbitmq-matchpass
+cd microservices-spring-kafka-reservae
 docker compose up -d
 ```
 
@@ -166,15 +164,10 @@ stripe listen --forward-to localhost:8400/payment-service/api/payments/webhooks/
 
 Copie o segredo exibido pela Stripe CLI para `STRIPE_WEBHOOK_SECRET` antes de iniciar o Payment Service.
 
-### 5. Inicie o frontend
+### 5. Acesse o protótipo
 
-```bash
-cd frontend-prototipo-matchpass/angular-matchpass
-npm install
-npm start
-```
-
-A interface estará disponível em `http://localhost:4200`.
+Abra `frontend/prototipo-reservae/index.html` no navegador. O diretório
+`frontend/angular-reservae` está reservado e ainda não contém uma aplicação.
 
 ## Endpoints de apoio
 
