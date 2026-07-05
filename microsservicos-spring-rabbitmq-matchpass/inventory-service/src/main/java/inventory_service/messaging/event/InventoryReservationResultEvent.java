@@ -4,11 +4,11 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public record InventoryReservationResultEvent(
-    String eventId,
+    String messageId,
     String orderId,
-    boolean success,
+    boolean reserved,
     List<String> reservationIds,
-    String failureReason,
+    String reason,
     LocalDateTime occurredAt
 ) {
 }

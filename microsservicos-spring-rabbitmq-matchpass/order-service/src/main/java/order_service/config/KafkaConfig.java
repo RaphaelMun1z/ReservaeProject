@@ -3,6 +3,7 @@ package order_service.config;
 import order_service.messaging.event.InventoryReservationResultEvent;
 import order_service.messaging.event.PaymentApprovedEvent;
 import order_service.messaging.event.PaymentFailedEvent;
+import order_service.messaging.event.PaymentSessionCreatedEvent;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -26,6 +27,9 @@ public class KafkaConfig {
 
     @Value("${matchpass.config.kafka.consumer-groups.resultado-reserva}")
     private String reservationResultConsumerGroup;
+
+    @Value("${matchpass.config.kafka.consumer-groups.sessao-pagamento-criada}")
+    private String paymentSessionCreatedConsumerGroup;
 
     @Value("${matchpass.config.kafka.consumer-groups.pagamento-aprovado}")
     private String paymentApprovedConsumerGroup;
@@ -112,6 +116,35 @@ public class KafkaConfig {
             new ConcurrentKafkaListenerContainerFactory<>();
 
         factory.setConsumerFactory(inventoryReservationConsumerFactory());
+
+        return factory;
+    }
+
+    @Bean
+    public ConsumerFactory<String, PaymentSessionCreatedEvent>
+    paymentSessionCreatedConsumerFactory() {
+        JsonDeserializer<PaymentSessionCreatedEvent> deserializer =
+            new JsonDeserializer<>(
+                PaymentSessionCreatedEvent.class,
+                false
+            );
+
+        deserializer.addTrustedPackages("order_service.messaging.event");
+
+        return new DefaultKafkaConsumerFactory<>(
+            defaultConsumerProperties(paymentSessionCreatedConsumerGroup),
+            new StringDeserializer(),
+            deserializer
+        );
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, PaymentSessionCreatedEvent>
+    paymentSessionCreatedKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, PaymentSessionCreatedEvent> factory =
+            new ConcurrentKafkaListenerContainerFactory<>();
+
+        factory.setConsumerFactory(paymentSessionCreatedConsumerFactory());
 
         return factory;
     }

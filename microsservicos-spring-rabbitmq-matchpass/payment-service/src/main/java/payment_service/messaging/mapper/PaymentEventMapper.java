@@ -8,9 +8,8 @@ import payment_service.messaging.event.PaymentSessionCreatedEvent;
 
 @Component
 public class PaymentEventMapper {
-    public PaymentSessionRequest toPaymentSessionRequest(
-        PaymentRequestedEvent event
-    ) {
+
+    public PaymentSessionRequest toPaymentSessionRequest(PaymentRequestedEvent event) {
         return new PaymentSessionRequest(
             event.orderId(),
             event.userId(),

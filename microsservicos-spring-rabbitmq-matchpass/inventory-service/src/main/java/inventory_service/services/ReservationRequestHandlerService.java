@@ -3,30 +3,32 @@ package inventory_service.services;
 import inventory_service.messaging.event.InventoryReservationResultEvent;
 import inventory_service.messaging.event.OrderReservationItemEvent;
 import inventory_service.messaging.event.OrderReservationRequestedEvent;
+import inventory_service.messaging.publisher.InventoryReservationResultPublisher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
 @Service
 public class ReservationRequestHandlerService {
+
     private static final Logger logger =
         LoggerFactory.getLogger(ReservationRequestHandlerService.class);
 
     private final InventoryManagementService inventoryManagementService;
-    private final ApplicationEventPublisher applicationEventPublisher;
+    private final InventoryReservationResultPublisher inventoryReservationResultPublisher;
 
     public ReservationRequestHandlerService(
         InventoryManagementService inventoryManagementService,
-        ApplicationEventPublisher applicationEventPublisher
+        InventoryReservationResultPublisher inventoryReservationResultPublisher
     ) {
         this.inventoryManagementService = inventoryManagementService;
-        this.applicationEventPublisher = applicationEventPublisher;
+        this.inventoryReservationResultPublisher = inventoryReservationResultPublisher;
     }
 
     @Transactional
@@ -34,8 +36,9 @@ public class ReservationRequestHandlerService {
         List<OrderReservationItemEvent> requestedItems = event.items();
 
         logger.info(
-            "Solicitação de reserva recebida. Pedido: {}. Usuário: {}. Itens: {}.",
+            "Solicitação de reserva recebida. Pedido: {}. Evento: {}. Usuário: {}. Itens: {}.",
             event.orderId(),
+            event.eventId(),
             event.userId(),
             requestedItems
         );
@@ -49,31 +52,31 @@ public class ReservationRequestHandlerService {
             return;
         }
 
-        List<String> reservedReservationIds = new java.util.ArrayList<>();
+        List<String> createdReservationIds = new ArrayList<>();
 
         try {
             for (OrderReservationItemEvent item : requestedItems) {
                 String reservationId = inventoryManagementService.reserveTickets(
                         event.orderId(),
                         event.userId(),
-                        item.eventId(),
+                        event.eventId(),
                         item.sectorId(),
                         item.quantity()
                     )
                     .reservationId();
 
-                reservedReservationIds.add(reservationId);
+                createdReservationIds.add(reservationId);
             }
 
             publishSuccessEvent(
                 event.orderId(),
-                reservedReservationIds
+                createdReservationIds
             );
 
             logger.info(
                 "Todos os itens do pedido {} foram reservados. Reservas: {}.",
                 event.orderId(),
-                reservedReservationIds
+                createdReservationIds
             );
         } catch (RuntimeException exception) {
             String reason = exception.getMessage();
@@ -85,21 +88,21 @@ public class ReservationRequestHandlerService {
             logger.error(
                 "Falha ao reservar os itens do pedido {}. Liberando {} reserva(s). Motivo: {}.",
                 event.orderId(),
-                reservedReservationIds.size(),
+                createdReservationIds.size(),
                 reason
             );
 
-            releaseReservedReservations(reservedReservationIds);
+            releaseCreatedReservations(createdReservationIds);
 
             publishFailureEvent(
                 event.orderId(),
-                reservedReservationIds,
+                createdReservationIds,
                 reason
             );
         }
     }
 
-    private void releaseReservedReservations(List<String> reservationIds) {
+    private void releaseCreatedReservations(List<String> reservationIds) {
         for (String reservationId : reservationIds) {
             try {
                 inventoryManagementService.releaseReservation(reservationId);
@@ -127,7 +130,7 @@ public class ReservationRequestHandlerService {
                 LocalDateTime.now()
             );
 
-        applicationEventPublisher.publishEvent(event);
+        inventoryReservationResultPublisher.publish(event);
     }
 
     private void publishFailureEvent(
@@ -145,6 +148,6 @@ public class ReservationRequestHandlerService {
                 LocalDateTime.now()
             );
 
-        applicationEventPublisher.publishEvent(event);
+        inventoryReservationResultPublisher.publish(event);
     }
 }

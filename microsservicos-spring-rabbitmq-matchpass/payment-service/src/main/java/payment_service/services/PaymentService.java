@@ -59,8 +59,7 @@ public class PaymentService {
             PaymentSessionResponseDTO response =
                 paymentGateway.createPaymentSession(request);
 
-            PaymentSessionCreatedEvent sessionCreatedEvent =
-                paymentEventMapper.toPaymentSessionCreatedEvent(response);
+            PaymentSessionCreatedEvent sessionCreatedEvent = paymentEventMapper.toPaymentSessionCreatedEvent(response);
 
             paymentSessionCreatedPublisher.publish(sessionCreatedEvent);
         } catch (RuntimeException exception) {

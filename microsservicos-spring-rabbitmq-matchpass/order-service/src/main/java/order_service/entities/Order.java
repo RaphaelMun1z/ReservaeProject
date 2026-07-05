@@ -11,6 +11,7 @@ import java.util.List;
 @Entity
 @Table(name = "tb_orders")
 public class Order {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
@@ -23,6 +24,9 @@ public class Order {
 
     @Column(name = "total_amount", nullable = false, precision = 10, scale = 2)
     private BigDecimal totalAmount;
+
+    @Column(name = "payment_url", length = 1000)
+    private String paymentUrl;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
@@ -70,6 +74,10 @@ public class Order {
         return totalAmount;
     }
 
+    public String getPaymentUrl() {
+        return paymentUrl;
+    }
+
     public OrderStatusEnum getStatus() {
         return status;
     }
@@ -95,10 +103,15 @@ public class Order {
         this.status = status;
     }
 
+    public void attachPaymentUrl(String paymentUrl) {
+        this.paymentUrl = paymentUrl;
+    }
+
     public void attachReservationIds(List<String> reservationIds) {
         if (reservationIds == null || reservationIds.size() != items.size()) {
             throw new IllegalArgumentException(
-                "A quantidade de reservas não corresponde à quantidade de itens do pedido.");
+                "A quantidade de reservas não corresponde à quantidade de itens do pedido."
+            );
         }
 
         for (int index = 0; index < items.size(); index++) {

@@ -9,9 +9,7 @@ import ticket_service.services.TicketService;
 
 @Component
 public class OrderConfirmedConsumer {
-
-    private static final Logger logger =
-        LoggerFactory.getLogger(OrderConfirmedConsumer.class);
+    private static final Logger logger = LoggerFactory.getLogger(OrderConfirmedConsumer.class);
 
     private final TicketService ticketService;
 

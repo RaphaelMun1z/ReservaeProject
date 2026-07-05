@@ -24,6 +24,7 @@ import java.util.List;
 @SuppressWarnings("LoggingSimilarMessage")
 @Service
 public class OrderService {
+
     private static final Logger logger = LoggerFactory.getLogger(OrderService.class);
 
     private final OrderRepository orderRepository;
@@ -116,6 +117,32 @@ public class OrderService {
     }
 
     @Transactional
+    public void attachPaymentSession(PaymentSessionCreatedEvent event) {
+        Order order = findOrderEntityById(
+            event.orderId(),
+            "Nenhum pedido encontrado para vincular sessão de pagamento."
+        );
+
+        if (order.getStatus() != OrderStatusEnum.AWAITING_PAYMENT) {
+            logger.warn(
+                "Sessão de pagamento ignorada para o pedido {}. Status atual: {}.",
+                order.getId(),
+                order.getStatus()
+            );
+            return;
+        }
+
+        order.attachPaymentUrl(event.paymentUrl());
+        orderRepository.save(order);
+
+        logger.info(
+            "URL de pagamento vinculada ao pedido {}. Sessão: {}.",
+            order.getId(),
+            event.paymentId()
+        );
+    }
+
+    @Transactional
     public void confirmPayment(PaymentApprovedEvent event) {
         Order order = findOrderEntityById(
             event.orderId(),
@@ -197,7 +224,7 @@ public class OrderService {
             order.getId(),
             order.getTotalAmount(),
             order.getStatus(),
-            null,
+            order.getPaymentUrl(),
             orderItems
         );
     }
@@ -271,7 +298,7 @@ public class OrderService {
             order.getId(),
             order.getTotalAmount(),
             order.getStatus(),
-            null
+            order.getPaymentUrl()
         );
     }
 
