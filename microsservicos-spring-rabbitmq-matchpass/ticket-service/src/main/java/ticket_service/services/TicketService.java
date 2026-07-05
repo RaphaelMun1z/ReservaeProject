@@ -4,47 +4,82 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ticket_service.dtos.req.GenerateTicketRequestDTO;
 import ticket_service.entities.Ticket;
 import ticket_service.entities.enums.TicketStatusEnum;
 import ticket_service.exceptions.models.NotFoundException;
+import ticket_service.messaging.event.OrderConfirmedEvent;
+import ticket_service.messaging.event.OrderConfirmedItemEvent;
+import ticket_service.messaging.event.TicketGeneratedEvent;
+import ticket_service.messaging.event.TicketGeneratedItemEvent;
+import ticket_service.messaging.publisher.TicketGeneratedPublisher;
 import ticket_service.repositories.TicketRepository;
 
+import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class TicketService {
-    private final TicketRepository ticketRepository;
 
-    public TicketService(TicketRepository ticketRepository) {
+    private final TicketRepository ticketRepository;
+    private final QrCodeService qrCodeService;
+    private final TicketGeneratedPublisher ticketGeneratedPublisher;
+
+    public TicketService(
+        TicketRepository ticketRepository,
+        QrCodeService qrCodeService,
+        TicketGeneratedPublisher ticketGeneratedPublisher
+    ) {
         this.ticketRepository = ticketRepository;
+        this.qrCodeService = qrCodeService;
+        this.ticketGeneratedPublisher = ticketGeneratedPublisher;
     }
 
     @Transactional
-    public List<Ticket> generateFromOrder(GenerateTicketRequestDTO dto) {
-        List<Ticket> ticketsToGenerate = dto.ticketsId()
-            .stream()
-            .map(ticketId -> {
+    public List<Ticket> generateFromConfirmedOrder(OrderConfirmedEvent event) {
+        if (event.items() == null || event.items().isEmpty()) {
+            throw new IllegalArgumentException("O pedido confirmado não possui itens para gerar ingressos.");
+        }
+
+        List<Ticket> ticketsToGenerate = new ArrayList<>();
+
+        for (OrderConfirmedItemEvent item : event.items()) {
+            for (int index = 0; index < item.quantity(); index++) {
+                String qrCodeHash = qrCodeService.generateQrCodeHash(
+                    event.orderId(),
+                    item.orderItemId(),
+                    item.reservationId(),
+                    event.userId(),
+                    event.eventId(),
+                    item.sectorId()
+                );
+
                 Ticket ticket = new Ticket(
-                    dto.orderId(),
-                    dto.eventId(),
-                    dto.userId(),
-                    dto.sectorId(),
-                    ticketId,
-                    null,
+                    event.orderId(),
+                    event.eventId(),
+                    event.userId(),
+                    item.sectorId(),
+                    item.reservationId(),
+                    item.ticketType(),
+                    qrCodeHash,
                     TicketStatusEnum.VALID
                 );
 
-                String rawData = dto.orderId() + ticketId + System.currentTimeMillis();
-                String qrHash = java.util.UUID.nameUUIDFromBytes(rawData.getBytes())
-                    .toString();
-                ticket.setQrCodeHash(qrHash);
+                ticketsToGenerate.add(ticket);
+            }
+        }
 
-                return ticket;
-            })
-            .toList();
+        List<Ticket> generatedTickets = ticketRepository.saveAll(ticketsToGenerate);
 
-        return ticketRepository.saveAll(ticketsToGenerate);
+        ticketGeneratedPublisher.publish(
+            toTicketGeneratedEvent(
+                event,
+                generatedTickets
+            )
+        );
+
+        return generatedTickets;
     }
 
     public Ticket findById(String id) {
@@ -58,7 +93,10 @@ public class TicketService {
         return ticketRepository.findByUserId(userId);
     }
 
-    public Page<Ticket> findByEventId(String eventId, Pageable pageable) {
+    public Page<Ticket> findByEventId(
+        String eventId,
+        Pageable pageable
+    ) {
         return ticketRepository.findByEventId(
             eventId,
             pageable
@@ -71,6 +109,30 @@ public class TicketService {
             .orElseThrow(
                 () -> new NotFoundException("Ticket não encontrado.")
             );
+
         ticket.revokeTicket();
+    }
+
+    private TicketGeneratedEvent toTicketGeneratedEvent(
+        OrderConfirmedEvent orderConfirmedEvent,
+        List<Ticket> tickets
+    ) {
+        List<TicketGeneratedItemEvent> generatedItems = tickets.stream()
+            .map(ticket -> new TicketGeneratedItemEvent(
+                ticket.getId(),
+                ticket.getSectorId(),
+                ticket.getTicketType(),
+                ticket.getQrCodeHash()
+            ))
+            .toList();
+
+        return new TicketGeneratedEvent(
+            UUID.randomUUID().toString(),
+            orderConfirmedEvent.orderId(),
+            orderConfirmedEvent.eventId(),
+            orderConfirmedEvent.userId(),
+            generatedItems,
+            LocalDateTime.now()
+        );
     }
 }

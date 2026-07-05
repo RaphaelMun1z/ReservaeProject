@@ -3,24 +3,48 @@ package ticket_service.entities;
 import jakarta.persistence.*;
 import ticket_service.entities.enums.TicketStatusEnum;
 
+import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "tb_tickets")
 public class Ticket {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
 
+    @Column(name = "order_id", nullable = false)
     private String orderId;
+
+    @Column(name = "event_id", nullable = false)
     private String eventId;
+
+    @Column(name = "user_id", nullable = false)
     private String userId;
+
+    @Column(name = "sector_id", nullable = false)
     private String sectorId;
-    private String ticketId;
+
+    @Column(name = "reservation_id", nullable = false)
+    private String reservationId;
+
+    @Column(name = "ticket_type", nullable = false)
+    private String ticketType;
+
+    @Column(name = "qr_code_hash", nullable = false, unique = true)
     private String qrCodeHash;
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "status", nullable = false)
     private TicketStatusEnum status;
 
-    public Ticket() {
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "used_at")
+    private LocalDateTime usedAt;
+
+    protected Ticket() {
     }
 
     public Ticket(
@@ -28,7 +52,8 @@ public class Ticket {
         String eventId,
         String userId,
         String sectorId,
-        String ticketId,
+        String reservationId,
+        String ticketType,
         String qrCodeHash,
         TicketStatusEnum status
     ) {
@@ -36,9 +61,11 @@ public class Ticket {
         this.eventId = eventId;
         this.userId = userId;
         this.sectorId = sectorId;
-        this.ticketId = ticketId;
+        this.reservationId = reservationId;
+        this.ticketType = ticketType;
         this.qrCodeHash = qrCodeHash;
         this.status = status;
+        this.createdAt = LocalDateTime.now();
     }
 
     public String getId() {
@@ -61,33 +88,50 @@ public class Ticket {
         return sectorId;
     }
 
-    public String getTicketId() {
-        return ticketId;
+    public String getReservationId() {
+        return reservationId;
+    }
+
+    public String getTicketType() {
+        return ticketType;
     }
 
     public String getQrCodeHash() {
         return qrCodeHash;
     }
 
-    public void setQrCodeHash(String qrCodeHash) {
-        this.qrCodeHash = qrCodeHash;
-    }
-
     public TicketStatusEnum getStatus() {
         return status;
     }
 
-    // Métodos Auxiliares
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUsedAt() {
+        return usedAt;
+    }
+
     public void revokeTicket() {
+        if (TicketStatusEnum.USED.equals(this.status)) {
+            throw new IllegalStateException("Ingresso já utilizado não pode ser revogado.");
+        }
+
         this.status = TicketStatusEnum.REVOKED;
     }
 
     public void useTicket() {
+        if (!TicketStatusEnum.VALID.equals(this.status)) {
+            throw new IllegalStateException("Ingresso não está válido para uso.");
+        }
+
         this.status = TicketStatusEnum.USED;
+        this.usedAt = LocalDateTime.now();
     }
 
     public void validateTicket() {
         this.status = TicketStatusEnum.VALID;
+        this.usedAt = null;
     }
 
     @Override

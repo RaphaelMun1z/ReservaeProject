@@ -1,10 +1,10 @@
 package ticket_service.dtos.res;
 
-import ticket_service.entities.enums.AccessResultEnum;
+import ticket_service.entities.enums.AccessStatusEnum;
 
-public record AccessValidationResponse(
+public record AccessValidationResponseDTO(
     Boolean isAllowed,
-    AccessResultEnum result,
+    AccessStatusEnum result,
     String message,
     String sectorName,
     String ticketId
