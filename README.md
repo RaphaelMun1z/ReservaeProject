@@ -128,4 +128,5 @@ O projeto utiliza a estratégia de um banco de dados independente por serviço, 
 
 ### Passo a Passo
 
+stripe listen --forward-to localhost:8400/payment-service/api/payments/webhooks/v1/stripe
 ...

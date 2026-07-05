@@ -1,19 +1,24 @@
 package notification_service.services;
 
+import notification_service.messaging.event.PaymentSessionCreatedEvent;
 import notification_service.templates.EmailItem;
 import notification_service.templates.EmailTemplate;
 import notification_service.templates.EmailTemplateFactory;
 import notification_service.templates.PaymentEmailTemplateFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClient;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
 @Service
 public class NotificationService {
+    private static final Logger logger = LoggerFactory.getLogger(NotificationService.class);
 
     private final RestClient restClient;
     private final EmailTemplateFactory templateFactory;
@@ -64,6 +69,50 @@ public class NotificationService {
             destinatario,
             nome,
             template
+        );
+    }
+
+    public void enviarPagamentoPendente(PaymentSessionCreatedEvent event) {
+        String nomeDestinatario = "Nome destinatário";
+        String dataVencimento = "Data de vencimento";
+        String valorPendente = "Valor pendente";
+        List<EmailItem> itens = new ArrayList<>();
+        itens.add(
+            new EmailItem(
+                "https://cdn-icons-png.flaticon.com/512/708/708904.png",
+                "Ingresso Show do Natanzinho Lima",
+                "Camarote - Arena Santos",
+                1,
+                "R$ 499,90",
+                "R$ 499,90"
+            )
+        );
+        String valorTotal = "Valor Total";
+        String linkPedido = "Link Pedido";
+
+        EmailTemplate template = paymentTemplateFactory.criarPagamentoPendente(
+            nomeDestinatario,
+            event.orderId(),
+            dataVencimento,
+            valorPendente,
+            itens,
+            valorTotal,
+            event.paymentUrl(),
+            linkPedido,
+            senderName
+        );
+
+        String destinatario = "raphaelmunizvarela@gmail.com";
+        enviarTemplate(
+            destinatario,
+            nomeDestinatario,
+            template
+        );
+
+        logger.info(
+            "E-mail enviado para {} associado ao pedido {}.",
+            destinatario,
+            event.orderId()
         );
     }
 

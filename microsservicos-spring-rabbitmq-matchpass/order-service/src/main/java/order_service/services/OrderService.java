@@ -24,7 +24,6 @@ import java.util.List;
 @SuppressWarnings("LoggingSimilarMessage")
 @Service
 public class OrderService {
-
     private static final Logger logger = LoggerFactory.getLogger(OrderService.class);
 
     private final OrderRepository orderRepository;

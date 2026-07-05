@@ -36,3 +36,12 @@ brevo:
   api:
     url: https://api.brevo.com/v3
     key: ${BREVO_API_KEY}
+
+matchpass:
+  config:
+    kafka:
+      server-url: localhost:29092
+      consumer-groups:
+        sessao-pagamento-criada: notification-service-payment-session-created
+      topics:
+        sessao-pagamento-criada: matchpass.payment.session-created.v1
