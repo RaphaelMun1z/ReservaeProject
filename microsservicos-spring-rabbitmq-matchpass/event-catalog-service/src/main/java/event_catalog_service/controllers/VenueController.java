@@ -6,6 +6,7 @@ import event_catalog_service.dtos.req.SectorRequestDTO;
 import event_catalog_service.dtos.res.SectorResponseDTO;
 import event_catalog_service.dtos.res.VenueResponseDTO;
 import event_catalog_service.services.VenueService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -46,7 +47,7 @@ public class VenueController implements VenueContract {
 
     @Override
     @PostMapping("/v1")
-    public ResponseEntity<VenueResponseDTO> createVenue(@RequestBody CreateVenueRequestDTO dto) {
+    public ResponseEntity<VenueResponseDTO> createVenue(@Valid @RequestBody CreateVenueRequestDTO dto) {
         return ResponseEntity.ok(venueService.createVenue(dto));
     }
 
@@ -54,12 +55,9 @@ public class VenueController implements VenueContract {
     @PostMapping("/v1/{id}/add-sector")
     public ResponseEntity<SectorResponseDTO> addSectorToVenue(
         @PathVariable String id,
-        @RequestBody SectorRequestDTO dto
+        @Valid @RequestBody SectorRequestDTO dto
     ) {
-        return ResponseEntity.ok(venueService.addSectorToVenue(
-            dto,
-            id
-        ));
+        return ResponseEntity.ok(venueService.addSectorToVenue(dto, id));
     }
 
     @Override

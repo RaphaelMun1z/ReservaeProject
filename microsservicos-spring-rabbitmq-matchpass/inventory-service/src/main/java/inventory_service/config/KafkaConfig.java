@@ -27,6 +27,7 @@ public class KafkaConfig {
     @Bean
     public ProducerFactory<String, Object> producerFactory() {
         Map<String, Object> properties = new HashMap<>();
+
         properties.put(
             ProducerConfig.BOOTSTRAP_SERVERS_CONFIG,
             kafkaServerUrl
@@ -43,17 +44,49 @@ public class KafkaConfig {
             JsonSerializer.ADD_TYPE_INFO_HEADERS,
             false
         );
+
         return new DefaultKafkaProducerFactory<>(properties);
     }
 
     @Bean
-    public KafkaTemplate<String, Object> kafkaTemplate(ProducerFactory<String, Object> producerFactory) {
+    public KafkaTemplate<String, Object> kafkaTemplate(
+        ProducerFactory<String, Object> producerFactory
+    ) {
         return new KafkaTemplate<>(producerFactory);
     }
 
     @Bean
-    public ConsumerFactory<String, OrderReservationRequestedEvent> orderReservationConsumerFactory() {
+    public ConsumerFactory<String, OrderReservationRequestedEvent>
+    orderReservationConsumerFactory() {
+        JsonDeserializer<OrderReservationRequestedEvent> deserializer =
+            new JsonDeserializer<>(
+                OrderReservationRequestedEvent.class,
+                false
+            );
+
+        deserializer.addTrustedPackages("inventory_service.messaging.event");
+
+        return new DefaultKafkaConsumerFactory<>(
+            defaultConsumerProperties(),
+            new StringDeserializer(),
+            deserializer
+        );
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, OrderReservationRequestedEvent>
+    orderReservationKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, OrderReservationRequestedEvent> factory =
+            new ConcurrentKafkaListenerContainerFactory<>();
+
+        factory.setConsumerFactory(orderReservationConsumerFactory());
+
+        return factory;
+    }
+
+    private Map<String, Object> defaultConsumerProperties() {
         Map<String, Object> properties = new HashMap<>();
+
         properties.put(
             ConsumerConfig.BOOTSTRAP_SERVERS_CONFIG,
             kafkaServerUrl
@@ -70,22 +103,7 @@ public class KafkaConfig {
             ConsumerConfig.KEY_DESERIALIZER_CLASS_CONFIG,
             StringDeserializer.class
         );
-        JsonDeserializer<OrderReservationRequestedEvent> valueDeserializer = new JsonDeserializer<>(
-            OrderReservationRequestedEvent.class,
-            false
-        );
-        valueDeserializer.addTrustedPackages("inventory_service.messaging.event");
-        return new DefaultKafkaConsumerFactory<>(
-            properties,
-            new StringDeserializer(),
-            valueDeserializer
-        );
-    }
 
-    @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, OrderReservationRequestedEvent> orderReservationKafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, OrderReservationRequestedEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
-        factory.setConsumerFactory(orderReservationConsumerFactory());
-        return factory;
+        return properties;
     }
 }

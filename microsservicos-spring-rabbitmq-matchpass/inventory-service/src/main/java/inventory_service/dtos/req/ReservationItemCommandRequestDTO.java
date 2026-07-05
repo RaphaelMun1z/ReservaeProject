@@ -1,8 +1,8 @@
 package inventory_service.dtos.req;
 
-public record TicketReservationRequestDTO(
+public record ReservationItemCommandRequestDTO(
     String eventId,
     String sectorId,
-    String ticketId
+    int quantity
 ) {
 }

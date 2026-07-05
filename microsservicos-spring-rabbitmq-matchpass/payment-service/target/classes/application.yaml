@@ -8,12 +8,17 @@ spring:
     import: optional:configserver:http://localhost:8888
   profiles:
     active: dev
+  kafka:
+    bootstrap-servers: ${matchpass.config.kafka.server-url}
+    admin:
+      fail-fast: false
 
 matchpass:
   config:
     kafka:
       server-url: localhost:29092
-      consumer-group: payment-service
+      consumer-groups:
+        pagamento-solicitado: payment-service-payment-requested
       topics:
         pagamento-solicitado: matchpass.payment.requested.v1
         sessao-pagamento-criada: matchpass.payment.session-created.v1

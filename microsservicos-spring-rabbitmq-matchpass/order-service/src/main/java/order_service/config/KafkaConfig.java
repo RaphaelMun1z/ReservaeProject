@@ -3,6 +3,7 @@ package order_service.config;
 import order_service.messaging.event.InventoryReservationResultEvent;
 import order_service.messaging.event.PaymentApprovedEvent;
 import order_service.messaging.event.PaymentFailedEvent;
+import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -23,8 +24,29 @@ public class KafkaConfig {
     @Value("${matchpass.config.kafka.server-url}")
     private String kafkaServerUrl;
 
-    @Value("${matchpass.config.kafka.consumer-group}")
-    private String consumerGroup;
+    @Value("${matchpass.config.kafka.consumer-groups.resultado-reserva}")
+    private String reservationResultConsumerGroup;
+
+    @Value("${matchpass.config.kafka.consumer-groups.pagamento-aprovado}")
+    private String paymentApprovedConsumerGroup;
+
+    @Value("${matchpass.config.kafka.consumer-groups.pagamento-falhou}")
+    private String paymentFailedConsumerGroup;
+
+    @Bean
+    public KafkaAdmin kafkaAdmin() {
+        Map<String, Object> properties = new HashMap<>();
+
+        properties.put(
+            AdminClientConfig.BOOTSTRAP_SERVERS_CONFIG,
+            kafkaServerUrl
+        );
+
+        KafkaAdmin kafkaAdmin = new KafkaAdmin(properties);
+        kafkaAdmin.setFatalIfBrokerNotAvailable(false);
+
+        return kafkaAdmin;
+    }
 
     @Bean
     public ProducerFactory<String, Object> producerFactory() {
@@ -59,31 +81,35 @@ public class KafkaConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, Object> kafkaTemplate(ProducerFactory<String, Object> producerFactory) {
+    public KafkaTemplate<String, Object> kafkaTemplate(
+        ProducerFactory<String, Object> producerFactory
+    ) {
         return new KafkaTemplate<>(producerFactory);
     }
 
     @Bean
-    public ConsumerFactory<String, InventoryReservationResultEvent> inventoryReservationConsumerFactory() {
-        Map<String, Object> properties = defaultConsumerProperties();
-
-        JsonDeserializer<InventoryReservationResultEvent> deserializer = new JsonDeserializer<>(
-            InventoryReservationResultEvent.class,
-            false
-        );
+    public ConsumerFactory<String, InventoryReservationResultEvent>
+    inventoryReservationConsumerFactory() {
+        JsonDeserializer<InventoryReservationResultEvent> deserializer =
+            new JsonDeserializer<>(
+                InventoryReservationResultEvent.class,
+                false
+            );
 
         deserializer.addTrustedPackages("order_service.messaging.event");
 
         return new DefaultKafkaConsumerFactory<>(
-            properties,
+            defaultConsumerProperties(reservationResultConsumerGroup),
             new StringDeserializer(),
             deserializer
         );
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, InventoryReservationResultEvent> inventoryReservationKafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, InventoryReservationResultEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
+    public ConcurrentKafkaListenerContainerFactory<String, InventoryReservationResultEvent>
+    inventoryReservationKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, InventoryReservationResultEvent> factory =
+            new ConcurrentKafkaListenerContainerFactory<>();
 
         factory.setConsumerFactory(inventoryReservationConsumerFactory());
 
@@ -91,26 +117,28 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ConsumerFactory<String, PaymentApprovedEvent> paymentApprovedConsumerFactory() {
-        Map<String, Object> properties = defaultConsumerProperties();
-
-        JsonDeserializer<PaymentApprovedEvent> deserializer = new JsonDeserializer<>(
-            PaymentApprovedEvent.class,
-            false
-        );
+    public ConsumerFactory<String, PaymentApprovedEvent>
+    paymentApprovedConsumerFactory() {
+        JsonDeserializer<PaymentApprovedEvent> deserializer =
+            new JsonDeserializer<>(
+                PaymentApprovedEvent.class,
+                false
+            );
 
         deserializer.addTrustedPackages("order_service.messaging.event");
 
         return new DefaultKafkaConsumerFactory<>(
-            properties,
+            defaultConsumerProperties(paymentApprovedConsumerGroup),
             new StringDeserializer(),
             deserializer
         );
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, PaymentApprovedEvent> paymentApprovedKafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, PaymentApprovedEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
+    public ConcurrentKafkaListenerContainerFactory<String, PaymentApprovedEvent>
+    paymentApprovedKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, PaymentApprovedEvent> factory =
+            new ConcurrentKafkaListenerContainerFactory<>();
 
         factory.setConsumerFactory(paymentApprovedConsumerFactory());
 
@@ -118,33 +146,35 @@ public class KafkaConfig {
     }
 
     @Bean
-    public ConsumerFactory<String, PaymentFailedEvent> paymentFailedConsumerFactory() {
-        Map<String, Object> properties = defaultConsumerProperties();
-
-        JsonDeserializer<PaymentFailedEvent> deserializer = new JsonDeserializer<>(
-            PaymentFailedEvent.class,
-            false
-        );
+    public ConsumerFactory<String, PaymentFailedEvent>
+    paymentFailedConsumerFactory() {
+        JsonDeserializer<PaymentFailedEvent> deserializer =
+            new JsonDeserializer<>(
+                PaymentFailedEvent.class,
+                false
+            );
 
         deserializer.addTrustedPackages("order_service.messaging.event");
 
         return new DefaultKafkaConsumerFactory<>(
-            properties,
+            defaultConsumerProperties(paymentFailedConsumerGroup),
             new StringDeserializer(),
             deserializer
         );
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, PaymentFailedEvent> paymentFailedKafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, PaymentFailedEvent> factory = new ConcurrentKafkaListenerContainerFactory<>();
+    public ConcurrentKafkaListenerContainerFactory<String, PaymentFailedEvent>
+    paymentFailedKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, PaymentFailedEvent> factory =
+            new ConcurrentKafkaListenerContainerFactory<>();
 
         factory.setConsumerFactory(paymentFailedConsumerFactory());
 
         return factory;
     }
 
-    private Map<String, Object> defaultConsumerProperties() {
+    private Map<String, Object> defaultConsumerProperties(String consumerGroup) {
         Map<String, Object> properties = new HashMap<>();
 
         properties.put(

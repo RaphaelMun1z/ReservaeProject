@@ -25,6 +25,23 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
+    @ExceptionHandler(ExternalServiceException.class)
+    public final ResponseEntity<ExceptionResponse> externalServiceException(
+        ExternalServiceException ex,
+        WebRequest request
+    ) {
+        ExceptionResponse exceptionResponse = new ExceptionResponse(
+            LocalDateTime.now().toString(),
+            List.of(ex.getMessage()),
+            request.getDescription(false)
+        );
+
+        return new ResponseEntity<>(
+            exceptionResponse,
+            HttpStatus.SERVICE_UNAVAILABLE
+        );
+    }
+
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
         MethodArgumentNotValidException ex,
@@ -171,7 +188,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         Throwable causaRaiz = ex.getMostSpecificCause();
         String mensagemCausa = causaRaiz.getMessage().toLowerCase();
 
-        if (mensagemCausa.contains("unique constraint") || mensagemCausa.contains("duplicate entry") || mensagemCausa.contains("viola a restrição de unicidade")) {
+        if (mensagemCausa.contains("unique constraint") || mensagemCausa.contains(
+            "duplicate entry") || mensagemCausa.contains("viola a restrição de unicidade")) {
 
             mensagemAmigavel = "Recurso já existe.";
             status = HttpStatus.CONFLICT;

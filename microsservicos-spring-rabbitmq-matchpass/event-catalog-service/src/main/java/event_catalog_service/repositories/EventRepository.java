@@ -17,7 +17,7 @@ public interface EventRepository extends JpaRepository<Event, String> {
         
             v.name AS venueName,
             v.city AS venueCity,
-            v.state AS venueState,
+            v.state AS venueState
         
         FROM tb_events e
         

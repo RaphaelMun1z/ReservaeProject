@@ -6,6 +6,7 @@ import event_catalog_service.dtos.req.SectorPricingRequestDTO;
 import event_catalog_service.dtos.res.EventDetailsResponseDTO;
 import event_catalog_service.dtos.res.SectorPricingResponseDTO;
 import event_catalog_service.services.EventCatalogService;
+import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,7 +27,7 @@ public class EventCatalogController implements EventCatalogContract {
 
     @Override
     @PostMapping("/v1")
-    public ResponseEntity<EventDetailsResponseDTO> createEvent(@RequestBody CreateEventRequestDTO dto) {
+    public ResponseEntity<EventDetailsResponseDTO> createEvent(@Valid @RequestBody CreateEventRequestDTO dto) {
         return ResponseEntity.ok().body(eventCatalogService.registerEvent(dto));
     }
 
@@ -34,7 +35,7 @@ public class EventCatalogController implements EventCatalogContract {
     @PostMapping("/v1/{id}/add-sector")
     public ResponseEntity<SectorPricingResponseDTO> addSectorToAnEvent(
         @PathVariable String id,
-        @RequestBody SectorPricingRequestDTO dto
+        @Valid @RequestBody SectorPricingRequestDTO dto
     ) {
         return ResponseEntity.ok().body(eventCatalogService.addSectorToAnEvent(
             id,

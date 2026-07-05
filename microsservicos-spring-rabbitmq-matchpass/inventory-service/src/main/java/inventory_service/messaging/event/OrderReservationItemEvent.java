@@ -1,7 +1,8 @@
 package inventory_service.messaging.event;
 
 public record OrderReservationItemEvent(
+    String eventId,
     String sectorId,
-    String ticketId
+    int quantity
 ) {
 }

@@ -76,7 +76,7 @@ public class EventSectorPricing {
 
     // --- MÉTODOS DE COMPORTAMENTO ---
 
-    public Boolean getAvailable() {
+    public Boolean isAvailable() {
         return isAvailable;
     }
 

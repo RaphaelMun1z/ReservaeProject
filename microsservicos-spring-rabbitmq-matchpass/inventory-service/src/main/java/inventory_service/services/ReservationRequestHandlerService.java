@@ -10,7 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -32,47 +31,49 @@ public class ReservationRequestHandlerService {
 
     @Transactional
     public void handle(OrderReservationRequestedEvent event) {
-        List<String> requestedTicketsId = event.items()
-            .stream()
-            .map(OrderReservationItemEvent::ticketId)
-            .toList();
+        List<OrderReservationItemEvent> requestedItems = event.items();
 
         logger.info(
-            "Solicitação de reserva recebida. Pedido: {}. Usuário: {}. Assentos: {}.",
+            "Solicitação de reserva recebida. Pedido: {}. Usuário: {}. Itens: {}.",
             event.orderId(),
             event.userId(),
-            requestedTicketsId
+            requestedItems
         );
 
-        if (requestedTicketsId.isEmpty()) {
+        if (requestedItems == null || requestedItems.isEmpty()) {
             publishFailureEvent(
                 event.orderId(),
-                requestedTicketsId,
-                "O pedido não possui assentos para reservar."
+                List.of(),
+                "O pedido não possui ingressos para reservar."
             );
             return;
         }
 
-        List<String> reservedTicketsId = new ArrayList<>();
+        List<String> reservedReservationIds = new java.util.ArrayList<>();
 
         try {
-            for (String ticketId : requestedTicketsId) {
-                inventoryManagementService.tryReserveTicket(
-                    ticketId,
-                    event.userId()
-                );
+            for (OrderReservationItemEvent item : requestedItems) {
+                String reservationId = inventoryManagementService.reserveTickets(
+                        event.orderId(),
+                        event.userId(),
+                        item.eventId(),
+                        item.sectorId(),
+                        item.quantity()
+                    )
+                    .reservationId();
 
-                reservedTicketsId.add(ticketId);
+                reservedReservationIds.add(reservationId);
             }
 
             publishSuccessEvent(
                 event.orderId(),
-                reservedTicketsId
+                reservedReservationIds
             );
 
             logger.info(
-                "Todos os assentos do pedido {} foram reservados.",
-                event.orderId()
+                "Todos os itens do pedido {} foram reservados. Reservas: {}.",
+                event.orderId(),
+                reservedReservationIds
             );
         } catch (RuntimeException exception) {
             String reason = exception.getMessage();
@@ -82,47 +83,46 @@ public class ReservationRequestHandlerService {
             }
 
             logger.error(
-                "Falha ao reservar os assentos do pedido {}. Liberando {} assento(s). Motivo: {}.",
+                "Falha ao reservar os itens do pedido {}. Liberando {} reserva(s). Motivo: {}.",
                 event.orderId(),
-                reservedTicketsId.size(),
+                reservedReservationIds.size(),
                 reason
             );
 
-            releaseReservedTickets(reservedTicketsId);
+            releaseReservedReservations(reservedReservationIds);
 
             publishFailureEvent(
                 event.orderId(),
-                requestedTicketsId,
+                reservedReservationIds,
                 reason
             );
         }
     }
 
-    private void releaseReservedTickets(List<String> reservedTicketsId) {
-        reservedTicketsId.forEach(ticketId -> {
+    private void releaseReservedReservations(List<String> reservationIds) {
+        for (String reservationId : reservationIds) {
             try {
-                inventoryManagementService.releaseTicket(ticketId);
+                inventoryManagementService.releaseReservation(reservationId);
             } catch (RuntimeException exception) {
                 logger.error(
-                    "Falha ao liberar o assento {} durante a compensação. Motivo: {}.",
-                    ticketId,
+                    "Falha ao liberar a reserva {} durante a compensação. Motivo: {}.",
+                    reservationId,
                     exception.getMessage()
                 );
             }
-        });
+        }
     }
 
     private void publishSuccessEvent(
         String orderId,
-        List<String> ticketsId
+        List<String> reservationIds
     ) {
         InventoryReservationResultEvent event =
             new InventoryReservationResultEvent(
-                UUID.randomUUID()
-                    .toString(),
+                UUID.randomUUID().toString(),
                 orderId,
                 true,
-                List.copyOf(ticketsId),
+                List.copyOf(reservationIds),
                 null,
                 LocalDateTime.now()
             );
@@ -132,16 +132,15 @@ public class ReservationRequestHandlerService {
 
     private void publishFailureEvent(
         String orderId,
-        List<String> ticketsId,
+        List<String> reservationIds,
         String reason
     ) {
         InventoryReservationResultEvent event =
             new InventoryReservationResultEvent(
-                UUID.randomUUID()
-                    .toString(),
+                UUID.randomUUID().toString(),
                 orderId,
                 false,
-                List.copyOf(ticketsId),
+                List.copyOf(reservationIds),
                 reason,
                 LocalDateTime.now()
             );

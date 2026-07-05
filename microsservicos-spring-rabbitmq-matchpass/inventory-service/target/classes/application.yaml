@@ -8,6 +8,10 @@ spring:
     import: optional:configserver:http://localhost:8888
   profiles:
     active: dev
+  kafka:
+    bootstrap-servers: ${matchpass.config.kafka.server-url}
+    admin:
+      fail-fast: false
 
 springdoc:
   api-docs:

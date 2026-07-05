@@ -45,7 +45,8 @@ public class EventCatalogService {
 
     public EventDetailsResponseDTO findEventById(String eventId) {
         EventDetailsProjection event = eventQuery.getEventDetailsById(eventId);
-        List<EventSectorDetailsDTO> eventSectorsDetailsDTO = eventSectorPricingRepository.findEventSectorsDetailsByEventId(eventId);
+        List<EventSectorDetailsDTO> eventSectorsDetailsDTO = eventSectorPricingRepository.findEventSectorsDetailsByEventId(
+            eventId);
         return mapper.toEventDetailsResponseDTO(
             event,
             eventSectorsDetailsDTO
@@ -75,7 +76,8 @@ public class EventCatalogService {
                 .toList();
         eventSectorPricingRepository.saveAll(eventSectorPricingList);
 
-        List<EventSectorDetailsDTO> eventSectorsDetails = eventSectorPricingRepository.findEventSectorsDetailsByEventId(savedEvent.getId());
+        List<EventSectorDetailsDTO> eventSectorsDetails = eventSectorPricingRepository.findEventSectorsDetailsByEventId(
+            savedEvent.getId());
 
         return mapper.toEventDetailsResponseDTO(
             savedEvent,

@@ -3,7 +3,6 @@ package payment_service.exceptions;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import org.jspecify.annotations.NonNull;
-import org.springframework.context.support.DefaultMessageSourceResolvable;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.http.HttpHeaders;
@@ -19,69 +18,11 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 import payment_service.exceptions.models.*;
 
 import java.nio.file.AccessDeniedException;
-import java.time.Instant;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
-    @ExceptionHandler(IllegalArgumentException.class)
-    public ResponseEntity<Map<String, Object>> handleBadRequest(IllegalArgumentException exception) {
-        return ResponseEntity.badRequest().body(
-            Map.of(
-                "timestamp",
-                Instant.now().toString(),
-                "status",
-                HttpStatus.BAD_REQUEST.value(),
-                "error",
-                "Bad Request",
-                "message",
-                exception.getMessage()
-            )
-        );
-    }
-
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidation(MethodArgumentNotValidException exception) {
-        String message = exception.getBindingResult()
-            .getFieldErrors()
-            .stream()
-            .findFirst()
-            .map(DefaultMessageSourceResolvable::getDefaultMessage)
-            .orElse("Dados inválidos.");
-
-        return ResponseEntity.badRequest().body(
-            Map.of(
-                "timestamp",
-                Instant.now().toString(),
-                "status",
-                HttpStatus.BAD_REQUEST.value(),
-                "error",
-                "Validation Error",
-                "message",
-                message
-            )
-        );
-    }
-
-    @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<Map<String, Object>> handleInternalError(IllegalStateException exception) {
-        return ResponseEntity.status(HttpStatus.BAD_GATEWAY).body(
-            Map.of(
-                "timestamp",
-                Instant.now().toString(),
-                "status",
-                HttpStatus.BAD_GATEWAY.value(),
-                "error",
-                "Payment Provider Error",
-                "message",
-                exception.getMessage()
-            )
-        );
-    }
-
     @Override
     protected ResponseEntity<Object> handleMethodArgumentNotValid(
         MethodArgumentNotValidException ex,
@@ -89,49 +30,77 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         @NonNull HttpStatusCode status,
         @NonNull WebRequest request
     ) {
+        List<String> mensagens = ex.getBindingResult()
+            .getFieldErrors()
+            .stream()
+            .map(error -> {
+                String fieldName = error.getField();
+                String errorMessage = error.getDefaultMessage();
 
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getFieldErrors().forEach(error -> {
-            String fieldName = error.getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(
-                fieldName,
-                errorMessage
-            );
-        });
+                return fieldName + ": " + errorMessage;
+            })
+            .toList();
+
+        ExceptionResponse exceptionResponse = new ExceptionResponse(
+            LocalDateTime.now().toString(),
+            mensagens,
+            request.getDescription(false)
+        );
 
         return new ResponseEntity<>(
-            errors,
+            exceptionResponse,
             HttpStatus.BAD_REQUEST
         );
     }
 
     @ExceptionHandler(BadCredentialsException.class)
-    public final ResponseEntity<ExceptionResponse> badCredentialsException(Exception ex, WebRequest request) {
+    public final ResponseEntity<ExceptionResponse> badCredentialsException(
+        BadCredentialsException ex,
+        WebRequest request
+    ) {
         ExceptionResponse exceptionResponse = new ExceptionResponse(
             LocalDateTime.now().toString(),
             List.of(ex.getMessage()),
             request.getDescription(false)
         );
+
         return new ResponseEntity<>(
             exceptionResponse,
             HttpStatus.UNAUTHORIZED
         );
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public final ResponseEntity<ExceptionResponse> illegalArgumentException(
+        IllegalArgumentException ex,
+        WebRequest request
+    ) {
+        ExceptionResponse exceptionResponse = new ExceptionResponse(
+            LocalDateTime.now().toString(),
+            List.of(ex.getMessage()),
+            request.getDescription(false)
+        );
+
+        return new ResponseEntity<>(
+            exceptionResponse,
+            HttpStatus.BAD_REQUEST
+        );
+    }
+
     @ExceptionHandler(IllegalStateException.class)
-    public ResponseEntity<Map<String, Object>> handleIllegalStateException(IllegalStateException exception) {
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(
-            Map.of(
-                "timestamp",
-                Instant.now().toString(),
-                "status",
-                HttpStatus.CONFLICT.value(),
-                "error",
-                "Conflict",
-                "message",
-                exception.getMessage()
-            )
+    public final ResponseEntity<ExceptionResponse> illegalStateException(
+        IllegalStateException ex,
+        WebRequest request
+    ) {
+        ExceptionResponse exceptionResponse = new ExceptionResponse(
+            LocalDateTime.now().toString(),
+            List.of(ex.getMessage()),
+            request.getDescription(false)
+        );
+
+        return new ResponseEntity<>(
+            exceptionResponse,
+            HttpStatus.CONFLICT
         );
     }
 
@@ -142,9 +111,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     ) {
         ExceptionResponse exceptionResponse = new ExceptionResponse(
             LocalDateTime.now().toString(),
-            List.of("Acesso Negado. Você não tem permissão para executar esta ação."),
+            List.of("Acesso negado. Você não tem permissão para executar esta ação."),
             request.getDescription(false)
         );
+
         return new ResponseEntity<>(
             exceptionResponse,
             HttpStatus.FORBIDDEN
@@ -152,12 +122,16 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(NotFoundException.class)
-    public final ResponseEntity<ExceptionResponse> notFoundException(Exception ex, WebRequest request) {
+    public final ResponseEntity<ExceptionResponse> notFoundException(
+        NotFoundException ex,
+        WebRequest request
+    ) {
         ExceptionResponse exceptionResponse = new ExceptionResponse(
             LocalDateTime.now().toString(),
             List.of(ex.getMessage()),
             request.getDescription(false)
         );
+
         return new ResponseEntity<>(
             exceptionResponse,
             HttpStatus.NOT_FOUND
@@ -165,25 +139,16 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(BusinessException.class)
-    public final ResponseEntity<ExceptionResponse> businessException(Exception ex, WebRequest request) {
+    public final ResponseEntity<ExceptionResponse> businessException(
+        BusinessException ex,
+        WebRequest request
+    ) {
         ExceptionResponse exceptionResponse = new ExceptionResponse(
             LocalDateTime.now().toString(),
             List.of(ex.getMessage()),
             request.getDescription(false)
         );
-        return new ResponseEntity<>(
-            exceptionResponse,
-            HttpStatus.BAD_REQUEST
-        );
-    }
 
-    @ExceptionHandler(IllegalArgumentException.class)
-    public final ResponseEntity<ExceptionResponse> illegalArgumentException(Exception ex, WebRequest request) {
-        ExceptionResponse exceptionResponse = new ExceptionResponse(
-            LocalDateTime.now().toString(),
-            List.of(ex.getMessage()),
-            request.getDescription(false)
-        );
         return new ResponseEntity<>(
             exceptionResponse,
             HttpStatus.BAD_REQUEST
@@ -192,11 +157,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(MethodArgumentTypeMismatchException.class)
     public final ResponseEntity<ExceptionResponse> handleMethodArgumentTypeMismatch(
-        MethodArgumentTypeMismatchException ex, WebRequest request) {
-
+        MethodArgumentTypeMismatchException ex,
+        WebRequest request
+    ) {
         String nomeParametro = ex.getName();
         String valorRecebido = ex.getValue() != null ? ex.getValue().toString() : "null";
-        String tipoEsperado = ex.getRequiredType() != null ? ex.getRequiredType().getSimpleName() : "desconhecido";
+        String tipoEsperado = ex.getRequiredType() != null
+            ? ex.getRequiredType().getSimpleName()
+            : "desconhecido";
 
         String mensagem = String.format(
             "O valor '%s' enviado para o parâmetro '%s' é inválido. O tipo esperado é '%s'.",
@@ -205,14 +173,14 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             tipoEsperado
         );
 
-        ExceptionResponse response = new ExceptionResponse(
+        ExceptionResponse exceptionResponse = new ExceptionResponse(
             LocalDateTime.now().toString(),
             List.of(mensagem),
             request.getDescription(false)
         );
 
         return new ResponseEntity<>(
-            response,
+            exceptionResponse,
             HttpStatus.BAD_REQUEST
         );
     }
@@ -227,6 +195,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             List.of("Formato inválido para datas. Use yyyy-MM-dd."),
             request.getDescription(false)
         );
+
         return new ResponseEntity<>(
             exceptionResponse,
             HttpStatus.BAD_REQUEST
@@ -242,13 +211,18 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         HttpStatus status = HttpStatus.BAD_REQUEST;
 
         Throwable causaRaiz = ex.getMostSpecificCause();
-        String mensagemCausa = causaRaiz.getMessage().toLowerCase();
 
-        if (mensagemCausa.contains("unique constraint") || mensagemCausa.contains(
-            "duplicate entry") || mensagemCausa.contains("viola a restrição de unicidade")) {
+        if (causaRaiz.getMessage() != null) {
+            String mensagemCausa = causaRaiz.getMessage().toLowerCase();
 
-            mensagemAmigavel = "Recurso já existe.";
-            status = HttpStatus.CONFLICT;
+            if (
+                mensagemCausa.contains("unique constraint") ||
+                    mensagemCausa.contains("duplicate entry") ||
+                    mensagemCausa.contains("viola a restrição de unicidade")
+            ) {
+                mensagemAmigavel = "Recurso já existe.";
+                status = HttpStatus.CONFLICT;
+            }
         }
 
         ExceptionResponse exceptionResponse = new ExceptionResponse(
@@ -256,6 +230,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             List.of(mensagemAmigavel),
             request.getDescription(false)
         );
+
         return new ResponseEntity<>(
             exceptionResponse,
             status
@@ -272,6 +247,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             List.of(ex.getMessage()),
             request.getDescription(false)
         );
+
         return new ResponseEntity<>(
             exceptionResponse,
             HttpStatus.CONFLICT
@@ -283,13 +259,17 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
         ConstraintViolationException ex,
         WebRequest request
     ) {
-        List<String> mensagens = ex.getConstraintViolations().stream().map(ConstraintViolation::getMessage).toList();
+        List<String> mensagens = ex.getConstraintViolations()
+            .stream()
+            .map(ConstraintViolation::getMessage)
+            .toList();
 
         ExceptionResponse exceptionResponse = new ExceptionResponse(
             LocalDateTime.now().toString(),
             mensagens,
             request.getDescription(false)
         );
+
         return new ResponseEntity<>(
             exceptionResponse,
             HttpStatus.BAD_REQUEST
@@ -297,12 +277,16 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(InvalidJwtAuthenticationException.class)
-    public final ResponseEntity<ExceptionResponse> invalidJwtAuthenticationException(Exception ex, WebRequest request) {
+    public final ResponseEntity<ExceptionResponse> invalidJwtAuthenticationException(
+        InvalidJwtAuthenticationException ex,
+        WebRequest request
+    ) {
         ExceptionResponse exceptionResponse = new ExceptionResponse(
             LocalDateTime.now().toString(),
             List.of(ex.getMessage()),
             request.getDescription(false)
         );
+
         return new ResponseEntity<>(
             exceptionResponse,
             HttpStatus.FORBIDDEN
@@ -310,7 +294,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     @ExceptionHandler(Exception.class)
-    public final ResponseEntity<ExceptionResponse> handleAllExceptions(Exception ex, WebRequest request) {
+    public final ResponseEntity<ExceptionResponse> handleAllExceptions(
+        Exception ex,
+        WebRequest request
+    ) {
         logger.error(
             "Ocorreu uma exceção não tratada",
             ex
@@ -321,6 +308,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
             List.of("Ocorreu um erro inesperado no servidor. Por favor, tente novamente mais tarde."),
             request.getDescription(false)
         );
+
         return new ResponseEntity<>(
             exceptionResponse,
             HttpStatus.INTERNAL_SERVER_ERROR

@@ -1,16 +1,18 @@
 package inventory_service.services;
 
-import feign.FeignException;
-import inventory_service.dtos.req.TicketReservationRequestDTO;
-import inventory_service.dtos.res.TicketResponseDTO;
-import inventory_service.dtos.res.TicketStatusResponseDTO;
-import inventory_service.entities.TicketReserve;
-import inventory_service.entities.enums.TicketStatusEnum;
+import inventory_service.dtos.req.ReservationItemCommandRequestDTO;
+import inventory_service.dtos.res.EventSectorInventoryResponseDTO;
+import inventory_service.dtos.res.ReservationStatusResponseDTO;
+import inventory_service.dtos.res.TicketReservationResponseDTO;
+import inventory_service.entities.EventSectorInventory;
+import inventory_service.entities.TicketReservation;
+import inventory_service.entities.enums.ReservationStatusEnum;
 import inventory_service.environment.InstanceInformationService;
 import inventory_service.exceptions.models.BusinessException;
 import inventory_service.exceptions.models.NotFoundException;
 import inventory_service.proxy.eventCatalog.EventCatalogProxy;
-import inventory_service.repositories.TicketReserveRepository;
+import inventory_service.repositories.EventSectorInventoryRepository;
+import inventory_service.repositories.TicketReservationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -22,241 +24,390 @@ import java.util.List;
 
 @Service
 public class InventoryManagementService {
+    private final Logger logger = LoggerFactory.getLogger(InventoryManagementService.class);
+
     private final InstanceInformationService informationService;
-    private final TicketReserveRepository ticketRepository;
+    private final EventSectorInventoryRepository eventSectorInventoryRepository;
+    private final TicketReservationRepository ticketReservationRepository;
     private final EventCatalogProxy eventCatalogProxy;
-    private Logger logger = LoggerFactory.getLogger(InventoryManagementService.class);
 
     public InventoryManagementService(
         InstanceInformationService informationService,
-        TicketReserveRepository ticketRepository,
+        EventSectorInventoryRepository eventSectorInventoryRepository,
+        TicketReservationRepository ticketReservationRepository,
         EventCatalogProxy eventCatalogProxy
     ) {
         this.informationService = informationService;
-        this.ticketRepository = ticketRepository;
+        this.eventSectorInventoryRepository = eventSectorInventoryRepository;
+        this.ticketReservationRepository = ticketReservationRepository;
         this.eventCatalogProxy = eventCatalogProxy;
     }
 
     @Transactional
-    public List<TicketStatusResponseDTO> createTickets(int ticketsAmount, TicketReservationRequestDTO ticketData) {
-        String eventCatalogServicePort;
-        try {
-            eventCatalogServicePort = eventCatalogProxy.validateSectorCapacity(
-                ticketData.eventId(),
-                ticketData.sectorId(),
-                ticketsAmount
-            );
-            System.out.println("eventCatalogServicePort: " + eventCatalogServicePort);
-        } catch (FeignException.NotFound ex) {
-            throw new NotFoundException("A criação dos assentos não foi permitida." + ex.getMessage());
-        }
-
-        List<TicketReserve> newTickets = new ArrayList<>();
-        for (int ii = 0; ii < ticketsAmount; ii++) {
-            newTickets.add(new TicketReserve(
-                ticketData.eventId(),
-                ticketData.sectorId(),
-                null,
-                TicketStatusEnum.AVAILABLE
-            ));
-        }
-
-        List<TicketReserve> savedTickets = new ArrayList<>();
-        ticketRepository.saveAll(newTickets)
-            .forEach(savedTickets::add);
-
-        String environment = "PORT [INVENTORY]: " + informationService.retrieveServerPort() + "\n" + eventCatalogServicePort;
-
-        return savedTickets.stream()
-            .map(sl -> new TicketStatusResponseDTO(
-                sl.getTicketId(),
-                sl.getTicketStatus(),
-                null,
-                environment
-            ))
-            .toList();
-    }
-
-    public TicketStatusResponseDTO tryReserveTicket(String ticketId, String userId) {
-        TicketReserve ticket = ticketRepository.findByTicketId(ticketId)
-            .orElseThrow(() -> new NotFoundException("Assento inexistente."));
-
-        if (ticket.getTicketStatus() != TicketStatusEnum.AVAILABLE) {
-            throw new BusinessException("Assento indisponível");
-        }
-
-        String eventCatalogServicePort;
-        try {
-            eventCatalogServicePort = eventCatalogProxy.validateEventSector(
-                ticket.getEventId(),
-                ticket.getSectorId()
-            );
-        } catch (FeignException.NotFound ex) {
-            throw new NotFoundException("A reserva dos assentos não foi permitida.");
-        } catch (Exception ex) {
-            throw new BusinessException("Ocorreu um erro interno.");
-        }
-
-        ticket.reserve(userId);
-        TicketReserve updatedTicket = ticketRepository.save(ticket);
-
-        String environment = "PORT [INVENTORY]: " + informationService.retrieveServerPort() + "\n" + eventCatalogServicePort;
-
-        return new TicketStatusResponseDTO(
-            updatedTicket.getTicketId(),
-            updatedTicket.getTicketStatus(),
-            LocalDateTime.now()
-                .plusSeconds(updatedTicket.getTimeToLive()),
-            environment
-        );
-    }
-
-    @Transactional
-    public List<String> reserveTickets(String userId, List<String> ticketIds) {
-        if (ticketIds == null || ticketIds.isEmpty()) {
-            throw new BusinessException("O pedido não possui assentos para reservar.");
-        }
-
-        List<String> reservedTicketIds = new ArrayList<>();
-        try {
-            ticketIds.forEach(ticketId -> {
-                tryReserveTicket(ticketId, userId);
-                reservedTicketIds.add(ticketId);
-            });
-
-            return List.copyOf(reservedTicketIds);
-        } catch (RuntimeException ex) {
-            logger.error(
-                "Falha ao reservar os assentos. Liberando {} assento(s) já bloqueado(s). Motivo: {}",
-                reservedTicketIds.size(),
-                ex.getMessage()
-            );
-
-            reservedTicketIds.forEach(reservedTicketId -> {
-                try {
-                    releaseTicket(reservedTicketId);
-                } catch (RuntimeException releaseEx) {
-                    logger.error(
-                        "Falha ao liberar o assento {} durante a compensação. Motivo: {}",
-                        reservedTicketId,
-                        releaseEx.getMessage()
-                    );
-                }
-            });
-
-            throw ex;
-        }
-    }
-
-    @Transactional
-    public void confirmTicketSold(String ticketId) {
-        TicketReserve ticketReserve = ticketRepository.findById(ticketId)
-            .orElseThrow(() -> new NotFoundException("Reserva não encontrada"));
-
-        if (!ticketReserve.getTicketStatus()
-            .equals(TicketStatusEnum.RESERVED)) {
-            throw new BusinessException("Assento não reservado previamente.");
-        }
-
-        ticketReserve.sold();
-        ticketReserve.removeExpiration();
-        ticketRepository.save(ticketReserve);
-    }
-
-    @Transactional
-    public void releaseTicket(String ticketId) {
-        TicketReserve ticketReserve = ticketRepository.findById(ticketId)
-            .orElseThrow(() -> new NotFoundException("Reserva não encontrada"));
-
-        ticketReserve.release();
-        ticketRepository.save(ticketReserve);
-    }
-
-    public TicketStatusResponseDTO consultTicketStatus(String ticketId) {
-        TicketReserve ticketReserve = ticketRepository.findById(ticketId)
-            .orElseThrow(() -> new NotFoundException("Ingresso não encontrado"));
-
-        String environment = "PORT [INVENTORY]: " + informationService.retrieveServerPort();
-
-        return new TicketStatusResponseDTO(
-            ticketReserve.getTicketId(),
-            ticketReserve.getTicketStatus(),
-            LocalDateTime.now()
-                .minusSeconds(ticketReserve.getTimeToLive()),
-            environment
-        );
-    }
-
-    public List<TicketStatusResponseDTO> findUserRequestedTickets(String userId) {
-        String environment = "PORT [INVENTORY]: " + informationService.retrieveServerPort();
-
-        return ticketRepository.findByUserId(userId)
-            .stream()
-            .map(sl -> new TicketStatusResponseDTO(
-                sl.getTicketId(),
-                sl.getTicketStatus(),
-                sl.getTicketStatus()
-                    .equals(TicketStatusEnum.RESERVED) ? LocalDateTime.now()
-                    .plusSeconds(sl.getTimeToLive()) : null,
-                environment
-            ))
-            .toList();
-    }
-
-    public List<TicketResponseDTO> findEventTicketsByStatus(String eventId, TicketStatusEnum status) {
-        if (eventId == null) {
-            throw new IllegalArgumentException("O ID do evento não pode ser nulo.");
-        }
-
-        String environment = "PORT [INVENTORY]: " + informationService.retrieveServerPort();
-
-        return ticketRepository.findByEventIdAndStatus(
-                eventId,
-                status
-            )
-            .stream()
-            .map(e -> new TicketResponseDTO(
-                e.getTicketId(),
-                e.getEventId(),
-                e.getSectorId(),
-                environment
-            ))
-            .toList();
-    }
-
-    public TicketResponseDTO findTicketById(String ticketId) {
-        TicketReserve ticket = ticketRepository.findById(ticketId)
-            .orElseThrow(() -> new NotFoundException("Assento inexistente."));
-
-        String environment = "PORT [INVENTORY]: " + informationService.retrieveServerPort();
-
-        return new TicketResponseDTO(
-            ticket.getTicketId(),
-            ticket.getEventId(),
-            ticket.getSectorId(),
-            environment
-        );
-    }
-
-    public List<TicketResponseDTO> findEventSectorTicketsByStatus(
+    public EventSectorInventoryResponseDTO createEventSectorInventory(
         String eventId,
         String sectorId,
-        TicketStatusEnum status
+        int capacity
     ) {
-        String environment = "PORT [INVENTORY]: " + informationService.retrieveServerPort();
+        if (capacity <= 0) {
+            throw new BusinessException("A capacidade do setor deve ser maior que zero.");
+        }
 
-        return ticketRepository.findByEventIdAndSectorIdAndStatus(
-                eventId,
-                sectorId,
-                status
-            )
+        String eventCatalogServicePort = eventCatalogProxy.validateSectorCapacity(
+            eventId,
+            sectorId,
+            capacity
+        );
+
+        String inventoryId = EventSectorInventory.buildId(eventId, sectorId);
+
+        if (eventSectorInventoryRepository.existsById(inventoryId)) {
+            throw new BusinessException("O inventário deste evento/setor já existe.");
+        }
+
+        EventSectorInventory inventory = new EventSectorInventory(
+            eventId,
+            sectorId,
+            capacity
+        );
+
+        EventSectorInventory savedInventory = eventSectorInventoryRepository.save(inventory);
+
+        logger.info(
+            "Inventário criado para eventId={}, sectorId={}, capacity={}. {}",
+            eventId,
+            sectorId,
+            capacity,
+            eventCatalogServicePort
+        );
+
+        return toInventoryResponse(savedInventory);
+    }
+
+    @Transactional
+    public TicketReservationResponseDTO reserveTickets(
+        String orderId,
+        String userId,
+        String eventId,
+        String sectorId,
+        int quantity
+    ) {
+        validateReservationRequest(
+            orderId,
+            userId,
+            eventId,
+            sectorId,
+            quantity
+        );
+
+        String eventCatalogServicePort = eventCatalogProxy.validateEventSector(
+            eventId,
+            sectorId
+        );
+
+        String inventoryId = EventSectorInventory.buildId(eventId, sectorId);
+
+        EventSectorInventory inventory = eventSectorInventoryRepository.findById(inventoryId)
+            .orElseThrow(() -> new NotFoundException("Inventário do setor não encontrado."));
+
+        inventory.reserve(quantity);
+
+        TicketReservation reservation = new TicketReservation(
+            eventId,
+            sectorId,
+            userId,
+            orderId,
+            quantity
+        );
+
+        eventSectorInventoryRepository.save(inventory);
+        TicketReservation savedReservation = ticketReservationRepository.save(reservation);
+
+        logger.info(
+            "Reserva criada. Pedido: {}. Usuário: {}. Evento: {}. Setor: {}. Quantidade: {}. Reserva: {}. {}",
+            orderId,
+            userId,
+            eventId,
+            sectorId,
+            quantity,
+            savedReservation.getReservationId(),
+            eventCatalogServicePort
+        );
+
+        return toReservationResponse(savedReservation);
+    }
+
+    @Transactional
+    public List<String> reserveOrderItems(
+        String orderId,
+        String userId,
+        List<ReservationItemCommandRequestDTO> items
+    ) {
+        if (items == null || items.isEmpty()) {
+            throw new BusinessException("O pedido não possui ingressos para reservar.");
+        }
+
+        List<String> createdReservationIds = new ArrayList<>();
+
+        try {
+            for (ReservationItemCommandRequestDTO item : items) {
+                TicketReservationResponseDTO reservation = reserveTickets(
+                    orderId,
+                    userId,
+                    item.eventId(),
+                    item.sectorId(),
+                    item.quantity()
+                );
+
+                createdReservationIds.add(reservation.reservationId());
+            }
+
+            return List.copyOf(createdReservationIds);
+        } catch (RuntimeException exception) {
+            logger.error(
+                "Falha ao reservar itens do pedido {}. Liberando {} reserva(s). Motivo: {}",
+                orderId,
+                createdReservationIds.size(),
+                exception.getMessage()
+            );
+
+            for (String reservationId : createdReservationIds) {
+                try {
+                    releaseReservation(reservationId);
+                } catch (RuntimeException releaseException) {
+                    logger.error(
+                        "Falha ao liberar a reserva {} durante compensação. Motivo: {}",
+                        reservationId,
+                        releaseException.getMessage()
+                    );
+                }
+            }
+
+            throw exception;
+        }
+    }
+
+    @Transactional
+    public void confirmReservationSale(String reservationId) {
+        TicketReservation reservation = findReservationEntityById(reservationId);
+
+        if (!ReservationStatusEnum.RESERVED.equals(reservation.getReservationStatus())) {
+            throw new BusinessException("A reserva não está pendente para confirmação.");
+        }
+
+        EventSectorInventory inventory = findInventoryEntityByEventAndSector(
+            reservation.getEventId(),
+            reservation.getSectorId()
+        );
+
+        inventory.confirmSale(reservation.getQuantity());
+        reservation.confirm();
+
+        eventSectorInventoryRepository.save(inventory);
+        ticketReservationRepository.save(reservation);
+
+        logger.info(
+            "Reserva confirmada como venda. Reserva: {}. Pedido: {}. Quantidade: {}.",
+            reservation.getReservationId(),
+            reservation.getOrderId(),
+            reservation.getQuantity()
+        );
+    }
+
+    @Transactional
+    public void confirmOrderReservations(String orderId) {
+        List<TicketReservation> reservations = ticketReservationRepository.findByOrderId(orderId);
+
+        if (reservations.isEmpty()) {
+            throw new NotFoundException("Nenhuma reserva encontrada para o pedido.");
+        }
+
+        for (TicketReservation reservation : reservations) {
+            if (ReservationStatusEnum.RESERVED.equals(reservation.getReservationStatus())) {
+                confirmReservationSale(reservation.getReservationId());
+            }
+        }
+    }
+
+    @Transactional
+    public void releaseReservation(String reservationId) {
+        TicketReservation reservation = findReservationEntityById(reservationId);
+
+        if (!ReservationStatusEnum.RESERVED.equals(reservation.getReservationStatus())) {
+            logger.info(
+                "Reserva {} não será liberada porque está com status {}.",
+                reservation.getReservationId(),
+                reservation.getReservationStatus()
+            );
+            return;
+        }
+
+        EventSectorInventory inventory = findInventoryEntityByEventAndSector(
+            reservation.getEventId(),
+            reservation.getSectorId()
+        );
+
+        inventory.releaseReservation(reservation.getQuantity());
+        reservation.cancel();
+
+        eventSectorInventoryRepository.save(inventory);
+        ticketReservationRepository.save(reservation);
+
+        logger.info(
+            "Reserva liberada. Reserva: {}. Pedido: {}. Quantidade: {}.",
+            reservation.getReservationId(),
+            reservation.getOrderId(),
+            reservation.getQuantity()
+        );
+    }
+
+    @Transactional
+    public void releaseOrderReservations(String orderId) {
+        List<TicketReservation> reservations = ticketReservationRepository.findByOrderId(orderId);
+
+        if (reservations.isEmpty()) {
+            throw new NotFoundException("Nenhuma reserva encontrada para o pedido.");
+        }
+
+        for (TicketReservation reservation : reservations) {
+            if (ReservationStatusEnum.RESERVED.equals(reservation.getReservationStatus())) {
+                releaseReservation(reservation.getReservationId());
+            }
+        }
+    }
+
+    public ReservationStatusResponseDTO consultReservationStatus(String reservationId) {
+        TicketReservation reservation = findReservationEntityById(reservationId);
+
+        return new ReservationStatusResponseDTO(
+            reservation.getReservationId(),
+            reservation.getReservationStatus(),
+            calculateExpirationDate(reservation),
+            getEnvironment()
+        );
+    }
+
+    public List<ReservationStatusResponseDTO> findUserReservations(String userId) {
+        return ticketReservationRepository.findByUserId(userId)
             .stream()
-            .map(ticket -> new TicketResponseDTO(
-                ticket.getTicketId(),
-                ticket.getEventId(),
-                ticket.getSectorId(),
-                environment
+            .map(reservation -> new ReservationStatusResponseDTO(
+                reservation.getReservationId(),
+                reservation.getReservationStatus(),
+                calculateExpirationDate(reservation),
+                getEnvironment()
             ))
             .toList();
+    }
+
+    public List<TicketReservationResponseDTO> findOrderReservations(String orderId) {
+        return ticketReservationRepository.findByOrderId(orderId)
+            .stream()
+            .map(this::toReservationResponse)
+            .toList();
+    }
+
+    public TicketReservationResponseDTO findReservationById(String reservationId) {
+        TicketReservation reservation = findReservationEntityById(reservationId);
+
+        return toReservationResponse(reservation);
+    }
+
+    public EventSectorInventoryResponseDTO findInventoryByEventAndSector(
+        String eventId,
+        String sectorId
+    ) {
+        EventSectorInventory inventory = findInventoryEntityByEventAndSector(
+            eventId,
+            sectorId
+        );
+
+        return toInventoryResponse(inventory);
+    }
+
+    private TicketReservation findReservationEntityById(String reservationId) {
+        return ticketReservationRepository.findById(reservationId)
+            .orElseThrow(() -> new NotFoundException("Reserva não encontrada."));
+    }
+
+    private EventSectorInventory findInventoryEntityByEventAndSector(
+        String eventId,
+        String sectorId
+    ) {
+        String inventoryId = EventSectorInventory.buildId(eventId, sectorId);
+
+        return eventSectorInventoryRepository.findById(inventoryId)
+            .orElseThrow(() -> new NotFoundException("Inventário do setor não encontrado."));
+    }
+
+    private TicketReservationResponseDTO toReservationResponse(TicketReservation reservation) {
+        return new TicketReservationResponseDTO(
+            reservation.getReservationId(),
+            reservation.getOrderId(),
+            reservation.getUserId(),
+            reservation.getEventId(),
+            reservation.getSectorId(),
+            reservation.getQuantity(),
+            reservation.getReservationStatus(),
+            getEnvironment()
+        );
+    }
+
+    private EventSectorInventoryResponseDTO toInventoryResponse(EventSectorInventory inventory) {
+        return new EventSectorInventoryResponseDTO(
+            inventory.getId(),
+            inventory.getEventId(),
+            inventory.getSectorId(),
+            inventory.getCapacity(),
+            inventory.getReservedQuantity(),
+            inventory.getSoldQuantity(),
+            inventory.getAvailableTicketsAmount(),
+            getEnvironment()
+        );
+    }
+
+    private LocalDateTime calculateExpirationDate(TicketReservation reservation) {
+        if (!ReservationStatusEnum.RESERVED.equals(reservation.getReservationStatus())) {
+            return null;
+        }
+
+        Long timeToLive = reservation.getTimeToLive();
+
+        if (timeToLive == null || timeToLive < 0) {
+            return null;
+        }
+
+        return LocalDateTime.now().plusSeconds(timeToLive);
+    }
+
+    private String getEnvironment() {
+        return "PORT [INVENTORY]: " + informationService.retrieveServerPort();
+    }
+
+    private void validateReservationRequest(
+        String orderId,
+        String userId,
+        String eventId,
+        String sectorId,
+        int quantity
+    ) {
+        if (orderId == null || orderId.isBlank()) {
+            throw new BusinessException("O ID do pedido é obrigatório.");
+        }
+
+        if (userId == null || userId.isBlank()) {
+            throw new BusinessException("O ID do usuário é obrigatório.");
+        }
+
+        if (eventId == null || eventId.isBlank()) {
+            throw new BusinessException("O ID do evento é obrigatório.");
+        }
+
+        if (sectorId == null || sectorId.isBlank()) {
+            throw new BusinessException("O ID do setor é obrigatório.");
+        }
+
+        if (quantity <= 0) {
+            throw new BusinessException("A quantidade de ingressos deve ser maior que zero.");
+        }
     }
 }
