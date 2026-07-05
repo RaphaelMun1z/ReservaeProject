@@ -1,11 +1,11 @@
 package payment_service.messaging.event;
 
+import java.util.List;
+
 public record PaymentRequestedEvent(
     String orderId,
     String userId,
-    Long amount,
-    Long quantity,
-    String productName,
-    String currency
+    String currency,
+    List<PaymentRequestedItemEvent> items
 ) {
 }

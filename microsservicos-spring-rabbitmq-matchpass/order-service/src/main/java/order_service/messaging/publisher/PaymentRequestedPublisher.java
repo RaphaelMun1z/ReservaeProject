@@ -1,6 +1,6 @@
 package order_service.messaging.publisher;
 
-import order_service.messaging.event.PaymentRequestedEvent;
+import order_service.messaging.event.payment.PaymentRequestedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;

@@ -11,7 +11,6 @@ import java.util.UUID;
 
 @RedisHash("ticket_reservation")
 public class TicketReservation {
-    private static final long RESERVATION_TTL_SECONDS = 600L;
 
     @Id
     private String reservationId;
@@ -44,9 +43,11 @@ public class TicketReservation {
         String sectorId,
         String userId,
         String orderId,
-        int quantity
+        int quantity,
+        long timeToLiveSeconds
     ) {
         validateQuantity(quantity);
+        validateTimeToLive(timeToLiveSeconds);
 
         this.reservationId = UUID.randomUUID().toString();
         this.eventId = eventId;
@@ -55,7 +56,7 @@ public class TicketReservation {
         this.orderId = orderId;
         this.quantity = quantity;
         this.reservationStatus = ReservationStatusEnum.RESERVED;
-        this.timeToLive = RESERVATION_TTL_SECONDS;
+        this.timeToLive = timeToLiveSeconds;
     }
 
     public String getReservationId() {
@@ -120,6 +121,12 @@ public class TicketReservation {
     private void validateQuantity(int quantity) {
         if (quantity <= 0) {
             throw new BusinessException("A quantidade de ingressos deve ser maior que zero.");
+        }
+    }
+
+    private void validateTimeToLive(long timeToLiveSeconds) {
+        if (timeToLiveSeconds <= 0) {
+            throw new BusinessException("O tempo de expiração da reserva deve ser maior que zero.");
         }
     }
 

@@ -15,9 +15,11 @@ import inventory_service.repositories.EventSectorInventoryRepository;
 import inventory_service.repositories.TicketReservationRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -25,6 +27,8 @@ import java.util.List;
 @Service
 public class InventoryManagementService {
     private final Logger logger = LoggerFactory.getLogger(InventoryManagementService.class);
+
+    private final long reservationTtlMinutes;
 
     private final InstanceInformationService informationService;
     private final EventSectorInventoryRepository eventSectorInventoryRepository;
@@ -35,12 +39,14 @@ public class InventoryManagementService {
         InstanceInformationService informationService,
         EventSectorInventoryRepository eventSectorInventoryRepository,
         TicketReservationRepository ticketReservationRepository,
-        EventCatalogProxy eventCatalogProxy
+        EventCatalogProxy eventCatalogProxy,
+        @Value("${matchpass.config.reservation.ttl-minutes}") long reservationTtlMinutes
     ) {
         this.informationService = informationService;
         this.eventSectorInventoryRepository = eventSectorInventoryRepository;
         this.ticketReservationRepository = ticketReservationRepository;
         this.eventCatalogProxy = eventCatalogProxy;
+        this.reservationTtlMinutes = reservationTtlMinutes;
     }
 
     @Transactional
@@ -117,7 +123,8 @@ public class InventoryManagementService {
             sectorId,
             userId,
             orderId,
-            quantity
+            quantity,
+            Duration.ofMinutes(reservationTtlMinutes).toSeconds()
         );
 
         eventSectorInventoryRepository.save(inventory);

@@ -9,8 +9,16 @@ import order_service.entities.Order;
 import order_service.entities.OrderItem;
 import order_service.entities.enums.OrderStatusEnum;
 import order_service.exceptions.models.NotFoundException;
-import order_service.messaging.event.*;
+import order_service.messaging.event.inventory.InventoryReservationResultEvent;
+import order_service.messaging.event.order.OrderConfirmedEvent;
+import order_service.messaging.event.order.OrderConfirmedItemEvent;
+import order_service.messaging.event.order.OrderReservationRequestedEvent;
+import order_service.messaging.event.payment.*;
 import order_service.messaging.mapper.OrderEventMapper;
+import order_service.messaging.publisher.OrderConfirmedPublisher;
+import order_service.messaging.publisher.PaymentConfirmedNotificationPublisher;
+import order_service.messaging.publisher.PaymentFailedNotificationPublisher;
+import order_service.messaging.publisher.PaymentPendingNotificationPublisher;
 import order_service.repositories.OrderRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -19,25 +27,48 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @SuppressWarnings("LoggingSimilarMessage")
 @Service
 public class OrderService {
+
     private static final Logger logger = LoggerFactory.getLogger(OrderService.class);
+
+    private static final String CUSTOMER_NAME_MOCK = "Nome do comprador";
+    private static final String CUSTOMER_EMAIL_MOCK = "raphaelmunizvarela@gmail.com";
+    private static final String EVENT_NAME_MOCK = "Nome do evento";
+    private static final String EVENT_DATE_MOCK = "Data do evento";
+    private static final String ITEM_IMAGE_URL_MOCK = "https://cdn-icons-png.flaticon.com/512/708/708904.png";
+    private static final String FRONTEND_ORDER_URL = "http://localhost:3000/orders/";
+    private static final long PAYMENT_EXPIRATION_MINUTES = 30;
 
     private final OrderRepository orderRepository;
     private final OrderEventMapper orderEventMapper;
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final PaymentPendingNotificationPublisher paymentPendingNotificationPublisher;
+    private final PaymentConfirmedNotificationPublisher paymentConfirmedNotificationPublisher;
+    private final PaymentFailedNotificationPublisher paymentFailedNotificationPublisher;
+    private final OrderConfirmedPublisher orderConfirmedPublisher;
 
     public OrderService(
         OrderRepository orderRepository,
         OrderEventMapper orderEventMapper,
-        ApplicationEventPublisher applicationEventPublisher
+        ApplicationEventPublisher applicationEventPublisher,
+        PaymentPendingNotificationPublisher paymentPendingNotificationPublisher,
+        PaymentConfirmedNotificationPublisher paymentConfirmedNotificationPublisher,
+        PaymentFailedNotificationPublisher paymentFailedNotificationPublisher,
+        OrderConfirmedPublisher orderConfirmedPublisher
     ) {
         this.orderRepository = orderRepository;
         this.orderEventMapper = orderEventMapper;
         this.applicationEventPublisher = applicationEventPublisher;
+        this.paymentPendingNotificationPublisher = paymentPendingNotificationPublisher;
+        this.paymentConfirmedNotificationPublisher = paymentConfirmedNotificationPublisher;
+        this.paymentFailedNotificationPublisher = paymentFailedNotificationPublisher;
+        this.orderConfirmedPublisher = orderConfirmedPublisher;
     }
 
     @Transactional
@@ -134,6 +165,8 @@ public class OrderService {
         order.attachPaymentUrl(event.paymentUrl());
         orderRepository.save(order);
 
+        publishPaymentPendingNotification(order);
+
         logger.info(
             "URL de pagamento vinculada ao pedido {}. Sessão: {}.",
             order.getId(),
@@ -160,11 +193,41 @@ public class OrderService {
         order.updateStatus(OrderStatusEnum.CONFIRMED);
         orderRepository.save(order);
 
+        publishOrderConfirmed(order);
+        publishPaymentConfirmedNotification(order);
+
         logger.info(
             "Pagamento confirmado para o pedido {}. PaymentIntent: {}.",
             order.getId(),
             event.paymentIntentId()
         );
+    }
+
+    private void publishOrderConfirmed(Order order) {
+        List<OrderConfirmedItemEvent> items = order.getItems()
+            .stream()
+            .map(item -> new OrderConfirmedItemEvent(
+                item.getId(),
+                item.getSectorId(),
+                item.getReservationId(),
+                item.getTicketType().name(),
+                item.getQuantity(),
+                item.getAppliedPrice(),
+                item.getSubtotal()
+            ))
+            .toList();
+
+        OrderConfirmedEvent event = new OrderConfirmedEvent(
+            java.util.UUID.randomUUID().toString(),
+            order.getId(),
+            order.getUserId(),
+            order.getEventId(),
+            order.getTotalAmount(),
+            items,
+            java.time.LocalDateTime.now()
+        );
+
+        orderConfirmedPublisher.publish(event);
     }
 
     @Transactional
@@ -186,6 +249,8 @@ public class OrderService {
         order.updateStatus(OrderStatusEnum.PAYMENT_FAILED);
         orderRepository.save(order);
 
+        publishPaymentFailedNotification(order, event.reason());
+
         logger.warn(
             "Pagamento falhou para o pedido {}. Motivo: {}.",
             order.getId(),
@@ -204,6 +269,7 @@ public class OrderService {
         );
 
         order.updateStatus(orderStatusEnum);
+        orderRepository.save(order);
 
         return toOrderSummaryResponseDTO(order);
     }
@@ -250,15 +316,22 @@ public class OrderService {
     }
 
     private void publishPaymentRequest(Order order) {
+        List<PaymentRequestedItemEvent> items = order.getItems()
+            .stream()
+            .map(item -> new PaymentRequestedItemEvent(
+                buildPaymentItemName(item),
+                item.getAppliedPrice()
+                    .movePointRight(2)
+                    .longValue(),
+                (long) item.getQuantity()
+            ))
+            .toList();
+
         PaymentRequestedEvent paymentRequestedEvent = new PaymentRequestedEvent(
             order.getId(),
             order.getUserId(),
-            order.getTotalAmount()
-                .movePointRight(2)
-                .longValue(),
-            (long) order.getTotalTicketsQuantity(),
-            "Ingresso MatchPass",
-            "BRL"
+            "BRL",
+            items
         );
 
         applicationEventPublisher.publishEvent(paymentRequestedEvent);
@@ -267,6 +340,99 @@ public class OrderService {
             "Solicitação de pagamento publicada para o pedido {}.",
             order.getId()
         );
+    }
+
+    private void publishPaymentPendingNotification(Order order) {
+        PaymentPendingNotificationRequestedEvent event =
+            new PaymentPendingNotificationRequestedEvent(
+                UUID.randomUUID().toString(),
+                order.getId(),
+                order.getUserId(),
+                CUSTOMER_NAME_MOCK,
+                CUSTOMER_EMAIL_MOCK,
+                order.getEventId(),
+                EVENT_NAME_MOCK,
+                EVENT_DATE_MOCK,
+                order.getTotalAmount(),
+                order.getPaymentUrl(),
+                buildOrderUrl(order),
+                LocalDateTime.now().plusMinutes(PAYMENT_EXPIRATION_MINUTES),
+                buildPaymentNotificationItems(order),
+                LocalDateTime.now()
+            );
+
+        paymentPendingNotificationPublisher.publish(event);
+    }
+
+    private void publishPaymentConfirmedNotification(Order order) {
+        PaymentConfirmedNotificationRequestedEvent event =
+            new PaymentConfirmedNotificationRequestedEvent(
+                UUID.randomUUID().toString(),
+                order.getId(),
+                order.getUserId(),
+                CUSTOMER_NAME_MOCK,
+                CUSTOMER_EMAIL_MOCK,
+                order.getEventId(),
+                EVENT_NAME_MOCK,
+                EVENT_DATE_MOCK,
+                order.getTotalAmount(),
+                buildOrderUrl(order),
+                buildPaymentNotificationItems(order),
+                LocalDateTime.now()
+            );
+
+        paymentConfirmedNotificationPublisher.publish(event);
+    }
+
+    private void publishPaymentFailedNotification(
+        Order order,
+        String reason
+    ) {
+        PaymentFailedNotificationRequestedEvent event =
+            new PaymentFailedNotificationRequestedEvent(
+                UUID.randomUUID().toString(),
+                order.getId(),
+                order.getUserId(),
+                CUSTOMER_NAME_MOCK,
+                CUSTOMER_EMAIL_MOCK,
+                order.getEventId(),
+                EVENT_NAME_MOCK,
+                EVENT_DATE_MOCK,
+                order.getTotalAmount(),
+                order.getPaymentUrl(),
+                buildOrderUrl(order),
+                reason,
+                buildPaymentNotificationItems(order),
+                LocalDateTime.now()
+            );
+
+        paymentFailedNotificationPublisher.publish(event);
+    }
+
+    private List<PaymentNotificationItemEvent> buildPaymentNotificationItems(Order order) {
+        return order.getItems()
+            .stream()
+            .map(item -> new PaymentNotificationItemEvent(
+                item.getSectorId(),
+                "Setor " + item.getSectorId(),
+                item.getTicketType().name(),
+                item.getQuantity(),
+                item.getAppliedPrice(),
+                item.getSubtotal(),
+                ITEM_IMAGE_URL_MOCK
+            ))
+            .toList();
+    }
+
+    private String buildPaymentItemName(OrderItem item) {
+        return "Ingresso MatchPass - "
+            + item.getTicketType()
+            + " - Setor "
+            + item.getSectorId();
+    }
+
+    private String buildOrderUrl(Order order) {
+        return FRONTEND_ORDER_URL + order.getId();
     }
 
     private Order findOrderEntityById(String orderId, String message) {

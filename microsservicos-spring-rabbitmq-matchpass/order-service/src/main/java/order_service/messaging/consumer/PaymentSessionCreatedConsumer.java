@@ -1,6 +1,6 @@
 package order_service.messaging.consumer;
 
-import order_service.messaging.event.PaymentSessionCreatedEvent;
+import order_service.messaging.event.payment.PaymentSessionCreatedEvent;
 import order_service.services.OrderService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

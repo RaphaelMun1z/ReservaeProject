@@ -33,3 +33,7 @@ matchpass:
         pagamento-solicitado: matchpass.payment.requested.v1
         pagamento-aprovado: matchpass.payment.approved.v1
         pagamento-falhou: matchpass.payment.failed.v1
+        notificacao-pagamento-pendente: matchpass.notification.payment-pending-requested.v1
+        notificacao-pagamento-confirmado: matchpass.notification.payment-confirmed-requested.v1
+        notificacao-pagamento-falhou: matchpass.notification.payment-failed-requested.v1
+        pedido-confirmado: matchpass.order.confirmed.v1

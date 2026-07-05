@@ -42,6 +42,12 @@ matchpass:
     kafka:
       server-url: localhost:29092
       consumer-groups:
-        sessao-pagamento-criada: notification-service-payment-session-created
+        notificacao-pagamento-pendente: notification-service-payment-pending-notification
+        notificacao-pagamento-confirmado: notification-service-payment-confirmed-notification
+        notificacao-pagamento-falhou: notification-service-payment-failed-notification
+        ingresso-gerado: notification-service-ticket-generated
       topics:
-        sessao-pagamento-criada: matchpass.payment.session-created.v1
+        notificacao-pagamento-pendente: matchpass.notification.payment-pending-requested.v1
+        notificacao-pagamento-confirmado: matchpass.notification.payment-confirmed-requested.v1
+        notificacao-pagamento-falhou: matchpass.notification.payment-failed-requested.v1
+        ingresso-gerado: matchpass.ticket.generated.v1

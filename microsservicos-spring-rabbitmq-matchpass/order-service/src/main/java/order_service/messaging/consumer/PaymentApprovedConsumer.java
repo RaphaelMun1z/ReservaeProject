@@ -1,6 +1,6 @@
 package order_service.messaging.consumer;
 
-import order_service.messaging.event.PaymentApprovedEvent;
+import order_service.messaging.event.payment.PaymentApprovedEvent;
 import order_service.services.OrderService;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;

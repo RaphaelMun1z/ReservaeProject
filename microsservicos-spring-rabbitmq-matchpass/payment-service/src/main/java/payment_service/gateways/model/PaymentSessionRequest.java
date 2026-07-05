@@ -1,12 +1,12 @@
 package payment_service.gateways.model;
 
+import java.util.List;
+
 public record PaymentSessionRequest(
     String orderId,
     String userId,
-    Long amount,
-    Long quantity,
-    String productName,
     String currency,
-    String customerEmail
+    String customerEmail,
+    List<PaymentSessionItemRequest> items
 ) {
 }

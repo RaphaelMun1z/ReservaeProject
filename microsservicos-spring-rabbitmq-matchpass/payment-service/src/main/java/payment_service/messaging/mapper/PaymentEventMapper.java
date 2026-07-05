@@ -2,6 +2,7 @@ package payment_service.messaging.mapper;
 
 import org.springframework.stereotype.Component;
 import payment_service.dtos.res.PaymentSessionResponseDTO;
+import payment_service.gateways.model.PaymentSessionItemRequest;
 import payment_service.gateways.model.PaymentSessionRequest;
 import payment_service.messaging.event.PaymentRequestedEvent;
 import payment_service.messaging.event.PaymentSessionCreatedEvent;
@@ -13,11 +14,16 @@ public class PaymentEventMapper {
         return new PaymentSessionRequest(
             event.orderId(),
             event.userId(),
-            event.amount(),
-            event.quantity(),
-            event.productName(),
             event.currency(),
-            null
+            null,
+            event.items()
+                .stream()
+                .map(item -> new PaymentSessionItemRequest(
+                    item.name(),
+                    item.unitAmount(),
+                    item.quantity()
+                ))
+                .toList()
         );
     }
 

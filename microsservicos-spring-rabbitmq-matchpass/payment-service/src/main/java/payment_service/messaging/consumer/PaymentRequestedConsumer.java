@@ -23,11 +23,10 @@ public class PaymentRequestedConsumer {
     )
     public void consume(PaymentRequestedEvent event) {
         logger.info(
-            "Solicitação de pagamento recebida. Pedido: {}. Usuário: {}. Valor: {} {}.",
+            "Solicitação de pagamento recebida. Pedido: {}. Usuário: {}. Itens: {}.",
             event.orderId(),
             event.userId(),
-            event.amount(),
-            event.currency()
+            event.items().size()
         );
 
         paymentService.processPaymentRequest(event);

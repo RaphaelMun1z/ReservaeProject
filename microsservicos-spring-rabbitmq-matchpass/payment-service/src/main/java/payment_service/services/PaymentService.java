@@ -4,15 +4,18 @@ import org.springframework.stereotype.Service;
 import payment_service.dtos.req.ProductRequestDTO;
 import payment_service.dtos.res.PaymentSessionResponseDTO;
 import payment_service.gateways.PaymentGateway;
+import payment_service.gateways.model.PaymentSessionItemRequest;
 import payment_service.gateways.model.PaymentSessionRequest;
 import payment_service.messaging.event.PaymentFailedEvent;
 import payment_service.messaging.event.PaymentRequestedEvent;
+import payment_service.messaging.event.PaymentRequestedItemEvent;
 import payment_service.messaging.event.PaymentSessionCreatedEvent;
 import payment_service.messaging.mapper.PaymentEventMapper;
 import payment_service.messaging.publisher.PaymentFailedPublisher;
 import payment_service.messaging.publisher.PaymentSessionCreatedPublisher;
 
 import java.time.Instant;
+import java.util.List;
 
 @Service
 public class PaymentService {
@@ -39,11 +42,13 @@ public class PaymentService {
         PaymentSessionRequest paymentSessionRequest = new PaymentSessionRequest(
             request.orderId(),
             request.userId(),
-            request.amount(),
-            request.quantity(),
-            request.name(),
             request.currency(),
-            request.customerEmail()
+            request.customerEmail(),
+            List.of(new PaymentSessionItemRequest(
+                request.name(),
+                request.amount(),
+                request.quantity()
+            ))
         );
 
         return paymentGateway.createPaymentSession(paymentSessionRequest);
@@ -59,7 +64,8 @@ public class PaymentService {
             PaymentSessionResponseDTO response =
                 paymentGateway.createPaymentSession(request);
 
-            PaymentSessionCreatedEvent sessionCreatedEvent = paymentEventMapper.toPaymentSessionCreatedEvent(response);
+            PaymentSessionCreatedEvent sessionCreatedEvent =
+                paymentEventMapper.toPaymentSessionCreatedEvent(response);
 
             paymentSessionCreatedPublisher.publish(sessionCreatedEvent);
         } catch (RuntimeException exception) {
@@ -139,28 +145,36 @@ public class PaymentService {
             );
         }
 
-        if (event.amount() == null || event.amount() <= 0) {
-            throw new IllegalArgumentException(
-                "O valor do pagamento deve ser maior que zero."
-            );
-        }
-
-        if (event.quantity() == null || event.quantity() <= 0) {
-            throw new IllegalArgumentException(
-                "A quantidade deve ser maior que zero."
-            );
-        }
-
-        if (event.productName() == null || event.productName().isBlank()) {
-            throw new IllegalArgumentException(
-                "O nome do produto é obrigatório."
-            );
-        }
-
         if (event.currency() == null || event.currency().isBlank()) {
             throw new IllegalArgumentException(
                 "A moeda é obrigatória."
             );
+        }
+
+        if (event.items() == null || event.items().isEmpty()) {
+            throw new IllegalArgumentException(
+                "A solicitação de pagamento deve possuir ao menos um item."
+            );
+        }
+
+        for (PaymentRequestedItemEvent item : event.items()) {
+            if (item.name() == null || item.name().isBlank()) {
+                throw new IllegalArgumentException(
+                    "O nome do item de pagamento é obrigatório."
+                );
+            }
+
+            if (item.unitAmount() == null || item.unitAmount() <= 0) {
+                throw new IllegalArgumentException(
+                    "O valor unitário do item deve ser maior que zero."
+                );
+            }
+
+            if (item.quantity() == null || item.quantity() <= 0) {
+                throw new IllegalArgumentException(
+                    "A quantidade do item deve ser maior que zero."
+                );
+            }
         }
     }
 }

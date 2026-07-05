@@ -1,8 +1,8 @@
 package order_service.messaging.mapper;
 
 import order_service.entities.Order;
-import order_service.messaging.event.OrderReservationItemEvent;
-import order_service.messaging.event.OrderReservationRequestedEvent;
+import order_service.messaging.event.order.OrderReservationItemEvent;
+import order_service.messaging.event.order.OrderReservationRequestedEvent;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;

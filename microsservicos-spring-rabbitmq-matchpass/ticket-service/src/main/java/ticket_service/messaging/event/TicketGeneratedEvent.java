@@ -8,7 +8,7 @@ public record TicketGeneratedEvent(
     String orderId,
     String eventId,
     String userId,
-    List<TicketGeneratedItemEvent> tickets,
+    List<TicketGeneratedItemEvent> items,
     LocalDateTime occurredAt
 ) {
 }

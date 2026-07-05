@@ -16,9 +16,7 @@ import java.util.UUID;
 
 @Service
 public class ReservationRequestHandlerService {
-
-    private static final Logger logger =
-        LoggerFactory.getLogger(ReservationRequestHandlerService.class);
+    private static final Logger logger = LoggerFactory.getLogger(ReservationRequestHandlerService.class);
 
     private final InventoryManagementService inventoryManagementService;
     private final InventoryReservationResultPublisher inventoryReservationResultPublisher;

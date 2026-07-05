@@ -1,9 +1,9 @@
 package order_service.config;
 
-import order_service.messaging.event.InventoryReservationResultEvent;
-import order_service.messaging.event.PaymentApprovedEvent;
-import order_service.messaging.event.PaymentFailedEvent;
-import order_service.messaging.event.PaymentSessionCreatedEvent;
+import order_service.messaging.event.inventory.InventoryReservationResultEvent;
+import order_service.messaging.event.payment.PaymentApprovedEvent;
+import order_service.messaging.event.payment.PaymentFailedEvent;
+import order_service.messaging.event.payment.PaymentSessionCreatedEvent;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;

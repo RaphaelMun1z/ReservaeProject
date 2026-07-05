@@ -1,6 +1,9 @@
 package notification_service.config;
 
-import notification_service.messaging.event.PaymentSessionCreatedEvent;
+import notification_service.messaging.event.PaymentConfirmedNotificationRequestedEvent;
+import notification_service.messaging.event.PaymentFailedNotificationRequestedEvent;
+import notification_service.messaging.event.PaymentPendingNotificationRequestedEvent;
+import notification_service.messaging.event.TicketGeneratedEvent;
 import org.apache.kafka.clients.admin.AdminClientConfig;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.producer.ProducerConfig;
@@ -19,11 +22,21 @@ import java.util.Map;
 
 @Configuration
 public class KafkaConfig {
+
     @Value("${matchpass.config.kafka.server-url}")
     private String kafkaServerUrl;
 
-    @Value("${matchpass.config.kafka.consumer-groups.sessao-pagamento-criada}")
-    private String paymentSessionCreatedConsumerGroup;
+    @Value("${matchpass.config.kafka.consumer-groups.notificacao-pagamento-pendente}")
+    private String paymentPendingNotificationConsumerGroup;
+
+    @Value("${matchpass.config.kafka.consumer-groups.notificacao-pagamento-confirmado}")
+    private String paymentConfirmedNotificationConsumerGroup;
+
+    @Value("${matchpass.config.kafka.consumer-groups.notificacao-pagamento-falhou}")
+    private String paymentFailedNotificationConsumerGroup;
+
+    @Value("${matchpass.config.kafka.consumer-groups.ingresso-gerado}")
+    private String ticketGeneratedConsumerGroup;
 
     @Bean
     public KafkaAdmin kafkaAdmin() {
@@ -73,33 +86,124 @@ public class KafkaConfig {
     }
 
     @Bean
-    public KafkaTemplate<String, Object> kafkaTemplate(ProducerFactory<String, Object> producerFactory) {
+    public KafkaTemplate<String, Object> kafkaTemplate(
+        ProducerFactory<String, Object> producerFactory
+    ) {
         return new KafkaTemplate<>(producerFactory);
     }
 
     @Bean
-    public ConsumerFactory<String, PaymentSessionCreatedEvent> paymentSessionCreatedConsumerFactory() {
-        JsonDeserializer<PaymentSessionCreatedEvent> deserializer =
+    public ConsumerFactory<String, PaymentPendingNotificationRequestedEvent>
+    paymentPendingNotificationConsumerFactory() {
+        JsonDeserializer<PaymentPendingNotificationRequestedEvent> deserializer =
             new JsonDeserializer<>(
-                PaymentSessionCreatedEvent.class,
+                PaymentPendingNotificationRequestedEvent.class,
                 false
             );
 
         deserializer.addTrustedPackages("notification_service.messaging.event");
 
         return new DefaultKafkaConsumerFactory<>(
-            defaultConsumerProperties(paymentSessionCreatedConsumerGroup),
+            defaultConsumerProperties(paymentPendingNotificationConsumerGroup),
             new StringDeserializer(),
             deserializer
         );
     }
 
     @Bean
-    public ConcurrentKafkaListenerContainerFactory<String, PaymentSessionCreatedEvent> paymentSessionCreatedKafkaListenerContainerFactory() {
-        ConcurrentKafkaListenerContainerFactory<String, PaymentSessionCreatedEvent> factory =
+    public ConcurrentKafkaListenerContainerFactory<String, PaymentPendingNotificationRequestedEvent>
+    paymentPendingNotificationKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, PaymentPendingNotificationRequestedEvent> factory =
             new ConcurrentKafkaListenerContainerFactory<>();
 
-        factory.setConsumerFactory(paymentSessionCreatedConsumerFactory());
+        factory.setConsumerFactory(paymentPendingNotificationConsumerFactory());
+
+        return factory;
+    }
+
+    @Bean
+    public ConsumerFactory<String, PaymentConfirmedNotificationRequestedEvent>
+    paymentConfirmedNotificationConsumerFactory() {
+        JsonDeserializer<PaymentConfirmedNotificationRequestedEvent> deserializer =
+            new JsonDeserializer<>(
+                PaymentConfirmedNotificationRequestedEvent.class,
+                false
+            );
+
+        deserializer.addTrustedPackages("notification_service.messaging.event");
+
+        return new DefaultKafkaConsumerFactory<>(
+            defaultConsumerProperties(paymentConfirmedNotificationConsumerGroup),
+            new StringDeserializer(),
+            deserializer
+        );
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, PaymentConfirmedNotificationRequestedEvent>
+    paymentConfirmedNotificationKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, PaymentConfirmedNotificationRequestedEvent> factory =
+            new ConcurrentKafkaListenerContainerFactory<>();
+
+        factory.setConsumerFactory(paymentConfirmedNotificationConsumerFactory());
+
+        return factory;
+    }
+
+    @Bean
+    public ConsumerFactory<String, PaymentFailedNotificationRequestedEvent>
+    paymentFailedNotificationConsumerFactory() {
+        JsonDeserializer<PaymentFailedNotificationRequestedEvent> deserializer =
+            new JsonDeserializer<>(
+                PaymentFailedNotificationRequestedEvent.class,
+                false
+            );
+
+        deserializer.addTrustedPackages("notification_service.messaging.event");
+
+        return new DefaultKafkaConsumerFactory<>(
+            defaultConsumerProperties(paymentFailedNotificationConsumerGroup),
+            new StringDeserializer(),
+            deserializer
+        );
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, PaymentFailedNotificationRequestedEvent>
+    paymentFailedNotificationKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, PaymentFailedNotificationRequestedEvent> factory =
+            new ConcurrentKafkaListenerContainerFactory<>();
+
+        factory.setConsumerFactory(paymentFailedNotificationConsumerFactory());
+
+        return factory;
+    }
+
+    @Bean
+    public ConsumerFactory<String, TicketGeneratedEvent>
+    ticketGeneratedConsumerFactory() {
+        JsonDeserializer<TicketGeneratedEvent> deserializer =
+            new JsonDeserializer<>(
+                TicketGeneratedEvent.class,
+                false
+            );
+
+        deserializer.addTrustedPackages("notification_service.messaging.event");
+
+        return new DefaultKafkaConsumerFactory<>(
+            defaultConsumerProperties(ticketGeneratedConsumerGroup),
+            new StringDeserializer(),
+            deserializer
+        );
+    }
+
+    @Bean
+    public ConcurrentKafkaListenerContainerFactory<String, TicketGeneratedEvent>
+    ticketGeneratedKafkaListenerContainerFactory() {
+        ConcurrentKafkaListenerContainerFactory<String, TicketGeneratedEvent> factory =
+            new ConcurrentKafkaListenerContainerFactory<>();
+
+        factory.setConsumerFactory(ticketGeneratedConsumerFactory());
 
         return factory;
     }

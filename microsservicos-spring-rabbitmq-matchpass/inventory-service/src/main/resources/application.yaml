@@ -19,6 +19,8 @@ springdoc:
 
 matchpass:
   config:
+    reservation:
+      ttl-minutes: 30
     kafka:
       server-url: localhost:29092
       consumer-groups:
