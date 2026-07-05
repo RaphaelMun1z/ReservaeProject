@@ -21,7 +21,12 @@ matchpass:
   config:
     kafka:
       server-url: localhost:29092
-      consumer-group: inventory-service-order-reservation
+      consumer-groups:
+        reserva-solicitada: inventory-service-reservation-requested
+        pagamento-aprovado: inventory-service-payment-approved
+        pagamento-falhou: inventory-service-payment-failed
       topics:
         reserva-solicitada: matchpass.order.reservation-requested.v1
         resultado-reserva: matchpass.inventory.reservation-result.v1
+        pagamento-aprovado: matchpass.payment.approved.v1
+        pagamento-falhou: matchpass.payment.failed.v1

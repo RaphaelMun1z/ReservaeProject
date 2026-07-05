@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class OrderReservationRequestedConsumer {
+
     private final ReservationRequestHandlerService reservationRequestHandlerService;
 
     public OrderReservationRequestedConsumer(
@@ -17,7 +18,6 @@ public class OrderReservationRequestedConsumer {
 
     @KafkaListener(
         topics = "${matchpass.config.kafka.topics.reserva-solicitada}",
-        groupId = "${matchpass.config.kafka.consumer-group}",
         containerFactory = "orderReservationKafkaListenerContainerFactory"
     )
     public void consume(OrderReservationRequestedEvent event) {
