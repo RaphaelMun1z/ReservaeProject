@@ -17,7 +17,7 @@ public class PaymentFailedPublisher {
 
     public PaymentFailedPublisher(
         KafkaTemplate<String, Object> kafkaTemplate,
-        @Value("${matchpass.config.kafka.topics.pagamento-falhou}")
+        @Value("${reservae.config.kafka.topics.pagamento-falhou}")
         String paymentFailedTopic
     ) {
         this.kafkaTemplate = kafkaTemplate;

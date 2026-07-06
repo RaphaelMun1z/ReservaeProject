@@ -40,7 +40,7 @@ public class InventoryManagementService {
         EventSectorInventoryRepository eventSectorInventoryRepository,
         TicketReservationRepository ticketReservationRepository,
         EventCatalogProxy eventCatalogProxy,
-        @Value("${matchpass.config.reservation.ttl-minutes}") long reservationTtlMinutes
+        @Value("${reservae.config.reservation.ttl-minutes}") long reservationTtlMinutes
     ) {
         this.informationService = informationService;
         this.eventSectorInventoryRepository = eventSectorInventoryRepository;

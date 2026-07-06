@@ -9,7 +9,7 @@ spring:
   profiles:
     active: dev
   kafka:
-    bootstrap-servers: ${matchpass.config.kafka.server-url}
+    bootstrap-servers: ${reservae.config.kafka.server-url}
     admin:
       fail-fast: false
 
@@ -17,7 +17,7 @@ springdoc:
   api-docs:
     path: /${spring.application.name}/v3/api-docs
 
-matchpass:
+reservae:
   config:
     kafka:
       server-url: localhost:29092
@@ -27,13 +27,13 @@ matchpass:
         pagamento-aprovado: order-service-payment-approved
         pagamento-falhou: order-service-payment-failed
       topics:
-        reserva-solicitada: matchpass.order.reservation-requested.v1
-        resultado-reserva: matchpass.inventory.reservation-result.v1
-        sessao-pagamento-criada: matchpass.payment.session-created.v1
-        pagamento-solicitado: matchpass.payment.requested.v1
-        pagamento-aprovado: matchpass.payment.approved.v1
-        pagamento-falhou: matchpass.payment.failed.v1
-        notificacao-pagamento-pendente: matchpass.notification.payment-pending-requested.v1
-        notificacao-pagamento-confirmado: matchpass.notification.payment-confirmed-requested.v1
-        notificacao-pagamento-falhou: matchpass.notification.payment-failed-requested.v1
-        pedido-confirmado: matchpass.order.confirmed.v1
+        reserva-solicitada: reservae.order.reservation-requested.v1
+        resultado-reserva: reservae.inventory.reservation-result.v1
+        sessao-pagamento-criada: reservae.payment.session-created.v1
+        pagamento-solicitado: reservae.payment.requested.v1
+        pagamento-aprovado: reservae.payment.approved.v1
+        pagamento-falhou: reservae.payment.failed.v1
+        notificacao-pagamento-pendente: reservae.notification.payment-pending-requested.v1
+        notificacao-pagamento-confirmado: reservae.notification.payment-confirmed-requested.v1
+        notificacao-pagamento-falhou: reservae.notification.payment-failed-requested.v1
+        pedido-confirmado: reservae.order.confirmed.v1

@@ -728,39 +728,39 @@ public class EmailTemplateFactory {
             String borda = ultimaLinha ? "" : "border-bottom: 1px solid #e3e7ef;";
 
             linhas.append("""
-                              <tr>
-                                  <td style="
-                                      padding: 18px 20px;
-                                      %s
-                                  ">
-                                      <p
-                                          style="
-                                              margin: 0 0 6px;
-                                              color: #777c88;
-                                              font-size: 10px;
-                                              font-weight: 700;
-                                              letter-spacing: 1px;
-                                              text-transform: uppercase;
-                                          "
-                                      >
-                                          %s
-                                      </p>
-                              
-                                      <p
-                                          style="
-                                              margin: 0;
-                                              color: %s;
-                                              font-size: 15px;
-                                              font-weight: 800;
-                                              line-height: 1.5;
-                                              word-break: break-word;
-                                          "
-                                      >
-                                          %s
-                                      </p>
-                                  </td>
-                              </tr>
-                              """.formatted(
+                <tr>
+                    <td style="
+                        padding: 18px 20px;
+                        %s
+                    ">
+                        <p
+                            style="
+                                margin: 0 0 6px;
+                                color: #777c88;
+                                font-size: 10px;
+                                font-weight: 700;
+                                letter-spacing: 1px;
+                                text-transform: uppercase;
+                            "
+                        >
+                            %s
+                        </p>
+                
+                        <p
+                            style="
+                                margin: 0;
+                                color: %s;
+                                font-size: 15px;
+                                font-weight: 800;
+                                line-height: 1.5;
+                                word-break: break-word;
+                            "
+                        >
+                            %s
+                        </p>
+                    </td>
+                </tr>
+                """.formatted(
                 borda,
                 escaparHtml(detalhe.rotulo()),
                 corValor,

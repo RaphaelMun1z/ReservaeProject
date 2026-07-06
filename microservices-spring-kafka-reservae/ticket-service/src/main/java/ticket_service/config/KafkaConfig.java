@@ -20,10 +20,10 @@ import java.util.Map;
 @Configuration
 public class KafkaConfig {
 
-    @Value("${matchpass.config.kafka.server-url}")
+    @Value("${reservae.config.kafka.server-url}")
     private String kafkaServerUrl;
 
-    @Value("${matchpass.config.kafka.consumer-groups.pedido-confirmado}")
+    @Value("${reservae.config.kafka.consumer-groups.pedido-confirmado}")
     private String orderConfirmedConsumerGroup;
 
     @Bean

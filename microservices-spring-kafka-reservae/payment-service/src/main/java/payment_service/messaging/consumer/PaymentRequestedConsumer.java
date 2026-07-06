@@ -18,7 +18,7 @@ public class PaymentRequestedConsumer {
     }
 
     @KafkaListener(
-        topics = "${matchpass.config.kafka.topics.pagamento-solicitado}",
+        topics = "${reservae.config.kafka.topics.pagamento-solicitado}",
         containerFactory = "paymentRequestedKafkaListenerContainerFactory"
     )
     public void consume(PaymentRequestedEvent event) {

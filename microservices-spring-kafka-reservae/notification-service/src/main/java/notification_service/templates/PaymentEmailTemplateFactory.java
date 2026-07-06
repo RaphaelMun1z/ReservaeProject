@@ -635,22 +635,9 @@ public class PaymentEmailTemplateFactory {
 
     public PaymentEmailTemplateFactory(
         @Value("${notification.email.assets.payment-background-url}") String backgroundCabecalhoUrl,
-
         @Value("${notification.email.assets.payment-header-illustration-url}") String ilustracaoCabecalhoUrl,
-
         @Value("${notification.email.assets.payment-footer-illustration-url}") String ilustracaoRodapeUrl,
-
-        @Value("${notification.email.assets.facebook-icon-url}") String facebookIconUrl,
-
-        @Value("${notification.email.assets.linkedin-icon-url}") String linkedinIconUrl,
-
-        @Value("${notification.email.assets.x-icon-url}") String xIconUrl,
-
-        @Value("${notification.email.assets.instagram-icon-url}") String instagramIconUrl,
-
-        @Value("${notification.email.assets.youtube-icon-url}") String youtubeIconUrl,
-
-        @Value("${notification.email.assets.pinterest-icon-url}") String pinterestIconUrl
+        @Value("${notification.email.assets.instagram-icon-url}") String instagramIconUrl
     ) {
         this.backgroundCabecalhoUrl = backgroundCabecalhoUrl;
         this.ilustracaoCabecalhoUrl = ilustracaoCabecalhoUrl;

@@ -22,7 +22,7 @@ public class PaymentFailedConsumer {
     }
 
     @KafkaListener(
-        topics = "${matchpass.config.kafka.topics.pagamento-falhou}",
+        topics = "${reservae.config.kafka.topics.pagamento-falhou}",
         containerFactory = "paymentFailedKafkaListenerContainerFactory"
     )
     public void consume(PaymentFailedEvent event) {

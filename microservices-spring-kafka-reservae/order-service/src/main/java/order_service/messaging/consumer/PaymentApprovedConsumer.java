@@ -13,7 +13,7 @@ public class PaymentApprovedConsumer {
         this.orderService = orderService;
     }
 
-    @KafkaListener(topics = "${matchpass.config.kafka.topics.pagamento-aprovado}", containerFactory = "paymentApprovedKafkaListenerContainerFactory")
+    @KafkaListener(topics = "${reservae.config.kafka.topics.pagamento-aprovado}", containerFactory = "paymentApprovedKafkaListenerContainerFactory")
     public void consume(PaymentApprovedEvent event) {
         orderService.confirmPayment(event);
     }

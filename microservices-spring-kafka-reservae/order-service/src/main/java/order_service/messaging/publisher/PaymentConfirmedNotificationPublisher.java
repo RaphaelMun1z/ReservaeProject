@@ -16,7 +16,7 @@ public class PaymentConfirmedNotificationPublisher {
 
     public PaymentConfirmedNotificationPublisher(
         KafkaTemplate<String, Object> kafkaTemplate,
-        @Value("${matchpass.config.kafka.topics.notificacao-pagamento-confirmado}") String topic
+        @Value("${reservae.config.kafka.topics.notificacao-pagamento-confirmado}") String topic
     ) {
         this.kafkaTemplate = kafkaTemplate;
         this.topic = topic;

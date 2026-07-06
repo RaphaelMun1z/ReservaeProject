@@ -425,7 +425,7 @@ public class OrderService {
     }
 
     private String buildPaymentItemName(OrderItem item) {
-        return "Ingresso MatchPass - "
+        return "Ingresso Reservae - "
             + item.getTicketType()
             + " - Setor "
             + item.getSectorId();

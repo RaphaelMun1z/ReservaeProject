@@ -18,7 +18,7 @@ public class TicketGeneratedPublisher {
 
     public TicketGeneratedPublisher(
         KafkaTemplate<String, Object> kafkaTemplate,
-        @Value("${matchpass.config.kafka.topics.ingresso-gerado}") String ticketGeneratedTopic
+        @Value("${reservae.config.kafka.topics.ingresso-gerado}") String ticketGeneratedTopic
     ) {
         this.kafkaTemplate = kafkaTemplate;
         this.ticketGeneratedTopic = ticketGeneratedTopic;

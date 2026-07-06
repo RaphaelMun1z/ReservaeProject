@@ -81,7 +81,7 @@ body::before {
 }
 
 /* Página */
-.matchpass-page {
+.reservae-page {
     position: relative;
     min-height: 100vh;
     overflow: hidden;
@@ -89,7 +89,7 @@ body::before {
     color: var(--text-primary);
 }
 
-.matchpass-header {
+.reservae-header {
     position: absolute;
     top: 0;
     left: 0;
@@ -102,7 +102,7 @@ body::before {
     padding: 24px 32px;
 }
 
-.matchpass-logo {
+.reservae-logo {
     display: inline-flex;
     width: 48px;
     height: 48px;
@@ -120,13 +120,13 @@ body::before {
     box-shadow 160ms ease;
 }
 
-.matchpass-logo:hover {
+.reservae-logo:hover {
     color: #ffffff;
     transform: scale(1.05);
     box-shadow: 0 0 22px rgba(255, 98, 77, 0.42);
 }
 
-.matchpass-main {
+.reservae-main {
     position: relative;
     z-index: 10;
     display: flex;
@@ -137,7 +137,7 @@ body::before {
     padding: 80px 24px;
 }
 
-.matchpass-glow {
+.reservae-glow {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -148,11 +148,11 @@ body::before {
     filter: blur(120px);
     pointer-events: none;
     transform: translate(-50%, -50%);
-    animation: matchpass-pulse-glow 6s ease-in-out infinite;
+    animation: reservae-pulse-glow 6s ease-in-out infinite;
 }
 
 /* Card */
-.matchpass-card {
+.reservae-card {
     position: relative;
     z-index: 2;
     width: 100%;
@@ -167,12 +167,12 @@ body::before {
     -webkit-backdrop-filter: blur(20px);
 }
 
-.matchpass-introduction {
+.reservae-introduction {
     margin-bottom: 32px;
     text-align: center;
 }
 
-.matchpass-introduction h1 {
+.reservae-introduction h1 {
     margin: 0 0 8px;
     color: #ffffff;
     font-size: 30px;
@@ -181,7 +181,7 @@ body::before {
     letter-spacing: -0.8px;
 }
 
-.matchpass-introduction p {
+.reservae-introduction p {
     margin: 0;
     color: var(--text-secondary);
     font-size: 14px;
@@ -190,7 +190,7 @@ body::before {
 }
 
 /* Erros */
-.matchpass-alert {
+.reservae-alert {
     margin-bottom: 20px;
     padding: 13px 15px;
     border: 1px solid var(--error-border);
@@ -213,13 +213,13 @@ body::before {
 }
 
 /* Formulário */
-.matchpass-form {
+.reservae-form {
     display: flex;
     flex-direction: column;
     gap: 20px;
 }
 
-.matchpass-field label {
+.reservae-field label {
     display: block;
     margin-bottom: 8px;
     color: var(--text-muted);
@@ -229,11 +229,11 @@ body::before {
     text-transform: uppercase;
 }
 
-.matchpass-input-container {
+.reservae-input-container {
     position: relative;
 }
 
-.matchpass-field-icon {
+.reservae-field-icon {
     position: absolute;
     top: 50%;
     left: 16px;
@@ -244,7 +244,7 @@ body::before {
     transform: translateY(-50%);
 }
 
-.matchpass-input-container input {
+.reservae-input-container input {
     width: 100%;
     min-height: 48px;
     box-sizing: border-box;
@@ -261,24 +261,24 @@ body::before {
     background 160ms ease;
 }
 
-.matchpass-input-container input::placeholder {
+.reservae-input-container input::placeholder {
     color: #4b5563;
 }
 
-.matchpass-input-container input:hover {
+.reservae-input-container input:hover {
     border-color: #343434;
 }
 
-.matchpass-input-container input:focus {
+.reservae-input-container input:focus {
     border-color: var(--brand);
     box-shadow: 0 0 0 1px var(--brand);
 }
 
-.matchpass-input-container input[aria-invalid="true"] {
+.reservae-input-container input[aria-invalid="true"] {
     border-color: var(--brand);
 }
 
-.matchpass-password-toggle {
+.reservae-password-toggle {
     position: absolute;
     top: 50%;
     right: 14px;
@@ -299,13 +299,13 @@ body::before {
     background 160ms ease;
 }
 
-.matchpass-password-toggle:hover,
-.matchpass-password-toggle:focus-visible {
+.reservae-password-toggle:hover,
+.reservae-password-toggle:focus-visible {
     background: var(--dark-hover);
     color: #ffffff;
 }
 
-.matchpass-eye-icon {
+.reservae-eye-icon {
     width: 19px;
     height: 19px;
 }
@@ -315,7 +315,7 @@ body::before {
 }
 
 /* Opções */
-.matchpass-options {
+.reservae-options {
     display: flex;
     min-height: 22px;
     align-items: center;
@@ -324,7 +324,7 @@ body::before {
     font-size: 14px;
 }
 
-.matchpass-remember {
+.reservae-remember {
     display: inline-flex;
     align-items: center;
     gap: 8px;
@@ -334,11 +334,11 @@ body::before {
     transition: color 160ms ease;
 }
 
-.matchpass-remember:hover {
+.reservae-remember:hover {
     color: #ffffff;
 }
 
-.matchpass-remember input {
+.reservae-remember input {
     width: 16px;
     height: 16px;
     margin: 0;
@@ -346,19 +346,19 @@ body::before {
     cursor: pointer;
 }
 
-.matchpass-link {
+.reservae-link {
     color: var(--brand) !important;
     font-weight: 700;
     text-decoration: none !important;
     transition: color 160ms ease;
 }
 
-.matchpass-link:hover {
+.reservae-link:hover {
     color: var(--brand-light) !important;
 }
 
 /* Botão */
-.matchpass-submit {
+.reservae-submit {
     width: 100%;
     min-height: 56px;
     margin-top: 4px;
@@ -377,24 +377,24 @@ body::before {
     box-shadow 160ms ease;
 }
 
-.matchpass-submit:hover {
+.reservae-submit:hover {
     background: var(--brand-dark);
     transform: translateY(-1px);
     box-shadow: 0 13px 25px rgba(255, 98, 77, 0.28);
 }
 
-.matchpass-submit:active {
+.reservae-submit:active {
     transform: translateY(0);
 }
 
-.matchpass-submit:disabled {
+.reservae-submit:disabled {
     cursor: wait;
     opacity: 0.65;
     transform: none;
 }
 
 /* Cadastro */
-.matchpass-registration {
+.reservae-registration {
     margin-top: 32px;
     color: var(--text-secondary);
     font-size: 14px;
@@ -402,7 +402,7 @@ body::before {
     text-align: center;
 }
 
-.matchpass-register-link {
+.reservae-register-link {
     margin-left: 4px;
     color: #ffffff !important;
     font-weight: 700;
@@ -410,12 +410,12 @@ body::before {
     transition: color 160ms ease;
 }
 
-.matchpass-register-link:hover {
+.reservae-register-link:hover {
     color: var(--brand) !important;
 }
 
 /* Animação */
-@keyframes matchpass-pulse-glow {
+@keyframes reservae-pulse-glow {
     0%,
     100% {
         opacity: 0.15;
@@ -429,44 +429,44 @@ body::before {
 
 /* Responsividade */
 @media (max-width: 640px) {
-    .matchpass-header {
+    .reservae-header {
         padding: 20px;
     }
 
-    .matchpass-logo {
+    .reservae-logo {
         width: 44px;
         height: 44px;
         font-size: 18px;
     }
 
-    .matchpass-main {
+    .reservae-main {
         align-items: flex-start;
         padding: 96px 16px 32px;
     }
 
-    .matchpass-card {
+    .reservae-card {
         padding: 30px 22px;
         border-radius: 20px;
     }
 
-    .matchpass-introduction h1 {
+    .reservae-introduction h1 {
         font-size: 26px;
     }
 
-    .matchpass-options {
+    .reservae-options {
         align-items: flex-start;
     }
 }
 
 @media (max-width: 400px) {
-    .matchpass-options {
+    .reservae-options {
         flex-direction: column;
         gap: 12px;
     }
 }
 
 @media (prefers-reduced-motion: reduce) {
-    .matchpass-glow {
+    .reservae-glow {
         animation: none;
     }
 

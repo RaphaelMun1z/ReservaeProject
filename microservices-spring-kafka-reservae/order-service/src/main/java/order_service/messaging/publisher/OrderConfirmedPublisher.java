@@ -16,7 +16,7 @@ public class OrderConfirmedPublisher {
 
     public OrderConfirmedPublisher(
         KafkaTemplate<String, Object> kafkaTemplate,
-        @Value("${matchpass.config.kafka.topics.pedido-confirmado}") String topic
+        @Value("${reservae.config.kafka.topics.pedido-confirmado}") String topic
     ) {
         this.kafkaTemplate = kafkaTemplate;
         this.topic = topic;

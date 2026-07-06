@@ -13,7 +13,7 @@ public class PaymentFailedConsumer {
         this.orderService = orderService;
     }
 
-    @KafkaListener(topics = "${matchpass.config.kafka.topics.pagamento-falhou}", containerFactory = "paymentFailedKafkaListenerContainerFactory")
+    @KafkaListener(topics = "${reservae.config.kafka.topics.pagamento-falhou}", containerFactory = "paymentFailedKafkaListenerContainerFactory")
     public void consume(PaymentFailedEvent event) {
         orderService.failPayment(event);
     }

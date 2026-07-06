@@ -17,7 +17,7 @@ public class PaymentApprovedPublisher {
 
     public PaymentApprovedPublisher(
         KafkaTemplate<String, Object> kafkaTemplate,
-        @Value("${matchpass.config.kafka.topics.pagamento-aprovado}")
+        @Value("${reservae.config.kafka.topics.pagamento-aprovado}")
         String paymentApprovedTopic
     ) {
         this.kafkaTemplate = kafkaTemplate;

@@ -16,7 +16,7 @@ public class OrderReservationRequestedPublisher {
 
     public OrderReservationRequestedPublisher(
         KafkaTemplate<String, Object> kafkaTemplate,
-        @Value("${matchpass.config.kafka.topics.reserva-solicitada}") String reservationRequestedTopic
+        @Value("${reservae.config.kafka.topics.reserva-solicitada}") String reservationRequestedTopic
     ) {
         this.kafkaTemplate = kafkaTemplate;
         this.reservationRequestedTopic = reservationRequestedTopic;

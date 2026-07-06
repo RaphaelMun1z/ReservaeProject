@@ -23,19 +23,19 @@ import java.util.Map;
 @Configuration
 public class KafkaConfig {
 
-    @Value("${matchpass.config.kafka.server-url}")
+    @Value("${reservae.config.kafka.server-url}")
     private String kafkaServerUrl;
 
-    @Value("${matchpass.config.kafka.consumer-groups.notificacao-pagamento-pendente}")
+    @Value("${reservae.config.kafka.consumer-groups.notificacao-pagamento-pendente}")
     private String paymentPendingNotificationConsumerGroup;
 
-    @Value("${matchpass.config.kafka.consumer-groups.notificacao-pagamento-confirmado}")
+    @Value("${reservae.config.kafka.consumer-groups.notificacao-pagamento-confirmado}")
     private String paymentConfirmedNotificationConsumerGroup;
 
-    @Value("${matchpass.config.kafka.consumer-groups.notificacao-pagamento-falhou}")
+    @Value("${reservae.config.kafka.consumer-groups.notificacao-pagamento-falhou}")
     private String paymentFailedNotificationConsumerGroup;
 
-    @Value("${matchpass.config.kafka.consumer-groups.ingresso-gerado}")
+    @Value("${reservae.config.kafka.consumer-groups.ingresso-gerado}")
     private String ticketGeneratedConsumerGroup;
 
     @Bean

@@ -20,7 +20,7 @@ public class PaymentSessionCreatedConsumer {
     }
 
     @KafkaListener(
-        topics = "${matchpass.config.kafka.topics.sessao-pagamento-criada}",
+        topics = "${reservae.config.kafka.topics.sessao-pagamento-criada}",
         containerFactory = "paymentSessionCreatedKafkaListenerContainerFactory"
     )
     public void consume(PaymentSessionCreatedEvent event) {

@@ -22,7 +22,7 @@ public class PaymentApprovedConsumer {
     }
 
     @KafkaListener(
-        topics = "${matchpass.config.kafka.topics.pagamento-aprovado}",
+        topics = "${reservae.config.kafka.topics.pagamento-aprovado}",
         containerFactory = "paymentApprovedKafkaListenerContainerFactory"
     )
     public void consume(PaymentApprovedEvent event) {

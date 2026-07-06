@@ -17,7 +17,7 @@ public class InventoryReservationResultPublisher {
 
     public InventoryReservationResultPublisher(
         KafkaTemplate<String, Object> kafkaTemplate,
-        @Value("${matchpass.config.kafka.topics.resultado-reserva}")
+        @Value("${reservae.config.kafka.topics.resultado-reserva}")
         String reservationResultTopic
     ) {
         this.kafkaTemplate = kafkaTemplate;

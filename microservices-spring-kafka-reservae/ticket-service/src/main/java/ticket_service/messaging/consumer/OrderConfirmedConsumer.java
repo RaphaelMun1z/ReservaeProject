@@ -18,7 +18,7 @@ public class OrderConfirmedConsumer {
     }
 
     @KafkaListener(
-        topics = "${matchpass.config.kafka.topics.pedido-confirmado}",
+        topics = "${reservae.config.kafka.topics.pedido-confirmado}",
         containerFactory = "orderConfirmedKafkaListenerContainerFactory"
     )
     public void consume(OrderConfirmedEvent event) {

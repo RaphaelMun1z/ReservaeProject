@@ -9,21 +9,21 @@ spring:
   profiles:
     active: dev
   kafka:
-    bootstrap-servers: ${matchpass.config.kafka.server-url}
+    bootstrap-servers: ${reservae.config.kafka.server-url}
     admin:
       fail-fast: false
 
-matchpass:
+reservae:
   config:
     kafka:
       server-url: localhost:29092
       consumer-groups:
         pagamento-solicitado: payment-service-payment-requested
       topics:
-        pagamento-solicitado: matchpass.payment.requested.v1
-        sessao-pagamento-criada: matchpass.payment.session-created.v1
-        pagamento-aprovado: matchpass.payment.approved.v1
-        pagamento-falhou: matchpass.payment.failed.v1
+        pagamento-solicitado: reservae.payment.requested.v1
+        sessao-pagamento-criada: reservae.payment.session-created.v1
+        pagamento-aprovado: reservae.payment.approved.v1
+        pagamento-falhou: reservae.payment.failed.v1
 
 springdoc:
   api-docs:

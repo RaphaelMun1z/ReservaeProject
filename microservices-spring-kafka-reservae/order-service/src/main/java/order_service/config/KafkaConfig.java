@@ -22,19 +22,19 @@ import java.util.Map;
 
 @Configuration
 public class KafkaConfig {
-    @Value("${matchpass.config.kafka.server-url}")
+    @Value("${reservae.config.kafka.server-url}")
     private String kafkaServerUrl;
 
-    @Value("${matchpass.config.kafka.consumer-groups.resultado-reserva}")
+    @Value("${reservae.config.kafka.consumer-groups.resultado-reserva}")
     private String reservationResultConsumerGroup;
 
-    @Value("${matchpass.config.kafka.consumer-groups.sessao-pagamento-criada}")
+    @Value("${reservae.config.kafka.consumer-groups.sessao-pagamento-criada}")
     private String paymentSessionCreatedConsumerGroup;
 
-    @Value("${matchpass.config.kafka.consumer-groups.pagamento-aprovado}")
+    @Value("${reservae.config.kafka.consumer-groups.pagamento-aprovado}")
     private String paymentApprovedConsumerGroup;
 
-    @Value("${matchpass.config.kafka.consumer-groups.pagamento-falhou}")
+    @Value("${reservae.config.kafka.consumer-groups.pagamento-falhou}")
     private String paymentFailedConsumerGroup;
 
     @Bean

@@ -16,7 +16,7 @@ public class PaymentRequestedPublisher {
 
     public PaymentRequestedPublisher(
         KafkaTemplate<String, Object> kafkaTemplate,
-        @Value("${matchpass.config.kafka.topics.pagamento-solicitado}") String paymentRequestedTopic
+        @Value("${reservae.config.kafka.topics.pagamento-solicitado}") String paymentRequestedTopic
     ) {
         this.kafkaTemplate = kafkaTemplate;
         this.paymentRequestedTopic = paymentRequestedTopic;

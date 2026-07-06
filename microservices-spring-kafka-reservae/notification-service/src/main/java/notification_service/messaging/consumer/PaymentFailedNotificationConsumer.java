@@ -15,7 +15,7 @@ public class PaymentFailedNotificationConsumer {
     }
 
     @KafkaListener(
-        topics = "${matchpass.config.kafka.topics.notificacao-pagamento-falhou}",
+        topics = "${reservae.config.kafka.topics.notificacao-pagamento-falhou}",
         containerFactory = "paymentFailedNotificationKafkaListenerContainerFactory"
     )
     public void consume(PaymentFailedNotificationRequestedEvent event) {

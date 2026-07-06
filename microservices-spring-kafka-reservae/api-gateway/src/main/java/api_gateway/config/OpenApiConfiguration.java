@@ -38,9 +38,9 @@ public class OpenApiConfiguration {
                         String name = routeDefinition.getId();
                         config.addGroup(name);
                         groups.add(GroupedOpenApi.builder()
-                                       .group(name)
-                                       .pathsToMatch("/" + name + "/**")
-                                       .build());
+                            .group(name)
+                            .pathsToMatch("/" + name + "/**")
+                            .build());
                     }
                 );
         }

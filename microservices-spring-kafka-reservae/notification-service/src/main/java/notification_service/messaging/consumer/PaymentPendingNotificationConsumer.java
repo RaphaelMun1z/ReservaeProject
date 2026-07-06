@@ -14,7 +14,7 @@ public class PaymentPendingNotificationConsumer {
     }
 
     @KafkaListener(
-        topics = "${matchpass.config.kafka.topics.notificacao-pagamento-pendente}",
+        topics = "${reservae.config.kafka.topics.notificacao-pagamento-pendente}",
         containerFactory = "paymentPendingNotificationKafkaListenerContainerFactory"
     )
     public void consume(PaymentPendingNotificationRequestedEvent event) {

@@ -70,11 +70,11 @@ public class VenueService {
             dto.sectors()
                 .stream()
                 .map(s ->
-                         new Sector(
-                             venue,
-                             s.name(),
-                             s.capacity()
-                         )
+                    new Sector(
+                        venue,
+                        s.name(),
+                        s.capacity()
+                    )
                 )
                 .toList();
         venue.addMultipleSectors(sectors);
@@ -112,8 +112,8 @@ public class VenueService {
         Sector sector = venue.getSectors()
             .stream()
             .filter(s ->
-                        s.getId()
-                            .equals(sectorId))
+                s.getId()
+                    .equals(sectorId))
             .findFirst()
             .orElseThrow(() -> new NotFoundException("Setor não encontrado"));
         venue.removeSector(sector);

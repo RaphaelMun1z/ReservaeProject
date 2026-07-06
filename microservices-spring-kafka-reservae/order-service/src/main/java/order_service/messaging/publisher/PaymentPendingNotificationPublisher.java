@@ -16,7 +16,7 @@ public class PaymentPendingNotificationPublisher {
 
     public PaymentPendingNotificationPublisher(
         KafkaTemplate<String, Object> kafkaTemplate,
-        @Value("${matchpass.config.kafka.topics.notificacao-pagamento-pendente}")
+        @Value("${reservae.config.kafka.topics.notificacao-pagamento-pendente}")
         String paymentPendingNotificationTopic
     ) {
         this.kafkaTemplate = kafkaTemplate;

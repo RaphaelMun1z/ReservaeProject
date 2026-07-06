@@ -15,7 +15,7 @@ public class PaymentConfirmedNotificationConsumer {
     }
 
     @KafkaListener(
-        topics = "${matchpass.config.kafka.topics.notificacao-pagamento-confirmado}",
+        topics = "${reservae.config.kafka.topics.notificacao-pagamento-confirmado}",
         containerFactory = "paymentConfirmedNotificationKafkaListenerContainerFactory"
     )
     public void consume(PaymentConfirmedNotificationRequestedEvent event) {

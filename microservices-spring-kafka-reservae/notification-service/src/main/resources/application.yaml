@@ -18,26 +18,20 @@ notification:
 
   email:
     sender-email: ${NOTIFICATION_EMAIL}
-    sender-name: MatchPass
+    sender-name: Reservae
 
     assets:
-      payment-background-url: https://seu-dominio.com/email/payment-background.png
-      payment-header-illustration-url: https://seu-dominio.com/email/payment-header.png
-      payment-footer-illustration-url: https://seu-dominio.com/email/payment-footer.png
-
-      facebook-icon-url: https://seu-dominio.com/email/facebook.png
-      linkedin-icon-url: https://seu-dominio.com/email/linkedin.png
-      x-icon-url: https://seu-dominio.com/email/x.png
-      instagram-icon-url: https://seu-dominio.com/email/instagram.png
-      youtube-icon-url: https://seu-dominio.com/email/youtube.png
-      pinterest-icon-url: https://seu-dominio.com/email/pinterest.png
+      payment-background-url: ${PAYMENT_BACKGROUND_URL}
+      payment-header-illustration-url: ${PAYMENT_HEADER_ILLUSTRATION_URL}
+      payment-footer-illustration-url: ${PAYMENT_FOOTER_ILLUSTRATION_URL}
+      instagram-icon-url: ${INSTAGRAM_ICON_URL}
 
 brevo:
   api:
     url: https://api.brevo.com/v3
     key: ${BREVO_API_KEY}
 
-matchpass:
+reservae:
   config:
     kafka:
       server-url: localhost:29092
@@ -47,7 +41,7 @@ matchpass:
         notificacao-pagamento-falhou: notification-service-payment-failed-notification
         ingresso-gerado: notification-service-ticket-generated
       topics:
-        notificacao-pagamento-pendente: matchpass.notification.payment-pending-requested.v1
-        notificacao-pagamento-confirmado: matchpass.notification.payment-confirmed-requested.v1
-        notificacao-pagamento-falhou: matchpass.notification.payment-failed-requested.v1
-        ingresso-gerado: matchpass.ticket.generated.v1
+        notificacao-pagamento-pendente: reservae.notification.payment-pending-requested.v1
+        notificacao-pagamento-confirmado: reservae.notification.payment-confirmed-requested.v1
+        notificacao-pagamento-falhou: reservae.notification.payment-failed-requested.v1
+        ingresso-gerado: reservae.ticket.generated.v1

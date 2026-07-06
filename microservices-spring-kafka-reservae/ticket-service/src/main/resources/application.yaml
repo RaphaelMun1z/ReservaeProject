@@ -9,15 +9,15 @@ spring:
   profiles:
     active: dev
 
-matchpass:
+reservae:
   config:
     kafka:
       server-url: localhost:29092
       consumer-groups:
         pedido-confirmado: ticket-service-order-confirmed
       topics:
-        pedido-confirmado: matchpass.order.confirmed.v1
-        ingresso-gerado: matchpass.ticket.generated.v1
+        pedido-confirmado: reservae.order.confirmed.v1
+        ingresso-gerado: reservae.ticket.generated.v1
 
 springdoc:
   api-docs:

@@ -17,7 +17,7 @@ public class OrderReservationRequestedConsumer {
     }
 
     @KafkaListener(
-        topics = "${matchpass.config.kafka.topics.reserva-solicitada}",
+        topics = "${reservae.config.kafka.topics.reserva-solicitada}",
         containerFactory = "orderReservationKafkaListenerContainerFactory"
     )
     public void consume(OrderReservationRequestedEvent event) {

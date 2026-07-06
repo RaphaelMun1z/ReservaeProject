@@ -16,7 +16,7 @@ public class PaymentSessionCreatedPublisher {
 
     public PaymentSessionCreatedPublisher(
         KafkaTemplate<String, Object> kafkaTemplate,
-        @Value("${matchpass.config.kafka.topics.sessao-pagamento-criada}")
+        @Value("${reservae.config.kafka.topics.sessao-pagamento-criada}")
         String paymentSessionCreatedTopic
     ) {
         this.kafkaTemplate = kafkaTemplate;

@@ -8,19 +8,19 @@ import org.springframework.kafka.config.TopicBuilder;
 
 @Configuration
 public class KafkaTopicConfig {
-    @Value("${matchpass.config.kafka.topics.reserva-solicitada}")
+    @Value("${reservae.config.kafka.topics.reserva-solicitada}")
     private String reservationRequestedTopic;
 
-    @Value("${matchpass.config.kafka.topics.resultado-reserva}")
+    @Value("${reservae.config.kafka.topics.resultado-reserva}")
     private String reservationResultTopic;
 
-    @Value("${matchpass.config.kafka.topics.pagamento-solicitado}")
+    @Value("${reservae.config.kafka.topics.pagamento-solicitado}")
     private String paymentRequestedTopic;
 
-    @Value("${matchpass.config.kafka.topics.pagamento-aprovado}")
+    @Value("${reservae.config.kafka.topics.pagamento-aprovado}")
     private String paymentApprovedTopic;
 
-    @Value("${matchpass.config.kafka.topics.pagamento-falhou}")
+    @Value("${reservae.config.kafka.topics.pagamento-falhou}")
     private String paymentFailedTopic;
 
     @Bean

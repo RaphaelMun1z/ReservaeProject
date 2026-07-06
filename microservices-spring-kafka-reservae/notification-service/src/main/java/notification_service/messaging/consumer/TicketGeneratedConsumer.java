@@ -18,7 +18,7 @@ public class TicketGeneratedConsumer {
     }
 
     @KafkaListener(
-        topics = "${matchpass.config.kafka.topics.ingresso-gerado}",
+        topics = "${reservae.config.kafka.topics.ingresso-gerado}",
         containerFactory = "ticketGeneratedKafkaListenerContainerFactory"
     )
     public void consume(TicketGeneratedEvent event) {
