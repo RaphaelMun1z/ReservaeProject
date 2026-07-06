@@ -1,8 +1,8 @@
 # Reservae
 
 <div align="center">
-  <a href="https://github.com/RaphaelMun1z/MatchPassProject/releases/tag/v1.0.0">
-    <img src="https://img.shields.io/badge/backend-v1.0.0-6C63FF?style=for-the-badge" alt="Backend v1.0.0">
+  <a href="https://github.com/RaphaelMun1z/MatchPassProject/releases/latest">
+    <img src="https://img.shields.io/github/v/release/RaphaelMun1z/MatchPassProject?label=backend&style=for-the-badge&color=6C63FF" alt="Última versão do backend">
   </a>
   <img src="https://img.shields.io/badge/status-MVP%20funcional-22C55E?style=for-the-badge" alt="Status: MVP funcional">
   <img src="https://img.shields.io/badge/Java-21-E76F00?style=for-the-badge&logo=openjdk&logoColor=white" alt="Java 21">
@@ -21,11 +21,11 @@ O backend segue uma arquitetura de microsserviços. Cada serviço representa uma
 
 ### Domínios
 
-| Categoria | Subdomínios | Papel no sistema |
-| :-- | :-- | :-- |
-| **Core** | Catálogo de eventos e locais, inventário, reserva, pedido, checkout e ingresso | Concentra a venda e o acesso aos eventos |
-| **Suporte** | Notificações e controle de acesso | Complementa a experiência de organizadores e participantes |
-| **Genérico** | Identidade, autenticação e pagamentos | Fornece capacidades compartilhadas por todo o sistema |
+| Categoria    | Subdomínios                                                                    | Papel no sistema                                           |
+| :----------- | :----------------------------------------------------------------------------- | :--------------------------------------------------------- |
+| **Core**     | Catálogo de eventos e locais, inventário, reserva, pedido, checkout e ingresso | Concentra a venda e o acesso aos eventos                   |
+| **Suporte**  | Notificações e controle de acesso                                              | Complementa a experiência de organizadores e participantes |
+| **Genérico** | Identidade, autenticação e pagamentos                                          | Fornece capacidades compartilhadas por todo o sistema      |
 
 ### Documentação visual
 
@@ -45,29 +45,29 @@ Os diagramas abaixo registram a concepção arquitetural que originou o MVP.
 
 ### Infraestrutura de apoio
 
-| Status | Componente | Porta local | Papel |
-| :--: | :-- | :--: | :-- |
-| ✅ | Spring Cloud Config Server | `8888` | Configuração centralizada dos serviços |
-| ✅ | Eureka Naming Server | `8761` | Registro e descoberta de serviços |
-| ✅ | API Gateway | `8765` | Roteamento das APIs e acesso ao Swagger |
-| 🔴 | Zipkin Server | `9411` | Rastreamento distribuído |
-| ✅ | Keycloak | `8080` | Identidade, autenticação e autorização |
-| ✅ | Apache Kafka | `29092` | Mensageria e integração orientada a eventos |
-| ✅ | ZooKeeper | `22181` | Coordenação do broker Kafka |
-| ✅ | Kafka UI | `8090` | Inspeção de tópicos, consumidores e mensagens |
-| ⚪ | Frontend Angular | — | Diretório reservado para a futura aplicação |
+| Status | Componente                 | Porta local | Papel                                         |
+| :----: | :------------------------- | :---------: | :-------------------------------------------- |
+|   ✅   | Spring Cloud Config Server |   `8888`    | Configuração centralizada dos serviços        |
+|   ✅   | Eureka Naming Server       |   `8761`    | Registro e descoberta de serviços             |
+|   ✅   | API Gateway                |   `8765`    | Roteamento das APIs e acesso ao Swagger       |
+|   🔴   | Zipkin Server              |   `9411`    | Rastreamento distribuído                      |
+|   ✅   | Keycloak                   |   `8080`    | Identidade, autenticação e autorização        |
+|   ✅   | Apache Kafka               |   `29092`   | Mensageria e integração orientada a eventos   |
+|   ✅   | ZooKeeper                  |   `22181`   | Coordenação do broker Kafka                   |
+|   ✅   | Kafka UI                   |   `8090`    | Inspeção de tópicos, consumidores e mensagens |
+|   ⚪   | Frontend Angular           |      —      | Diretório reservado para a futura aplicação   |
 
 ### Microsserviços e persistência
 
-| Status do serviço | Status do banco | Microsserviço | Porta da aplicação | Persistência | Porta local do banco | Database |
-| :--: | :--: | :-- | :--: | :-- | :--: | :-- |
-| ✅ | ✅ | User Profile Service | `8000` | PostgreSQL 18.4 | `5432` | `db_user_profile` |
-| ✅ | ✅ | Event Catalog Service | `8100` | PostgreSQL 18.4 | `5433` | `db_event_catalog` |
-| ✅ | ✅ | Inventory Service | `8200` | Redis 7 | `6379` | — |
-| ✅ | ✅ | Order Service | `8300` | PostgreSQL 18.4 | `5434` | `db_order` |
-| ✅ | ✅ | Payment Service | `8400` | PostgreSQL 18.4 | `5436` | `db_payment` |
-| ✅ | ✅ | Ticket Service | `8500` | PostgreSQL 18.4 | `5435` | `db_ticket` |
-| ✅ | ✅ | Notification Service | `8600` | MongoDB 7 | `27017` | `db_notification` |
+| Status do serviço | Status do banco | Microsserviço         | Porta da aplicação | Persistência    | Porta local do banco | Database           |
+| :---------------: | :-------------: | :-------------------- | :----------------: | :-------------- | :------------------: | :----------------- |
+|        ✅         |       ✅        | User Profile Service  |       `8000`       | PostgreSQL 18.4 |        `5432`        | `db_user_profile`  |
+|        ✅         |       ✅        | Event Catalog Service |       `8100`       | PostgreSQL 18.4 |        `5433`        | `db_event_catalog` |
+|        ✅         |       ✅        | Inventory Service     |       `8200`       | Redis 7         |        `6379`        | —                  |
+|        ✅         |       ✅        | Order Service         |       `8300`       | PostgreSQL 18.4 |        `5434`        | `db_order`         |
+|        ✅         |       ✅        | Payment Service       |       `8400`       | PostgreSQL 18.4 |        `5436`        | `db_payment`       |
+|        ✅         |       ✅        | Ticket Service        |       `8500`       | PostgreSQL 18.4 |        `5435`        | `db_ticket`        |
+|        ✅         |       ✅        | Notification Service  |       `8600`       | MongoDB 7       |       `27017`        | `db_notification`  |
 
 > As portas listadas são as portas expostas no host pelo ambiente local. Internamente, os contêineres PostgreSQL utilizam a porta `5432`, o Kafka utiliza `9092`, o ZooKeeper utiliza `2181` e o Kafka UI utiliza `8080`.
 
@@ -171,13 +171,13 @@ Abra `frontend/prototipo-reservae/index.html` no navegador. O diretório
 
 ## Endpoints de apoio
 
-| Recurso | URL |
-| :-- | :-- |
-| API Gateway | `http://localhost:8765` |
-| Swagger UI | `http://localhost:8765/swagger-ui.html` |
-| Eureka Dashboard | `http://localhost:8761` |
-| Keycloak | `http://localhost:8080` |
-| Kafka UI | `http://localhost:8090` |
+| Recurso          | URL                                     |
+| :--------------- | :-------------------------------------- |
+| API Gateway      | `http://localhost:8765`                 |
+| Swagger UI       | `http://localhost:8765/swagger-ui.html` |
+| Eureka Dashboard | `http://localhost:8761`                 |
+| Keycloak         | `http://localhost:8080`                 |
+| Kafka UI         | `http://localhost:8090`                 |
 
 ## Relato de bugs
 
