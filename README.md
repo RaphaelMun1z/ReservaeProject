@@ -1,8 +1,8 @@
 # Reservae
 
 <div align="center">
-  <a href="https://github.com/RaphaelMun1z/MatchPassProject/releases/latest">
-    <img src="https://img.shields.io/github/v/release/RaphaelMun1z/MatchPassProject?label=backend&style=for-the-badge&color=6C63FF" alt="Última versão do backend">
+  <a href="https://github.com/RaphaelMun1z/ReservaeProject/releases/latest">
+    <img src="https://img.shields.io/github/v/release/RaphaelMun1z/ReservaeProject?label=backend&style=for-the-badge&color=6C63FF" alt="Última versão do backend">
   </a>
   <img src="https://img.shields.io/badge/status-MVP%20funcional-22C55E?style=for-the-badge" alt="Status: MVP funcional">
   <img src="https://img.shields.io/badge/Java-21-E76F00?style=for-the-badge&logo=openjdk&logoColor=white" alt="Java 21">
@@ -181,7 +181,7 @@ Abra `frontend/prototipo-reservae/index.html` no navegador. O diretório
 
 ## Relato de bugs
 
-Encontrou um comportamento inesperado? [Crie uma issue no repositório](https://github.com/RaphaelMun1z/MatchPassProject/issues/new) com uma descrição objetiva, os passos para reproduzir, o resultado esperado e, quando possível, logs ou capturas de tela. Antes de abrir uma nova issue, verifique se o problema já foi relatado.
+Encontrou um comportamento inesperado? [Crie uma issue no repositório](https://github.com/RaphaelMun1z/ReservaeProject/issues/new) com uma descrição objetiva, os passos para reproduzir, o resultado esperado e, quando possível, logs ou capturas de tela. Antes de abrir uma nova issue, verifique se o problema já foi relatado.
 
 ## Interface da aplicação
 
