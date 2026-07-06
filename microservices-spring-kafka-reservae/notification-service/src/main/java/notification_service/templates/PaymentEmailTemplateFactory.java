@@ -1,11 +1,29 @@
 package notification_service.templates;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Component
 public class PaymentEmailTemplateFactory {
+
+    private final String paymentBackgroundUrl;
+    private final String paymentHeaderIllustrationUrl;
+    private final String paymentFooterIllustrationUrl;
+    private final String instagramIconUrl;
+
+    public PaymentEmailTemplateFactory(
+        @Value("${notification.email.assets.payment-background-url}") String paymentBackgroundUrl,
+        @Value("${notification.email.assets.payment-header-illustration-url}") String paymentHeaderIllustrationUrl,
+        @Value("${notification.email.assets.payment-footer-illustration-url}") String paymentFooterIllustrationUrl,
+        @Value("${notification.email.assets.instagram-icon-url}") String instagramIconUrl
+    ) {
+        this.paymentBackgroundUrl = paymentBackgroundUrl;
+        this.paymentHeaderIllustrationUrl = paymentHeaderIllustrationUrl;
+        this.paymentFooterIllustrationUrl = paymentFooterIllustrationUrl;
+        this.instagramIconUrl = instagramIconUrl;
+    }
 
     private static final String ITEM_TEMPLATE = """
         <tr>
@@ -179,12 +197,33 @@ public class PaymentEmailTemplateFactory {
                             <tr>
                                 <td
                                     align="center"
+                                    background="{{PAYMENT_BACKGROUND_URL}}"
                                     style="
-                                        padding: 56px 35px 58px;
+                                        padding: 44px 35px 50px;
                                         background-color: #5e71ec;
+                                        background-image: url('{{PAYMENT_BACKGROUND_URL}}');
+                                        background-repeat: no-repeat;
+                                        background-position: center;
+                                        background-size: cover;
                                         color: #ffffff;
                                     "
                                 >
+                                    <img
+                                        src="{{PAYMENT_HEADER_ILLUSTRATION_URL}}"
+                                        alt="Reservae"
+                                        width="180"
+                                        style="
+                                            display: block;
+                                            width: 180px;
+                                            max-width: 70%;
+                                            height: auto;
+                                            margin: 0 auto 24px;
+                                            border: 0;
+                                            outline: none;
+                                            text-decoration: none;
+                                        "
+                                    >
+        
                                     <p
                                         style="
                                             margin: 0 0 18px;
@@ -524,6 +563,22 @@ public class PaymentEmailTemplateFactory {
                                         background-color: #f1f3f8;
                                     "
                                 >
+                                    <img
+                                        src="{{PAYMENT_FOOTER_ILLUSTRATION_URL}}"
+                                        alt="Reservae"
+                                        width="120"
+                                        style="
+                                            display: block;
+                                            width: 120px;
+                                            max-width: 60%;
+                                            height: auto;
+                                            margin: 0 auto 18px;
+                                            border: 0;
+                                            outline: none;
+                                            text-decoration: none;
+                                        "
+                                    >
+        
                                     <p
                                         style="
                                             margin: 0 0 7px;
@@ -540,7 +595,7 @@ public class PaymentEmailTemplateFactory {
         
                                     <p
                                         style="
-                                            margin: 0 0 8px;
+                                            margin: 0 0 12px;
                                             color: #8b909b;
                                             font-size: 9px;
                                             line-height: 1.5;
@@ -550,6 +605,40 @@ public class PaymentEmailTemplateFactory {
                                         Política de Privacidade |
                                         Gerenciar notificações
                                     </p>
+        
+                                    <table
+                                        role="presentation"
+                                        cellspacing="0"
+                                        cellpadding="0"
+                                        border="0"
+                                        align="center"
+                                        style="margin: 0 auto 12px;"
+                                    >
+                                        <tr>
+                                            <td align="center">
+                                                <a
+                                                    href="{{LINK_INSTAGRAM}}"
+                                                    target="_blank"
+                                                    style="text-decoration: none;"
+                                                >
+                                                    <img
+                                                        src="{{INSTAGRAM_ICON_URL}}"
+                                                        alt="Instagram"
+                                                        width="22"
+                                                        height="22"
+                                                        style="
+                                                            display: block;
+                                                            width: 22px;
+                                                            height: 22px;
+                                                            border: 0;
+                                                            outline: none;
+                                                            text-decoration: none;
+                                                        "
+                                                    >
+                                                </a>
+                                            </td>
+                                        </tr>
+                                    </table>
         
                                     <p
                                         style="
@@ -589,6 +678,21 @@ public class PaymentEmailTemplateFactory {
         String html = TEMPLATE.replace(
             "{{TITULO_DOCUMENTO}}",
             escaparHtml(assunto)
+        ).replace(
+            "{{PAYMENT_BACKGROUND_URL}}",
+            escaparAtributo(paymentBackgroundUrl)
+        ).replace(
+            "{{PAYMENT_HEADER_ILLUSTRATION_URL}}",
+            escaparAtributo(paymentHeaderIllustrationUrl)
+        ).replace(
+            "{{PAYMENT_FOOTER_ILLUSTRATION_URL}}",
+            escaparAtributo(paymentFooterIllustrationUrl)
+        ).replace(
+            "{{INSTAGRAM_ICON_URL}}",
+            escaparAtributo(instagramIconUrl)
+        ).replace(
+            "{{LINK_INSTAGRAM}}",
+            "#"
         ).replace(
             "{{NOME}}",
             escaparHtml(nomeDestinatario)
