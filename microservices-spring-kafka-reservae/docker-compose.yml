@@ -1,10 +1,9 @@
-version: '3.8'
+name: docker-reservae
 
 services:
   user-profile-service-postgres-db:
     image: postgres:18.4
     restart: unless-stopped
-    container_name: postgresql-18.4-user-profile-service
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -17,7 +16,6 @@ services:
   event-catalog-service-postgres-db:
     image: postgres:18.4
     restart: unless-stopped
-    container_name: postgresql-18.4-event-catalog-service
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -30,7 +28,6 @@ services:
   inventory-service-redis-db:
     image: redis:7-alpine
     restart: unless-stopped
-    container_name: redis-7-inventory-service
     ports:
       - '6379:6379'
     volumes:
@@ -39,7 +36,6 @@ services:
   order-service-postgres-db:
     image: postgres:18.4
     restart: unless-stopped
-    container_name: postgresql-18.4-order-service
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -52,7 +48,6 @@ services:
   payment-service-postgres-db:
     image: postgres:18.4
     restart: unless-stopped
-    container_name: postgresql-18.4-payment-service
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -65,7 +60,6 @@ services:
   ticket-service-postgres-db:
     image: postgres:18.4
     restart: unless-stopped
-    container_name: postgresql-18.4-ticket-service
     environment:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
@@ -78,7 +72,6 @@ services:
   notification-service-mongodb-db:
     image: mongo:7.0
     restart: unless-stopped
-    container_name: mongodb-7.0-notification-service
     ports:
       - '27017:27017'
     volumes:
@@ -86,16 +79,16 @@ services:
 
   #  keycloak:
   #    image: quay.io/keycloak/keycloak:26.6.3
-  #    container_name: keycloak-dev
+  #
   #    ports:
   #      - "127.0.0.1:8080:8080"
   #    environment:
   #      KC_BOOTSTRAP_ADMIN_USERNAME: admin
   #      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
   #    command: start-dev
+
   keycloak:
     image: quay.io/keycloak/keycloak:26.6.3
-    container_name: keycloak-dev
     restart: unless-stopped
     ports:
       - "127.0.0.1:8080:8080"
