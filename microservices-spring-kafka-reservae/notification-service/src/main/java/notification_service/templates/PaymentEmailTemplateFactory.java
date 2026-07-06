@@ -1,6 +1,5 @@
 package notification_service.templates;
 
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -11,7 +10,6 @@ public class PaymentEmailTemplateFactory {
     private static final String ITEM_TEMPLATE = """
         <tr>
             <td style="padding: 0 0 16px;">
-        
                 <table
                     role="presentation"
                     width="100%"
@@ -28,33 +26,9 @@ public class PaymentEmailTemplateFactory {
                 >
                     <tr>
                         <td
-                            width="110"
                             valign="middle"
                             style="
-                                width: 110px;
-                                padding: 15px 0 15px 15px;
-                            "
-                        >
-                            <img
-                                src="{{IMAGEM_URL}}"
-                                width="82"
-                                height="82"
-                                alt="{{IMAGEM_ALT}}"
-                                style="
-                                    display: block;
-                                    width: 82px;
-                                    height: 82px;
-                                    border: 0;
-                                    border-radius: 10px;
-                                    object-fit: cover;
-                                "
-                            >
-                        </td>
-        
-                        <td
-                            valign="middle"
-                            style="
-                                padding: 15px 10px;
+                                padding: 18px 20px;
                                 font-family: Montserrat, Arial, sans-serif;
                             "
                         >
@@ -62,7 +36,7 @@ public class PaymentEmailTemplateFactory {
                                 style="
                                     margin: 0 0 6px;
                                     color: #7a7f8c;
-                                    font-size: 9px;
+                                    font-size: 10px;
                                     line-height: 1.3;
                                 "
                             >
@@ -73,7 +47,7 @@ public class PaymentEmailTemplateFactory {
                                 style="
                                     margin: 0 0 8px;
                                     color: #080808;
-                                    font-size: 15px;
+                                    font-size: 16px;
                                     line-height: 1.35;
                                     font-weight: 800;
                                 "
@@ -85,7 +59,7 @@ public class PaymentEmailTemplateFactory {
                                 style="
                                     margin: 0 0 4px;
                                     color: #6b707d;
-                                    font-size: 9px;
+                                    font-size: 11px;
                                     line-height: 1.5;
                                 "
                             >
@@ -96,7 +70,7 @@ public class PaymentEmailTemplateFactory {
                                 style="
                                     margin: 0;
                                     color: #6b707d;
-                                    font-size: 9px;
+                                    font-size: 11px;
                                     line-height: 1.5;
                                 "
                             >
@@ -111,7 +85,7 @@ public class PaymentEmailTemplateFactory {
                             align="right"
                             style="
                                 width: 135px;
-                                padding: 15px 18px 15px 8px;
+                                padding: 18px 20px 18px 8px;
                                 font-family: Montserrat, Arial, sans-serif;
                             "
                         >
@@ -119,7 +93,7 @@ public class PaymentEmailTemplateFactory {
                                 style="
                                     margin: 0 0 6px;
                                     color: #7a7f8c;
-                                    font-size: 9px;
+                                    font-size: 10px;
                                     line-height: 1.3;
                                 "
                             >
@@ -130,7 +104,7 @@ public class PaymentEmailTemplateFactory {
                                 style="
                                     margin: 0;
                                     color: #101329;
-                                    font-size: 15px;
+                                    font-size: 16px;
                                     line-height: 1.35;
                                     font-weight: 800;
                                 "
@@ -140,10 +114,10 @@ public class PaymentEmailTemplateFactory {
                         </td>
                     </tr>
                 </table>
-        
             </td>
         </tr>
         """;
+
     private static final String TEMPLATE = """
         <!doctype html>
         <html lang="pt-BR">
@@ -186,7 +160,6 @@ public class PaymentEmailTemplateFactory {
             >
                 <tr>
                     <td align="center" style="padding: 36px 12px;">
-        
                         <table
                             role="presentation"
                             width="100%"
@@ -202,37 +175,30 @@ public class PaymentEmailTemplateFactory {
                             "
                         >
         
-                            <!-- CABEÇALHO AZUL -->
+                            <!-- CABEÇALHO -->
                             <tr>
                                 <td
                                     align="center"
-                                    background="{{BACKGROUND_CABECALHO_URL}}"
                                     style="
-                                        padding: 52px 35px 54px;
+                                        padding: 56px 35px 58px;
                                         background-color: #5e71ec;
-                                        background-image:
-                                            url('{{BACKGROUND_CABECALHO_URL}}');
-                                        background-repeat: no-repeat;
-                                        background-position: center;
-                                        background-size: cover;
                                         color: #ffffff;
                                     "
                                 >
-                                    <img
-                                        src="{{ILUSTRACAO_CABECALHO_URL}}"
-                                        width="112"
-                                        alt="Pagamento pendente"
+                                    <p
                                         style="
-                                            display: block;
-                                            width: 112px;
-                                            max-width: 112px;
-                                            height: auto;
-                                            margin: 0 auto 27px;
-                                            border: 0;
-                                            outline: none;
-                                            text-decoration: none;
+                                            margin: 0 0 18px;
+                                            color: #eef0ff;
+                                            font-size: 14px;
+                                            line-height: 1.4;
+                                            font-weight: 700;
+                                            text-align: center;
+                                            letter-spacing: 1.8px;
+                                            text-transform: uppercase;
                                         "
                                     >
+                                        Reservae
+                                    </p>
         
                                     <h1
                                         style="
@@ -558,33 +524,17 @@ public class PaymentEmailTemplateFactory {
                                         background-color: #f1f3f8;
                                     "
                                 >
-                                    <img
-                                        src="{{ILUSTRACAO_RODAPE_URL}}"
-                                        width="62"
-                                        alt="Music Tour"
-                                        style="
-                                            display: block;
-                                            width: 62px;
-                                            max-width: 62px;
-                                            height: auto;
-                                            margin: 0 auto;
-                                            border: 0;
-                                            outline: none;
-                                        "
-                                    >
-        
-                                    {{REDES_SOCIAIS}}
-        
                                     <p
                                         style="
-                                            margin: 23px 0 7px;
+                                            margin: 0 0 7px;
                                             color: #737987;
-                                            font-size: 9px;
+                                            font-size: 10px;
                                             line-height: 1.5;
                                             text-align: center;
+                                            font-weight: 700;
                                         "
                                     >
-                                        Music Tour — Plataforma de eventos
+                                        Reservae — Plataforma de eventos
                                         e ingressos
                                     </p>
         
@@ -615,7 +565,6 @@ public class PaymentEmailTemplateFactory {
                                     </p>
                                 </td>
                             </tr>
-        
                         </table>
                     </td>
                 </tr>
@@ -623,32 +572,6 @@ public class PaymentEmailTemplateFactory {
         </body>
         </html>
         """;
-    private final String backgroundCabecalhoUrl;
-    private final String ilustracaoCabecalhoUrl;
-    private final String ilustracaoRodapeUrl;
-    private final String facebookIconUrl;
-    private final String linkedinIconUrl;
-    private final String xIconUrl;
-    private final String instagramIconUrl;
-    private final String youtubeIconUrl;
-    private final String pinterestIconUrl;
-
-    public PaymentEmailTemplateFactory(
-        @Value("${notification.email.assets.payment-background-url}") String backgroundCabecalhoUrl,
-        @Value("${notification.email.assets.payment-header-illustration-url}") String ilustracaoCabecalhoUrl,
-        @Value("${notification.email.assets.payment-footer-illustration-url}") String ilustracaoRodapeUrl,
-        @Value("${notification.email.assets.instagram-icon-url}") String instagramIconUrl
-    ) {
-        this.backgroundCabecalhoUrl = backgroundCabecalhoUrl;
-        this.ilustracaoCabecalhoUrl = ilustracaoCabecalhoUrl;
-        this.ilustracaoRodapeUrl = ilustracaoRodapeUrl;
-        this.facebookIconUrl = facebookIconUrl;
-        this.linkedinIconUrl = linkedinIconUrl;
-        this.xIconUrl = xIconUrl;
-        this.instagramIconUrl = instagramIconUrl;
-        this.youtubeIconUrl = youtubeIconUrl;
-        this.pinterestIconUrl = pinterestIconUrl;
-    }
 
     public EmailTemplate criarPagamentoPendente(
         String nomeDestinatario,
@@ -666,15 +589,6 @@ public class PaymentEmailTemplateFactory {
         String html = TEMPLATE.replace(
             "{{TITULO_DOCUMENTO}}",
             escaparHtml(assunto)
-        ).replace(
-            "{{BACKGROUND_CABECALHO_URL}}",
-            escaparAtributo(backgroundCabecalhoUrl)
-        ).replace(
-            "{{ILUSTRACAO_CABECALHO_URL}}",
-            escaparAtributo(ilustracaoCabecalhoUrl)
-        ).replace(
-            "{{ILUSTRACAO_RODAPE_URL}}",
-            escaparAtributo(ilustracaoRodapeUrl)
         ).replace(
             "{{NOME}}",
             escaparHtml(nomeDestinatario)
@@ -702,9 +616,6 @@ public class PaymentEmailTemplateFactory {
         ).replace(
             "{{NOME_REMETENTE}}",
             escaparHtml(nomeRemetente)
-        ).replace(
-            "{{REDES_SOCIAIS}}",
-            montarRedesSociais()
         );
 
         return new EmailTemplate(
@@ -736,12 +647,6 @@ public class PaymentEmailTemplateFactory {
 
         for (EmailItem item : itens) {
             String linha = ITEM_TEMPLATE.replace(
-                "{{IMAGEM_URL}}",
-                escaparAtributo(item.imagemUrl())
-            ).replace(
-                "{{IMAGEM_ALT}}",
-                escaparAtributo(item.nome())
-            ).replace(
                 "{{NOME_ITEM}}",
                 escaparHtml(item.nome())
             ).replace(
@@ -762,103 +667,6 @@ public class PaymentEmailTemplateFactory {
         }
 
         return html.toString();
-    }
-
-    private String montarRedesSociais() {
-        return """
-            <table
-                role="presentation"
-                cellspacing="0"
-                cellpadding="0"
-                border="0"
-                align="center"
-                style="margin: 22px auto 0;"
-            >
-                <tr>
-                    %s
-                    %s
-                    %s
-                    %s
-                    %s
-                    %s
-                </tr>
-            </table>
-            """.formatted(
-            montarIconeSocial(
-                "Facebook",
-                facebookIconUrl,
-                "https://facebook.com"
-            ),
-            montarIconeSocial(
-                "LinkedIn",
-                linkedinIconUrl,
-                "https://linkedin.com"
-            ),
-            montarIconeSocial(
-                "X",
-                xIconUrl,
-                "https://x.com"
-            ),
-            montarIconeSocial(
-                "Instagram",
-                instagramIconUrl,
-                "https://instagram.com"
-            ),
-            montarIconeSocial(
-                "YouTube",
-                youtubeIconUrl,
-                "https://youtube.com"
-            ),
-            montarIconeSocial(
-                "Pinterest",
-                pinterestIconUrl,
-                "https://pinterest.com"
-            )
-        );
-    }
-
-    private String montarIconeSocial(String nome, String imagemUrl, String link) {
-        if (imagemUrl == null || imagemUrl.isBlank()) {
-            return "";
-        }
-
-        return """
-            <td
-                align="center"
-                valign="middle"
-                style="padding: 0 5px;"
-            >
-                <a
-                    href="%s"
-                    target="_blank"
-                    title="%s"
-                    style="
-                        display: inline-block;
-                        text-decoration: none;
-                    "
-                >
-                    <img
-                        src="%s"
-                        width="24"
-                        height="24"
-                        alt="%s"
-                        style="
-                            display: block;
-                            width: 24px;
-                            height: 24px;
-                            border: 0;
-                            outline: none;
-                            text-decoration: none;
-                        "
-                    >
-                </a>
-            </td>
-            """.formatted(
-            escaparAtributo(link),
-            escaparAtributo(nome),
-            escaparAtributo(imagemUrl),
-            escaparAtributo(nome)
-        );
     }
 
     private String escaparHtml(String valor) {

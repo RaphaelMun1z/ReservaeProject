@@ -4,10 +4,7 @@ import jakarta.validation.Valid;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ticket_service.controllers.contracts.AccessContract;
 import ticket_service.dtos.req.ValidateAccessRequestDTO;
 import ticket_service.dtos.res.AccessValidationResponseDTO;
@@ -27,7 +24,7 @@ public class AccessController implements AccessContract {
     @Override
     @PostMapping("/v1/validate")
     public ResponseEntity<AccessValidationResponseDTO> validateAccess(
-        @Valid ValidateAccessRequestDTO dto
+        @Valid @RequestBody ValidateAccessRequestDTO dto
     ) {
         return ResponseEntity.ok(
             accessService.validateTicket(dto)
@@ -37,9 +34,9 @@ public class AccessController implements AccessContract {
     @Override
     @GetMapping("/v1/logs")
     public ResponseEntity<Page<AccessLog>> getAccessLogs(
-        String eventId,
-        String gateId,
-        String result,
+        @RequestParam(required = false) String eventId,
+        @RequestParam(required = false) String gateId,
+        @RequestParam(required = false) String result,
         Pageable pageable
     ) {
         return ResponseEntity.ok(
