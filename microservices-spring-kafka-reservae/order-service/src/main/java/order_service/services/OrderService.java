@@ -19,6 +19,7 @@ import order_service.messaging.publisher.OrderConfirmedPublisher;
 import order_service.messaging.publisher.PaymentConfirmedNotificationPublisher;
 import order_service.messaging.publisher.PaymentFailedNotificationPublisher;
 import order_service.messaging.publisher.PaymentPendingNotificationPublisher;
+import order_service.proxy.event_catalog.EventCatalogProxy;
 import order_service.repositories.OrderRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -52,6 +53,7 @@ public class OrderService {
     private final PaymentConfirmedNotificationPublisher paymentConfirmedNotificationPublisher;
     private final PaymentFailedNotificationPublisher paymentFailedNotificationPublisher;
     private final OrderConfirmedPublisher orderConfirmedPublisher;
+    private final EventCatalogProxy eventCatalogProxy;
 
     public OrderService(
         OrderRepository orderRepository,
@@ -60,7 +62,8 @@ public class OrderService {
         PaymentPendingNotificationPublisher paymentPendingNotificationPublisher,
         PaymentConfirmedNotificationPublisher paymentConfirmedNotificationPublisher,
         PaymentFailedNotificationPublisher paymentFailedNotificationPublisher,
-        OrderConfirmedPublisher orderConfirmedPublisher
+        OrderConfirmedPublisher orderConfirmedPublisher,
+        EventCatalogProxy eventCatalogProxy
     ) {
         this.orderRepository = orderRepository;
         this.orderEventMapper = orderEventMapper;
@@ -69,10 +72,19 @@ public class OrderService {
         this.paymentConfirmedNotificationPublisher = paymentConfirmedNotificationPublisher;
         this.paymentFailedNotificationPublisher = paymentFailedNotificationPublisher;
         this.orderConfirmedPublisher = orderConfirmedPublisher;
+        this.eventCatalogProxy = eventCatalogProxy;
     }
 
     @Transactional
     public OrderSummaryResponseDTO processCheckout(CheckoutRequestDTO request) {
+        // Validar existência do evento e setores
+        request.items().forEach(item -> {
+            String eventCatalogServicePort = eventCatalogProxy.validateEventSector(
+                request.eventId(),
+                item.sectorId()
+            );
+        });
+
         BigDecimal totalAmount = calculateTotalAmount(request.items());
 
         Order newOrder = new Order(
