@@ -3,8 +3,10 @@ package event_catalog_service.services;
 import event_catalog_service.dtos.query.EventDetailsProjection;
 import event_catalog_service.dtos.req.CreateEventRequestDTO;
 import event_catalog_service.dtos.req.SectorPricingRequestDTO;
+import event_catalog_service.dtos.req.SectorsTicketPriceRequestDTO;
 import event_catalog_service.dtos.res.EventDetailsResponseDTO;
 import event_catalog_service.dtos.res.EventSectorDetailsDTO;
+import event_catalog_service.dtos.res.EventSectorPriceResponseDTO;
 import event_catalog_service.dtos.res.SectorPricingResponseDTO;
 import event_catalog_service.entities.Event;
 import event_catalog_service.entities.EventSectorPricing;
@@ -121,5 +123,19 @@ public class EventCatalogService {
                 .findFirst()
                 .orElseThrow(() -> new NotFoundException("Setor não encontrado no evento"));
         eventFound.removePricing(eventSectorPricingFound);
+    }
+
+    public List<EventSectorPriceResponseDTO> consultTicketsPrice(SectorsTicketPriceRequestDTO dto) {
+        return dto.sectorsId().stream().map(
+            sectorId -> {
+                EventSectorDetailsDTO details = eventSectorPricingRepository.findEventSectorDetailsByEventIdAndSectorId(dto.eventId(), sectorId).orElseThrow(() -> new NotFoundException("Evento ou Setor não encontrado!"));
+                return new EventSectorPriceResponseDTO(
+                    details.eventId(),
+                    details.sectorId(),
+                    details.sectorBasePrice(),
+                    details.sectorHalfPrice()
+                );
+            }
+        ).toList();
     }
 }

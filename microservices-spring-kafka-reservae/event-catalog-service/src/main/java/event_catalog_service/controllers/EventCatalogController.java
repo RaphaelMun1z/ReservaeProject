@@ -3,12 +3,16 @@ package event_catalog_service.controllers;
 import event_catalog_service.controllers.contracts.EventCatalogContract;
 import event_catalog_service.dtos.req.CreateEventRequestDTO;
 import event_catalog_service.dtos.req.SectorPricingRequestDTO;
+import event_catalog_service.dtos.req.SectorsTicketPriceRequestDTO;
 import event_catalog_service.dtos.res.EventDetailsResponseDTO;
+import event_catalog_service.dtos.res.EventSectorPriceResponseDTO;
 import event_catalog_service.dtos.res.SectorPricingResponseDTO;
 import event_catalog_service.services.EventCatalogService;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/event-catalog-service/api/events")
@@ -54,5 +58,12 @@ public class EventCatalogController implements EventCatalogContract {
             secId
         );
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/v1/tickets/price")
+    public ResponseEntity<List<EventSectorPriceResponseDTO>> consultTicketsPrice(
+        @Valid @RequestBody SectorsTicketPriceRequestDTO sectorsTicketPriceRequestDTO
+    ) {
+        return ResponseEntity.ok(eventCatalogService.consultTicketsPrice(sectorsTicketPriceRequestDTO));
     }
 }
