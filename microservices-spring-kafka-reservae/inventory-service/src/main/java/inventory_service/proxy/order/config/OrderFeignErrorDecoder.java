@@ -1,4 +1,4 @@
-package inventory_service.proxy.eventCatalog.config;
+package inventory_service.proxy.order.config;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import feign.Response;
@@ -13,11 +13,11 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 
-public class EventCatalogFeignErrorDecoder implements ErrorDecoder {
+public class OrderFeignErrorDecoder implements ErrorDecoder {
     private final ObjectMapper objectMapper;
     private final ErrorDecoder defaultErrorDecoder = new Default();
 
-    public EventCatalogFeignErrorDecoder(ObjectMapper objectMapper) {
+    public OrderFeignErrorDecoder(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
     }
 
@@ -29,7 +29,7 @@ public class EventCatalogFeignErrorDecoder implements ErrorDecoder {
             case 400, 409, 422 -> new BusinessException(message);
             case 404 -> new NotFoundException(message);
             case 500, 502, 503, 504 -> new ExternalServiceException(
-                "O serviço de catálogo de eventos está indisponível no momento."
+                "O serviço de pedidos está indisponível no momento."
             );
             default -> defaultErrorDecoder.decode(methodKey, response);
         };
@@ -37,14 +37,14 @@ public class EventCatalogFeignErrorDecoder implements ErrorDecoder {
 
     private String extractMessage(Response response) {
         if (response.body() == null) {
-            return "O serviço de catálogo de eventos recusou a operação.";
+            return "O serviço de pedidos recusou a operação.";
         }
 
         try {
             String body = Util.toString(response.body().asReader(StandardCharsets.UTF_8));
 
             if (body == null || body.isBlank()) {
-                return "O serviço de catálogo de eventos recusou a operação.";
+                return "O serviço de pedidos recusou a operação.";
             }
 
             ErrorResponseDTO errorResponse = objectMapper.readValue(
@@ -55,12 +55,12 @@ public class EventCatalogFeignErrorDecoder implements ErrorDecoder {
             List<String> messages = errorResponse.message();
 
             if (messages == null || messages.isEmpty()) {
-                return "O serviço de catálogo de eventos recusou a operação.";
+                return "O serviço de pedidos recusou a operação.";
             }
 
             return String.join(" ", messages);
         } catch (IOException ex) {
-            return "O serviço de catálogo de eventos recusou a operação.";
+            return "O serviço de pedidos recusou a operação.";
         }
     }
 }

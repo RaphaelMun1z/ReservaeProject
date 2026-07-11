@@ -1,0 +1,813 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checklist de Validações — MatchPass</title>
+
+  <style>
+    :root {
+      --bg: #080808;
+      --card: #121212;
+      --card-2: #181818;
+      --border: #2a2a2a;
+      --text: #f4f4f5;
+      --muted: #a1a1aa;
+      --muted-2: #71717a;
+      --accent: #ef4444;
+      --accent-2: #fb7185;
+      --success: #22c55e;
+      --warning: #f59e0b;
+      --radius: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top left, rgba(239, 68, 68, 0.18), transparent 32rem),
+        radial-gradient(circle at bottom right, rgba(251, 113, 133, 0.12), transparent 30rem),
+        var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.5;
+    }
+
+    .container {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 56px;
+    }
+
+    header {
+      margin-bottom: 24px;
+      padding: 24px;
+      border: 1px solid var(--border);
+      background: rgba(18, 18, 18, 0.85);
+      border-radius: var(--radius);
+    }
+
+    .eyebrow {
+      color: var(--accent-2);
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      margin-bottom: 8px;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(26px, 4vw, 42px);
+      line-height: 1.1;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      margin: 0;
+      max-width: 850px;
+    }
+
+    .dashboard {
+      display: grid;
+      grid-template-columns: 1.4fr 0.9fr;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    @media (max-width: 800px) {
+      .dashboard {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .panel {
+      background: rgba(18, 18, 18, 0.86);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px;
+    }
+
+    .progress-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .progress-title strong {
+      color: var(--text);
+      font-size: 18px;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 14px;
+      background: #262626;
+      border-radius: 999px;
+      overflow: hidden;
+      border: 1px solid #333;
+    }
+
+    .progress-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      transition: width 0.25s ease;
+    }
+
+    .actions {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 14px;
+    }
+
+    button {
+      border: 1px solid var(--border);
+      background: var(--card-2);
+      color: var(--text);
+      padding: 10px 14px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-weight: 700;
+      transition: 0.2s ease;
+    }
+
+    button:hover {
+      border-color: var(--accent);
+      color: white;
+    }
+
+    button.danger {
+      background: rgba(239, 68, 68, 0.12);
+      border-color: rgba(239, 68, 68, 0.45);
+    }
+
+    .section {
+      background: rgba(18, 18, 18, 0.9);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+
+    .section-header {
+      padding: 18px;
+      background: linear-gradient(90deg, rgba(239, 68, 68, 0.12), rgba(255, 255, 255, 0.02));
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      cursor: pointer;
+    }
+
+    .section-header h2 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    .section-meta {
+      color: var(--muted);
+      font-size: 13px;
+      white-space: nowrap;
+    }
+
+    .section-body {
+      padding: 16px 18px 20px;
+      display: block;
+    }
+
+    .section.collapsed .section-body {
+      display: none;
+    }
+
+    .group {
+      margin-bottom: 22px;
+    }
+
+    .group:last-child {
+      margin-bottom: 0;
+    }
+
+    .group h3 {
+      margin: 0 0 10px;
+      font-size: 16px;
+      color: var(--accent-2);
+    }
+
+    .check-item {
+      display: grid;
+      grid-template-columns: 24px 1fr;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 10px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .check-item:last-child {
+      border-bottom: none;
+    }
+
+    input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      margin-top: 3px;
+      accent-color: var(--accent);
+      cursor: pointer;
+    }
+
+    label {
+      cursor: pointer;
+    }
+
+    .method {
+      color: var(--warning);
+      font-size: 13px;
+    }
+
+    .done label {
+      color: var(--muted-2);
+      text-decoration: line-through;
+    }
+
+    .note {
+      background: rgba(245, 158, 11, 0.08);
+      border: 1px solid rgba(245, 158, 11, 0.28);
+      color: #fcd34d;
+      padding: 12px;
+      border-radius: 10px;
+      margin: 10px 0 16px;
+      font-size: 14px;
+    }
+
+    .small {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    code {
+      color: #fda4af;
+      background: rgba(255, 255, 255, 0.06);
+      padding: 2px 5px;
+      border-radius: 5px;
+    }
+
+    .footer {
+      margin-top: 24px;
+      color: var(--muted-2);
+      text-align: center;
+      font-size: 13px;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="container">
+    <header>
+      <div class="eyebrow">MatchPass</div>
+      <h1>Checklist de Validações do Projeto</h1>
+      <p class="subtitle">
+        Checklist para acompanhar as validações de autenticação, catálogo de eventos, inventário,
+        pedidos, pagamentos, ingressos e notificações. O progresso é salvo automaticamente no navegador.
+      </p>
+    </header>
+
+    <section class="dashboard">
+      <div class="panel">
+        <div class="progress-title">
+          <strong>Progresso geral</strong>
+          <span id="generalProgressText">0 de 0 concluídos</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="generalProgressFill"></div>
+        </div>
+
+        <div class="actions">
+          <button type="button" onclick="expandAll()">Expandir tudo</button>
+          <button type="button" onclick="collapseAll()">Recolher tudo</button>
+          <button type="button" class="danger" onclick="resetProgress()">Limpar progresso</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <strong>Status</strong>
+        <p class="small">
+          Cada item marcado fica salvo no <code>localStorage</code>. Se você fechar e abrir novamente
+          este HTML no mesmo navegador, o progresso continuará salvo.
+        </p>
+      </div>
+    </section>
+
+    <div id="checklist"></div>
+
+    <p class="footer">
+      Checklist local — nenhum dado é enviado para servidor.
+    </p>
+  </main>
+
+  <script>
+    const STORAGE_KEY = "matchpass-validations-checklist-v1";
+
+    const checklistData = [
+      {
+        title: "1. identity-service / Keycloak — Usuário e autenticação",
+        groups: [
+          {
+            title: "Validações de autenticação",
+            items: [
+              "Verificar se o usuário está autenticado via JWT. (SecurityFilterChain / JwtAuthenticationConverter)",
+              "Verificar se o token JWT não está expirado. (OAuth2 Resource Server)",
+              "Verificar se o token foi emitido pelo realm correto: matchpass. (issuer-uri / jwk-set-uri)",
+              "Verificar se o token possui o userId/sub do usuário. (Jwt.getSubject())",
+              "Verificar se o usuário possui a role necessária para acessar o endpoint. (@PreAuthorize / hasRole)"
+            ]
+          },
+          {
+            title: "Validações de autorização",
+            items: [
+              "Cliente comum só pode acessar seus próprios pedidos. (OrderService.findByIdAndUserId)",
+              "Cliente comum só pode acessar seus próprios ingressos. (TicketService.findByUserId)",
+              "EVENT_MANAGER pode gerenciar eventos sob sua responsabilidade. (EventService.validateEventOwner)",
+              "PLATFORM_STAFF pode consultar dados operacionais sem alterar regras críticas. (@PreAuthorize(\"hasRole('PLATFORM_STAFF')\"))",
+              "ADMIN pode acessar operações administrativas globais. (@PreAuthorize(\"hasRole('ADMIN')\"))"
+            ]
+          }
+        ]
+      },
+      {
+        title: "2. event-catalog-service — Evento, local, setor e preço",
+        groups: [
+          {
+            title: "Validações de evento",
+            items: [
+              "Verificar se o eventId existe. (EventService.findEventById / EventRepository.findById)",
+              "Verificar se o evento está ativo ou publicado. (EventService.validateEventAvailableForSale)",
+              "Verificar se o evento ainda não ocorreu. (EventService.validateEventDate)",
+              "Verificar se o evento está disponível para venda. (EventService.validateSalesStatus)",
+              "Verificar se o evento pertence ao organizador correto em ações administrativas. (EventService.validateEventOwner)"
+            ]
+          },
+          {
+            title: "Validações de setor",
+            items: [
+              "Verificar se o sectorId existe. (SectorService.findSectorById / SectorRepository.findById)",
+              "Verificar se o setor pertence ao evento informado. (EventSectorPricingService.validateEventSector)",
+              "Verificar se o setor está ativo. (SectorService.validateSectorActive)",
+              "Verificar se o setor possui capacidade configurada. (Sector.getCapacity / validateSectorCapacity)",
+              "Verificar se o setor possui preço configurado para aquele evento. (EventSectorPricingRepository.findByEventIdAndSectorId)"
+            ]
+          },
+          {
+            title: "Validações de preço",
+            items: [
+              "Buscar o preço oficial no backend, não usar preço enviado pelo frontend. (EventSectorPricingService.getTicketPrice)",
+              "Verificar se existe registro em EventSectorPricing para eventId + sectorId. (findByEventIdAndSectorId)",
+              "Verificar se o preço é maior que zero. (EventSectorPricingService.validatePrice)",
+              "Verificar se o preço usado no pedido corresponde ao preço atual do catálogo. (OrderService.calculateTotalAmount + getTicketsPrice)",
+              "Verificar se múltiplos setores no mesmo pedido possuem seus respectivos preços associados. (getTicketsPrice / EventSectorPriceResponseDTO)"
+            ]
+          },
+          {
+            title: "Endpoints/métodos relacionados",
+            items: [
+              "Endpoint para validar evento. (GET /event-catalog-service/api/events/{eventId}/validate)",
+              "Endpoint para validar setor do evento. (GET /event-catalog-service/api/events/{eventId}/sectors/{sectorId}/validate)",
+              "Endpoint para consultar preço por evento e setor. (POST /event-catalog-service/api/events/sectors/prices)",
+              "Método para buscar EventSectorPricing. (EventSectorPricingService.findByEventAndSector)",
+              "Método para validar vínculo entre eventId e sectorId. (EventSectorPricingService.validateEventSector)"
+            ]
+          }
+        ]
+      },
+      {
+        title: "3. inventory-service — Disponibilidade e reserva",
+        groups: [
+          {
+            title: "Validações de inventário",
+            items: [
+              "Verificar se existe inventário para eventId + sectorId. (InventoryManagementService.findInventoryByEventAndSector)",
+              "Verificar se o inventário pertence ao evento e setor corretos. (EventSectorInventory.eventId / sectorId)",
+              "Verificar se a capacidade total do setor foi carregada corretamente. (validateSectorCapacity / EventSectorInventory.capacity)",
+              "Verificar se reservedQuantity não ultrapassa capacity. (InventoryManagementService.validateReservedQuantity)",
+              "Verificar se soldQuantity não ultrapassa capacity. (InventoryManagementService.validateSoldQuantity)"
+            ]
+          },
+          {
+            title: "Validação de quantidade disponível",
+            note: "Quantidade disponível é o número de ingressos que ainda podem ser reservados naquele setor: availableQuantity = capacity - reservedQuantity - soldQuantity.",
+            items: [
+              "Calcular a quantidade disponível antes de criar a reserva. (InventoryManagementService.calculateAvailableQuantity)",
+              "Verificar se availableQuantity é maior que zero. (InventoryManagementService.hasAvailability)",
+              "Verificar se availableQuantity >= quantidade solicitada no pedido. (InventoryManagementService.validateRequestedQuantity)",
+              "Bloquear reserva quando a quantidade solicitada ultrapassar a disponibilidade. (InventoryManagementService.reserveTickets)",
+              "Atualizar reservedQuantity ao criar uma reserva. (InventoryManagementService.tryReserveTicket)",
+              "Atualizar soldQuantity após pagamento aprovado. (InventoryManagementService.confirmTicketSold)",
+              "Reduzir reservedQuantity quando reserva expirar ou pagamento falhar. (InventoryManagementService.releaseTicket)"
+            ]
+          },
+          {
+            title: "Validações de reserva",
+            items: [
+              "Verificar se o pedido de reserva recebeu eventId. (ReservationRequestHandlerService.handle)",
+              "Verificar se o pedido de reserva recebeu sectorId. (ReservationRequestHandlerService.handle)",
+              "Verificar se o pedido de reserva recebeu userId. (ReservationRequestHandlerService.handle)",
+              "Verificar se a quantidade solicitada é maior que zero. (InventoryManagementService.validateRequestedQuantity)",
+              "Verificar se a reserva ainda não existe para o mesmo pedido, se houver idempotência. (TicketReservationRepository.findByOrderId)",
+              "Criar reserva com status RESERVED. (TicketReservation.status)",
+              "Definir TTL da reserva no Redis. (@TimeToLive / TicketReservation.ttl)",
+              "Publicar evento de sucesso ou falha da reserva. (InventoryReservationResultPublisher.publish)"
+            ]
+          },
+          {
+            title: "Métodos/eventos relacionados",
+            items: [
+              "Reservar ingressos solicitados. (InventoryManagementService.reserveTickets)",
+              "Tentar reservar um ingresso ou quantidade em setor. (InventoryManagementService.tryReserveTicket)",
+              "Confirmar venda após pagamento aprovado. (InventoryManagementService.confirmTicketSold)",
+              "Liberar reserva após falha ou expiração. (InventoryManagementService.releaseTicket)",
+              "Consultar status de uma reserva/ingresso. (InventoryManagementService.consultTicketStatus)",
+              "Consumir solicitação de reserva. (OrderReservationRequestedEvent)",
+              "Publicar resultado da reserva. (InventoryReservationResultEvent)"
+            ]
+          }
+        ]
+      },
+      {
+        title: "4. order-service — Pedido e checkout",
+        groups: [
+          {
+            title: "Validações da requisição de checkout",
+            items: [
+              "Verificar se o usuário está autenticado. (@PreAuthorize / SecurityContextHolder)",
+              "Obter userId a partir do token, não do corpo da requisição. (Jwt.getSubject / Authentication.getPrincipal)",
+              "Verificar se eventId foi informado. (OrderRequestValidator.validateEventId)",
+              "Verificar se a lista de itens não está vazia. (OrderRequestValidator.validateItems)",
+              "Verificar se cada item possui sectorId. (OrderRequestValidator.validateSectorId)",
+              "Verificar se cada item possui quantidade maior que zero. (OrderRequestValidator.validateQuantity)",
+              "Verificar itens duplicados para o mesmo setor ou consolidar quantidades. (OrderService.mergeDuplicateItems)",
+              "Verificar se a quantidade total respeita o limite máximo definido. (OrderService.validateMaxTicketsPerOrder)"
+            ]
+          },
+          {
+            title: "Validações com o event-catalog-service",
+            items: [
+              "Validar se o evento existe. (EventCatalogClient.validateEvent)",
+              "Validar se o evento está disponível para venda. (EventCatalogClient.validateEventAvailable)",
+              "Validar se cada setor pertence ao evento. (EventCatalogClient.validateEventSector)",
+              "Consultar o preço oficial de cada setor. (EventCatalogClient.getTicketsPrice)",
+              "Calcular subtotal de cada item com base no preço oficial. (OrderService.calculateItemSubtotal)",
+              "Calcular totalAmount no backend. (OrderService.calculateTotalAmount)",
+              "Bloquear pedido se algum setor não possuir preço. (OrderService.validatePricesFound)"
+            ]
+          },
+          {
+            title: "Validações do pedido",
+            items: [
+              "Criar pedido inicialmente com status PENDING_RESERVATION. (OrderService.createOrder)",
+              "Não permitir pagamento antes da confirmação da reserva. (OrderService.validateCanRequestPayment)",
+              "Não permitir gerar ingresso antes do pagamento aprovado. (OrderService.validateCanGenerateTickets)",
+              "Não permitir cancelar pedido já finalizado, salvo regra específica. (OrderService.cancelOrder)",
+              "Garantir que o pedido pertence ao usuário autenticado ao consultar detalhes. (OrderService.findByIdAndUserId)"
+            ]
+          },
+          {
+            title: "Eventos relacionados",
+            items: [
+              "Publicar OrderReservationRequestedEvent após criar pedido. (OrderReservationPublisher.publishAfterCommit)",
+              "Consumir InventoryReservationResultEvent. (InventoryReservationResultConsumer.consume)",
+              "Se reserva aprovada, avançar pedido para etapa de pagamento. (OrderService.handleReservationApproved)",
+              "Se reserva falhar, marcar pedido como recusado/cancelado. (OrderService.handleReservationRejected)",
+              "Publicar evento de pagamento solicitado quando aplicável. (PaymentRequestedPublisher.publish)"
+            ]
+          }
+        ]
+      },
+      {
+        title: "5. payment-service — Pagamento",
+        groups: [
+          {
+            title: "Validações antes do pagamento",
+            items: [
+              "Verificar se o pedido existe. (OrderClient.getOrderById / PaymentService.validateOrder)",
+              "Verificar se o pedido pertence ao usuário correto. (PaymentService.validateOrderOwner)",
+              "Verificar se o pedido está com reserva aprovada. (PaymentService.validateOrderStatus)",
+              "Verificar se o valor a pagar corresponde ao totalAmount calculado pelo order-service. (PaymentService.validateAmount)",
+              "Verificar se o pedido ainda está dentro do tempo de reserva. (PaymentService.validateReservationExpiration)",
+              "Verificar se o pedido ainda não foi pago. (PaymentService.validateNotPaid)"
+            ]
+          },
+          {
+            title: "Validações de processamento",
+            items: [
+              "Evitar pagamento duplicado para o mesmo pedido. (PaymentRepository.existsByOrderIdAndStatus)",
+              "Registrar tentativa de pagamento. (PaymentService.createPaymentAttempt)",
+              "Tratar falha de pagamento. (PaymentService.handlePaymentFailure)",
+              "Tratar pagamento aprovado. (PaymentService.handlePaymentApproved)",
+              "Publicar evento de pagamento aprovado. (PaymentApprovedPublisher.publish)",
+              "Publicar evento de pagamento falhou. (PaymentFailedPublisher.publish)"
+            ]
+          },
+          {
+            title: "Eventos relacionados",
+            items: [
+              "Consumir evento de pagamento solicitado. (PaymentRequestedConsumer.consume)",
+              "Publicar PaymentApprovedEvent. (PaymentApprovedEvent)",
+              "Publicar PaymentFailedEvent. (PaymentFailedEvent)"
+            ]
+          }
+        ]
+      },
+      {
+        title: "6. ticket-service — Geração de ingressos",
+        groups: [
+          {
+            title: "Validações antes de gerar ingresso",
+            items: [
+              "Verificar se o pagamento foi aprovado. (PaymentApprovedConsumer.consume)",
+              "Verificar se o pedido existe. (OrderClient.getOrderById)",
+              "Verificar se o pedido ainda não teve ingressos gerados. (TicketRepository.existsByOrderId)",
+              "Verificar a quantidade de ingressos a gerar com base nos itens do pedido. (TicketGenerationService.calculateTicketQuantity)",
+              "Verificar vínculo de cada ingresso com userId, eventId, sectorId e orderId. (TicketGenerationService.validateTicketData)"
+            ]
+          },
+          {
+            title: "Validações de ingresso",
+            items: [
+              "Gerar identificador único para cada ingresso. (UUID.randomUUID)",
+              "Gerar código ou QR Code único. (TicketCodeGenerator.generate)",
+              "Não permitir dois ingressos com o mesmo código. (TicketRepository.existsByCode)",
+              "Associar ingresso ao usuário comprador. (Ticket.userId)",
+              "Associar ingresso ao evento correto. (Ticket.eventId)",
+              "Associar ingresso ao setor correto. (Ticket.sectorId)",
+              "Definir status inicial do ingresso como VALID. (TicketStatus.VALID)"
+            ]
+          },
+          {
+            title: "Validações contra duplicidade",
+            items: [
+              "Verificar se já existem tickets para o mesmo orderId. (TicketRepository.existsByOrderId)",
+              "Impedir geração duplicada em caso de evento Kafka repetido. (TicketGenerationService.validateIdempotency)",
+              "Usar idempotência no processamento do pagamento aprovado. (ProcessedEventRepository.existsByEventId)"
+            ]
+          }
+        ]
+      },
+      {
+        title: "7. notification-service — E-mails e notificações",
+        groups: [
+          {
+            title: "Validações antes de notificar",
+            items: [
+              "Verificar se o evento recebido possui dados mínimos. (NotificationEventValidator.validate)",
+              "Verificar se o usuário possui e-mail válido. (EmailValidator.isValid)",
+              "Verificar se o template da mensagem existe. (TemplateService.findTemplate)",
+              "Verificar se os dados obrigatórios do template foram preenchidos. (TemplateService.validateVariables)",
+              "Não enviar notificação duplicada para o mesmo evento em caso de retry. (NotificationLogRepository.existsByEventId)"
+            ]
+          },
+          {
+            title: "Tipos de notificação",
+            items: [
+              "Enviar confirmação de pedido criado. (OrderCreatedNotificationHandler)",
+              "Enviar aviso de reserva aprovada. (ReservationApprovedNotificationHandler)",
+              "Enviar aviso de reserva recusada. (ReservationRejectedNotificationHandler)",
+              "Enviar confirmação de pagamento aprovado. (PaymentApprovedNotificationHandler)",
+              "Enviar aviso de pagamento recusado. (PaymentFailedNotificationHandler)",
+              "Enviar ingressos gerados. (TicketsGeneratedNotificationHandler)",
+              "Enviar aviso de cancelamento de pedido, se existir. (OrderCanceledNotificationHandler)"
+            ]
+          }
+        ]
+      },
+      {
+        title: "8. Validações transversais entre serviços",
+        groups: [
+          {
+            title: "Segurança",
+            items: [
+              "Nenhum serviço deve confiar em userId vindo diretamente do frontend. (SecurityContextHolder / Jwt.getSubject)",
+              "Serviços devem validar permissões por role. (@PreAuthorize)",
+              "Endpoints administrativos devem exigir ADMIN, EVENT_MANAGER ou PLATFORM_STAFF. (hasAnyRole)",
+              "Endpoints de cliente devem garantir acesso apenas aos próprios recursos. (findByIdAndUserId / validateOwner)"
+            ]
+          },
+          {
+            title: "Consistência",
+            items: [
+              "Pedido não pode ser pago sem reserva aprovada. (OrderStatus / PaymentService.validateOrderStatus)",
+              "Ingresso não pode ser gerado sem pagamento aprovado. (PaymentApprovedEvent / TicketGenerationService)",
+              "Pagamento falho deve liberar reserva. (PaymentFailedConsumer / InventoryManagementService.releaseTicket)",
+              "Reserva expirada deve impedir pagamento. (PaymentService.validateReservationExpiration)",
+              "Pedido cancelado não deve gerar ingresso. (TicketGenerationService.validateOrderStatus)",
+              "Evento cancelado não deve permitir novas compras. (EventService.validateSalesStatus)"
+            ]
+          },
+          {
+            title: "Idempotência",
+            items: [
+              "Evento Kafka repetido não pode criar reserva duplicada. (ProcessedEventRepository / TicketReservationRepository)",
+              "Evento Kafka repetido não pode processar pagamento duas vezes. (PaymentRepository.existsByOrderId)",
+              "Evento Kafka repetido não pode gerar ingressos duplicados. (TicketRepository.existsByOrderId)",
+              "Evento Kafka repetido não pode enviar e-mail duplicado. (NotificationLogRepository.existsByEventId)"
+            ]
+          },
+          {
+            title: "Observabilidade",
+            items: [
+              "Registrar logs com orderId. (logger.info / MDC)",
+              "Registrar logs com userId. (logger.info / MDC)",
+              "Registrar logs com eventId. (logger.info / MDC)",
+              "Registrar falhas de comunicação entre serviços. (FeignErrorDecoder / ExceptionHandler)",
+              "Registrar falhas em eventos Kafka. (KafkaErrorHandler / Dead Letter Topic)",
+              "Registrar motivo de rejeição de reserva, pagamento ou geração de ingresso. (BusinessException / ErrorResponseDTO)"
+            ]
+          }
+        ]
+      }
+    ];
+
+    function getSavedProgress() {
+      try {
+        return JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
+      } catch {
+        return {};
+      }
+    }
+
+    function saveProgress(progress) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(progress));
+    }
+
+    function createId(sectionIndex, groupIndex, itemIndex) {
+      return `s${sectionIndex}-g${groupIndex}-i${itemIndex}`;
+    }
+
+    function renderChecklist() {
+      const checklist = document.getElementById("checklist");
+      const savedProgress = getSavedProgress();
+
+      checklist.innerHTML = "";
+
+      checklistData.forEach((section, sectionIndex) => {
+        const sectionElement = document.createElement("section");
+        sectionElement.className = "section";
+        sectionElement.dataset.sectionIndex = sectionIndex;
+
+        const totalItems = section.groups.reduce((sum, group) => sum + group.items.length, 0);
+
+        sectionElement.innerHTML = `
+          <div class="section-header" onclick="toggleSection(${sectionIndex})">
+            <h2>${section.title}</h2>
+            <span class="section-meta" id="section-meta-${sectionIndex}">0 de ${totalItems}</span>
+          </div>
+          <div class="section-body"></div>
+        `;
+
+        const body = sectionElement.querySelector(".section-body");
+
+        section.groups.forEach((group, groupIndex) => {
+          const groupElement = document.createElement("div");
+          groupElement.className = "group";
+
+          const note = group.note
+            ? `<div class="note">${group.note}</div>`
+            : "";
+
+          groupElement.innerHTML = `
+            <h3>${group.title}</h3>
+            ${note}
+          `;
+
+          group.items.forEach((item, itemIndex) => {
+            const id = createId(sectionIndex, groupIndex, itemIndex);
+            const checked = !!savedProgress[id];
+
+            const itemElement = document.createElement("div");
+            itemElement.className = checked ? "check-item done" : "check-item";
+
+            itemElement.innerHTML = `
+              <input
+                type="checkbox"
+                id="${id}"
+                ${checked ? "checked" : ""}
+                onchange="handleCheck('${id}')"
+              />
+              <label for="${id}">${formatItem(item)}</label>
+            `;
+
+            groupElement.appendChild(itemElement);
+          });
+
+          body.appendChild(groupElement);
+        });
+
+        checklist.appendChild(sectionElement);
+      });
+
+      updateProgress();
+    }
+
+    function formatItem(text) {
+      const methodMatch = text.match(/\(([^()]*)\)$/);
+
+      if (!methodMatch) {
+        return text;
+      }
+
+      const method = methodMatch[0];
+      const description = text.replace(method, "").trim();
+
+      return `${description} <span class="method">${method}</span>`;
+    }
+
+    function handleCheck(id) {
+      const savedProgress = getSavedProgress();
+      const checkbox = document.getElementById(id);
+      const itemElement = checkbox.closest(".check-item");
+
+      savedProgress[id] = checkbox.checked;
+
+      if (checkbox.checked) {
+        itemElement.classList.add("done");
+      } else {
+        itemElement.classList.remove("done");
+      }
+
+      saveProgress(savedProgress);
+      updateProgress();
+    }
+
+    function updateProgress() {
+      const allCheckboxes = Array.from(document.querySelectorAll("input[type='checkbox']"));
+      const checkedCheckboxes = allCheckboxes.filter((checkbox) => checkbox.checked);
+
+      const total = allCheckboxes.length;
+      const checked = checkedCheckboxes.length;
+      const percentage = total === 0 ? 0 : Math.round((checked / total) * 100);
+
+      document.getElementById("generalProgressText").textContent =
+        `${checked} de ${total} concluídos (${percentage}%)`;
+
+      document.getElementById("generalProgressFill").style.width = `${percentage}%`;
+
+      checklistData.forEach((section, sectionIndex) => {
+        const sectionElement = document.querySelector(`[data-section-index="${sectionIndex}"]`);
+        const sectionCheckboxes = Array.from(sectionElement.querySelectorAll("input[type='checkbox']"));
+        const sectionChecked = sectionCheckboxes.filter((checkbox) => checkbox.checked).length;
+        const sectionTotal = sectionCheckboxes.length;
+        const sectionPercentage = sectionTotal === 0
+          ? 0
+          : Math.round((sectionChecked / sectionTotal) * 100);
+
+        document.getElementById(`section-meta-${sectionIndex}`).textContent =
+          `${sectionChecked} de ${sectionTotal} (${sectionPercentage}%)`;
+      });
+    }
+
+    function toggleSection(sectionIndex) {
+      const section = document.querySelector(`[data-section-index="${sectionIndex}"]`);
+      section.classList.toggle("collapsed");
+    }
+
+    function expandAll() {
+      document.querySelectorAll(".section").forEach((section) => {
+        section.classList.remove("collapsed");
+      });
+    }
+
+    function collapseAll() {
+      document.querySelectorAll(".section").forEach((section) => {
+        section.classList.add("collapsed");
+      });
+    }
+
+    function resetProgress() {
+      const confirmReset = confirm("Tem certeza que deseja limpar todo o progresso salvo?");
+
+      if (!confirmReset) {
+        return;
+      }
+
+      localStorage.removeItem(STORAGE_KEY);
+
+      document.querySelectorAll("input[type='checkbox']").forEach((checkbox) => {
+        checkbox.checked = false;
+        checkbox.closest(".check-item").classList.remove("done");
+      });
+
+      updateProgress();
+    }
+
+    renderChecklist();
+  </script>
+</body>
+</html>
