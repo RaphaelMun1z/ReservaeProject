@@ -122,4 +122,17 @@ public class EventCatalogService {
                 .orElseThrow(() -> new NotFoundException("Setor não encontrado no evento"));
         eventFound.removePricing(eventSectorPricingFound);
     }
+
+    public List<SectorPricingResponseDTO> consultSectorsTicketPrices(String eventId, List<String> sectorsId) {
+        return sectorsId.stream().map(sectorId -> {
+            EventSectorDetailsDTO sectorDetails = eventSectorPricingRepository.findEventSectorDetailsByEventIdAndSectorId(eventId, sectorId)
+                .orElseThrow(() -> new NotFoundException("Setor não encontrado no evento"));
+            return new SectorPricingResponseDTO(
+                sectorDetails.sectorId(),
+                sectorDetails.sectorName(),
+                sectorDetails.sectorBasePrice(),
+                sectorDetails.sectorHalfPrice()
+            );
+        }).toList();
+    }
 }

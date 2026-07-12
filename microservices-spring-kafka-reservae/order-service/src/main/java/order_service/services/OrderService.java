@@ -8,6 +8,7 @@ import order_service.dtos.res.OrderSummaryResponseDTO;
 import order_service.entities.Order;
 import order_service.entities.OrderItem;
 import order_service.entities.enums.OrderStatusEnum;
+import order_service.exceptions.models.BusinessException;
 import order_service.exceptions.models.NotFoundException;
 import order_service.messaging.event.inventory.InventoryReservationResultEvent;
 import order_service.messaging.event.order.OrderConfirmedEvent;
@@ -19,6 +20,8 @@ import order_service.messaging.publisher.OrderConfirmedPublisher;
 import order_service.messaging.publisher.PaymentConfirmedNotificationPublisher;
 import order_service.messaging.publisher.PaymentFailedNotificationPublisher;
 import order_service.messaging.publisher.PaymentPendingNotificationPublisher;
+import order_service.proxy.eventCatalog.EventCatalogProxy;
+import order_service.proxy.eventCatalog.dto.SectorPricingResponseDTO;
 import order_service.repositories.OrderRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,7 +32,10 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @SuppressWarnings("LoggingSimilarMessage")
 @Service
@@ -52,6 +58,7 @@ public class OrderService {
     private final PaymentConfirmedNotificationPublisher paymentConfirmedNotificationPublisher;
     private final PaymentFailedNotificationPublisher paymentFailedNotificationPublisher;
     private final OrderConfirmedPublisher orderConfirmedPublisher;
+    private final EventCatalogProxy eventCatalogProxy;
 
     public OrderService(
         OrderRepository orderRepository,
@@ -60,7 +67,8 @@ public class OrderService {
         PaymentPendingNotificationPublisher paymentPendingNotificationPublisher,
         PaymentConfirmedNotificationPublisher paymentConfirmedNotificationPublisher,
         PaymentFailedNotificationPublisher paymentFailedNotificationPublisher,
-        OrderConfirmedPublisher orderConfirmedPublisher
+        OrderConfirmedPublisher orderConfirmedPublisher,
+        EventCatalogProxy eventCatalogProxy
     ) {
         this.orderRepository = orderRepository;
         this.orderEventMapper = orderEventMapper;
@@ -69,11 +77,36 @@ public class OrderService {
         this.paymentConfirmedNotificationPublisher = paymentConfirmedNotificationPublisher;
         this.paymentFailedNotificationPublisher = paymentFailedNotificationPublisher;
         this.orderConfirmedPublisher = orderConfirmedPublisher;
+        this.eventCatalogProxy = eventCatalogProxy;
     }
 
     @Transactional
     public OrderSummaryResponseDTO processCheckout(CheckoutRequestDTO request) {
-        BigDecimal totalAmount = calculateTotalAmount(request.items());
+        if (request.items() == null || request.items().isEmpty()) {
+            throw new BusinessException("O pedido deve possuir ao menos um item.");
+        }
+        
+        List<String> sectorsId = request.items()
+            .stream()
+            .map(OrderItemRequestDTO::sectorId)
+            .distinct()
+            .toList();
+
+        List<SectorPricingResponseDTO> sectorsPrices = eventCatalogProxy.consultTicketPrices(request.eventId(), sectorsId);
+
+        Map<String, SectorPricingResponseDTO> pricesBySectorId = sectorsPrices
+            .stream()
+            .collect(Collectors.toMap(
+                SectorPricingResponseDTO::sectorId,
+                Function.identity()
+            ));
+
+        List<OrderItem> newOrderItems = request.items()
+            .stream()
+            .map(item -> toOrderItem(item, pricesBySectorId))
+            .toList();
+
+        BigDecimal totalAmount = calculateTotalAmount(newOrderItems);
 
         Order newOrder = new Order(
             request.eventId(),
@@ -82,18 +115,11 @@ public class OrderService {
             OrderStatusEnum.PENDING
         );
 
-        List<OrderItem> newOrderItems = request.items()
-            .stream()
-            .map(this::toOrderItem)
-            .toList();
-
         newOrder.addItems(newOrderItems);
-
         Order savedOrder = orderRepository.save(newOrder);
 
         OrderReservationRequestedEvent event =
             orderEventMapper.toReservationRequestedEvent(savedOrder);
-
         applicationEventPublisher.publishEvent(event);
 
         logger.info(
@@ -440,22 +466,40 @@ public class OrderService {
             .orElseThrow(() -> new NotFoundException(message));
     }
 
-    private BigDecimal calculateTotalAmount(List<OrderItemRequestDTO> items) {
-        return items.stream()
-            .map(item -> item.appliedPrice().multiply(BigDecimal.valueOf(item.quantity())))
-            .reduce(
-                BigDecimal.ZERO,
-                BigDecimal::add
-            );
-    }
+    private OrderItem toOrderItem(
+        OrderItemRequestDTO item,
+        Map<String, SectorPricingResponseDTO> pricesBySectorId
+    ) {
+        BigDecimal appliedPrice = resolveAppliedPrice(item, pricesBySectorId);
 
-    private OrderItem toOrderItem(OrderItemRequestDTO item) {
         return new OrderItem(
             item.sectorId(),
             item.ticketType(),
             item.quantity(),
-            item.appliedPrice()
+            appliedPrice
         );
+    }
+
+    private BigDecimal resolveAppliedPrice(
+        OrderItemRequestDTO item,
+        Map<String, SectorPricingResponseDTO> pricesBySectorId
+    ) {
+        SectorPricingResponseDTO pricing = pricesBySectorId.get(item.sectorId());
+
+        if (pricing == null) {
+            throw new NotFoundException("Preço não encontrado para o setor informado.");
+        }
+
+        return switch (item.ticketType()) {
+            case FULL_TICKET_PRICE -> pricing.basePrice();
+            case HALF_TICKET_PRICE -> pricing.halfPrice();
+        };
+    }
+
+    private BigDecimal calculateTotalAmount(List<OrderItem> items) {
+        return items.stream()
+            .map(OrderItem::getSubtotal)
+            .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     private OrderSummaryResponseDTO toOrderSummaryResponseDTO(Order order) {

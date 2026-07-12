@@ -10,6 +10,8 @@ import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/event-catalog-service/api/events")
 public class EventCatalogController implements EventCatalogContract {
@@ -54,5 +56,13 @@ public class EventCatalogController implements EventCatalogContract {
             secId
         );
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping("/v1/{eventId}/sectors/prices")
+    public ResponseEntity<List<SectorPricingResponseDTO>> consultTicketPrices(
+        @PathVariable String eventId,
+        @RequestBody List<String> sectorsId
+    ) {
+        return ResponseEntity.ok(eventCatalogService.consultSectorsTicketPrices(eventId, sectorsId));
     }
 }
