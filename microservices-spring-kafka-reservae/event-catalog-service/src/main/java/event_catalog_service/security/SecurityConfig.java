@@ -3,6 +3,7 @@ package event_catalog_service.security;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -34,6 +35,7 @@ public class SecurityConfig {
             )
 
             .authorizeHttpRequests(auth -> auth
+                // Swagger e endpoints básicos do Actuator
                 .requestMatchers(
                     "/v3/api-docs/**",
                     "/swagger-ui/**",
@@ -43,6 +45,49 @@ public class SecurityConfig {
                 )
                 .permitAll()
 
+                // Listagem pública de eventos
+                .requestMatchers(
+                    HttpMethod.GET,
+                    "/event-catalog-service/api/events/v1"
+                )
+                .permitAll()
+
+                // Detalhes públicos de um evento
+                .requestMatchers(
+                    HttpMethod.GET,
+                    "/event-catalog-service/api/events/v1/{id}"
+                )
+                .permitAll()
+
+                // Consulta pública de preços dos setores
+                .requestMatchers(
+                    HttpMethod.POST,
+                    "/event-catalog-service/api/events/v1/{eventId}/sectors/prices"
+                )
+                .permitAll()
+
+                // Criação de evento
+                .requestMatchers(
+                    HttpMethod.POST,
+                    "/event-catalog-service/api/events/v1"
+                )
+                .hasRole("ADMIN")
+
+                // Adição de setor ao evento
+                .requestMatchers(
+                    HttpMethod.POST,
+                    "/event-catalog-service/api/events/v1/{id}/add-sector"
+                )
+                .hasRole("ADMIN")
+
+                // Remoção de setor do evento
+                .requestMatchers(
+                    HttpMethod.DELETE,
+                    "/event-catalog-service/api/events/v1/{id}/remove-sector/{secId}"
+                )
+                .hasRole("ADMIN")
+
+                // Qualquer outra rota exige autenticação
                 .anyRequest()
                 .authenticated()
             )
