@@ -79,5 +79,4 @@ public class ManualNotificationEmailTemplate {
             emailLayout.render(layoutData)
         );
     }
-}tus
-git
+}
