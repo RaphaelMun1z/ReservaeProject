@@ -78,6 +78,7 @@ public class EventCatalogController implements EventCatalogContract {
         return ResponseEntity.noContent().build();
     }
 
+    @Override
     @PostMapping("/v1/{eventId}/sectors/prices")
     public ResponseEntity<List<SectorPricingResponseDTO>> consultTicketPrices(
         @PathVariable String eventId,

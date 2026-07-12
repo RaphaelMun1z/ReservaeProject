@@ -14,6 +14,8 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 
+import java.util.List;
+
 @Tag(name = "Event Catalog Endpoint", description = "Gerenciamento do catálogo de eventos e configuração de setores/preços")
 public interface EventCatalogContract {
     @Operation(
@@ -56,5 +58,15 @@ public interface EventCatalogContract {
 
         @Parameter(description = "ID do setor")
         String secId
+    );
+
+    @Operation(
+        summary = "Consultar os preços dos setores de um evento"
+    )
+    ResponseEntity<List<SectorPricingResponseDTO>> consultTicketPrices(
+        @Parameter(description = "ID do evento")
+        String eventId,
+
+        List<String> sectorsId
     );
 }
