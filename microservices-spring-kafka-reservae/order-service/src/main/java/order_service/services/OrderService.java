@@ -85,7 +85,7 @@ public class OrderService {
         if (request.items() == null || request.items().isEmpty()) {
             throw new BusinessException("O pedido deve possuir ao menos um item.");
         }
-        
+
         List<String> sectorsId = request.items()
             .stream()
             .map(OrderItemRequestDTO::sectorId)
@@ -132,7 +132,7 @@ public class OrderService {
 
     @Transactional
     public void handleInventoryReservationResult(InventoryReservationResultEvent event) {
-        Order order = findOrderEntityById(
+        Order order = findOrderById(
             event.orderId(),
             "Nenhum pedido encontrado para processar o resultado da reserva."
         );
@@ -174,7 +174,7 @@ public class OrderService {
 
     @Transactional
     public void attachPaymentSession(PaymentSessionCreatedEvent event) {
-        Order order = findOrderEntityById(
+        Order order = findOrderById(
             event.orderId(),
             "Nenhum pedido encontrado para vincular sessão de pagamento."
         );
@@ -202,7 +202,7 @@ public class OrderService {
 
     @Transactional
     public void confirmPayment(PaymentApprovedEvent event) {
-        Order order = findOrderEntityById(
+        Order order = findOrderById(
             event.orderId(),
             "Nenhum pedido encontrado para confirmar pagamento."
         );
@@ -258,7 +258,7 @@ public class OrderService {
 
     @Transactional
     public void failPayment(PaymentFailedEvent event) {
-        Order order = findOrderEntityById(
+        Order order = findOrderById(
             event.orderId(),
             "Nenhum pedido encontrado para registrar falha no pagamento."
         );
@@ -289,7 +289,7 @@ public class OrderService {
         String orderId,
         OrderStatusEnum orderStatusEnum
     ) {
-        Order order = findOrderEntityById(
+        Order order = findOrderById(
             orderId,
             "Nenhum pedido encontrado."
         );
@@ -301,7 +301,7 @@ public class OrderService {
     }
 
     public OrderResponseDTO findOrderById(String orderId) {
-        Order order = findOrderEntityById(
+        Order order = findOrderById(
             orderId,
             "Nenhum pedido encontrado."
         );
@@ -313,6 +313,7 @@ public class OrderService {
 
         return new OrderResponseDTO(
             order.getId(),
+            order.getUserId(),
             order.getTotalAmount(),
             order.getStatus(),
             order.getPaymentUrl(),
@@ -461,7 +462,7 @@ public class OrderService {
         return FRONTEND_ORDER_URL + order.getId();
     }
 
-    private Order findOrderEntityById(String orderId, String message) {
+    private Order findOrderById(String orderId, String message) {
         return orderRepository.findById(orderId)
             .orElseThrow(() -> new NotFoundException(message));
     }

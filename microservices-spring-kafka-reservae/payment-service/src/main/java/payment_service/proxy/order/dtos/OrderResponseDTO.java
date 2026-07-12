@@ -1,6 +1,4 @@
-package order_service.dtos.res;
-
-import order_service.entities.enums.OrderStatusEnum;
+package payment_service.proxy.order.dtos;
 
 import java.math.BigDecimal;
 import java.util.List;

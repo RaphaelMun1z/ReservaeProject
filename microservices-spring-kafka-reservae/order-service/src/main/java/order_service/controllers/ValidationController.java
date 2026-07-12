@@ -1,6 +1,7 @@
 package order_service.controllers;
 
 import order_service.controllers.contracts.ValidationContract;
+import order_service.dtos.res.OrderResponseDTO;
 import order_service.services.ValidationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,8 +20,7 @@ public class ValidationController implements ValidationContract {
 
     @Override
     @GetMapping("/v1/{orderId}/exists")
-    public ResponseEntity<Void> validateOrder(@PathVariable String orderId) {
-        validationService.validateOrder(orderId);
-        return ResponseEntity.ok().build();
+    public ResponseEntity<OrderResponseDTO> validateAndGetOrder(@PathVariable String orderId) {
+        return ResponseEntity.ok(validationService.validateAndGetOrder(orderId));
     }
 }

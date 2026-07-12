@@ -114,17 +114,6 @@ public class InventoryManagementService {
             quantity
         );
 
-        String reservationId = TicketReservation.buildReservationId(
-            orderId,
-            userId,
-            eventId,
-            sectorId
-        );
-
-        if (ticketReservationRepository.existsById(reservationId)) {
-            throw new BusinessException("Já existe uma reserva para este pedido, usuário, evento e setor.");
-        }
-        
         String eventCatalogServicePort = eventCatalogProxy.validateEventSector(
             eventId,
             sectorId
