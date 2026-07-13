@@ -35,6 +35,9 @@ public class SecurityConfig {
             )
 
             .authorizeHttpRequests(auth -> auth
+                // LIBERAÇÃO TEMPORÁRIA — remover depois
+                .requestMatchers("/**").permitAll()
+
                 // Swagger e endpoints básicos do Actuator
                 .requestMatchers(
                     "/v3/api-docs/**",
