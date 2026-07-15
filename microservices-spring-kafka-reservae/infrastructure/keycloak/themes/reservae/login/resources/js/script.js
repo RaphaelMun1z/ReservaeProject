@@ -5,19 +5,25 @@ document.addEventListener("DOMContentLoaded", () => {
     const visibleIcon = document.querySelector("[data-eye-visible]");
     const hiddenIcon = document.querySelector("[data-eye-hidden]");
     const submitButton = document.querySelector("#kc-login");
+
     if (passwordInput && toggleButton) {
         toggleButton.addEventListener("click", () => {
             const passwordIsVisible = passwordInput.type === "text";
+
             passwordInput.type = passwordIsVisible ? "password" : "text";
+
             toggleButton.setAttribute(
                 "aria-label",
-                passwordIsVisible ? "Mostrar senha" : "Ocultar senha",
+                passwordIsVisible ? "Mostrar senha" : "Ocultar senha"
             );
+
             visibleIcon?.classList.toggle("is-hidden", !passwordIsVisible);
             hiddenIcon?.classList.toggle("is-hidden", passwordIsVisible);
+
             passwordInput.focus();
         });
     }
+
     if (form && submitButton) {
         form.addEventListener("submit", () => {
             submitButton.disabled = true;
